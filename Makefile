@@ -1,3 +1,17 @@
+.PHONY: up down test healthcheck
+
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+test:
+	python -m pytest -v
+
+healthcheck:
+	curl -f http://localhost:8000/health
+
 .PHONY: up down healthcheck test run
 
 docker_available := $(shell command -v docker 2>/dev/null)
