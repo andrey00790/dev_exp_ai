@@ -1,0 +1,7 @@
+__pycache__/
+.env.local
+.env
+*.pyc
+.venv/
+.coverage
+.app.pid
