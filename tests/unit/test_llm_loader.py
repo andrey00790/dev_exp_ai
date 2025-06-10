@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from llm.llm_loader import load_llm, OllamaLLM, OpenAILLM
+from llm.llm_loader import load_llm, OllamaLLM
 
 
 @pytest.mark.asyncio
@@ -21,23 +21,6 @@ async def test_ollama_generate() -> None:
         assert result == "hi"
 
 
-@pytest.mark.asyncio
-async def test_openai_generate() -> None:
-    response = mock.MagicMock()
-    response.json.return_value = {
-        "choices": [{"message": {"content": "answer"}}]
-    }
-    response.raise_for_status.return_value = None
-
-    client = mock.AsyncMock()
-    client.post = mock.AsyncMock(return_value=response)
-    client.__aenter__.return_value = client
-
-    with mock.patch("llm.llm_loader.httpx.AsyncClient", return_value=client):
-        llm = OpenAILLM(api_key="k", model="gpt-test")
-        result = await llm.generate("ping")
-        assert result == "answer"
-
 
 def test_load_llm_local() -> None:
     with mock.patch.dict('os.environ', {
@@ -51,13 +34,7 @@ def test_load_llm_local() -> None:
         assert llm.model == 'llama3'
 
 
-def test_load_llm_openai() -> None:
-    with mock.patch.dict('os.environ', {
-        'MODEL_MODE': 'openai',
-        'OPENAI_API_KEY': 'secret',
-        'OPENAI_MODEL': 'gpt-test',
-    }):
-        llm = load_llm()
-        assert isinstance(llm, OpenAILLM)
-        assert llm.api_key == 'secret'
-        assert llm.model == 'gpt-test'
+def test_load_llm_bad_mode() -> None:
+    with mock.patch.dict('os.environ', {'MODEL_MODE': 'something'}):
+        with pytest.raises(ValueError):
+            load_llm()

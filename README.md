@@ -54,13 +54,11 @@ make down
 
 ## LLM Configuration
 
-The language model client is selected via environment variables:
+The language model client is configured via environment variables:
 
-* `MODEL_MODE` – `local` to use Ollama or `openai` for the OpenAI API.
-* `MODEL_URL` – base URL of the Ollama HTTP API when using local mode.
-* `MODEL_NAME` – model name for the local Ollama service.
-* `OPENAI_API_KEY` – API key for OpenAI requests.
-* `OPENAI_MODEL` – OpenAI model identifier.
+* `MODEL_MODE` – currently only `local` using Ollama is supported.
+* `MODEL_URL` – base URL of the Ollama HTTP API.
+* `MODEL_NAME` – model name for the local Ollama service (e.g. `mistral`).
 
 Example usage:
 
