@@ -50,3 +50,20 @@ make test
 ```bash
 make down
 ```
+
+## LLM Configuration
+
+The language model client is selected via environment variables:
+
+* `MODEL_MODE` – `local` to use Ollama or `openai` for the OpenAI API.
+* `MODEL_URL` – base URL of the Ollama HTTP API when using local mode.
+* `OPENAI_API_KEY` – API key for OpenAI requests.
+
+Example usage:
+
+```python
+from llm.llm_loader import load_llm
+
+llm = load_llm()
+text = await llm.generate("Hello world")
+```
