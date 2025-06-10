@@ -15,6 +15,7 @@ The `/health` endpoint should respond with:
 
 ```json
 {"status": "ok"}
+```
 
 Basic infrastructure with FastAPI service, Qdrant, PostgreSQL and Ollama containers.
 
@@ -49,4 +50,21 @@ make test
 
 ```bash
 make down
+```
+
+## LLM Configuration
+
+The language model client is configured via environment variables:
+
+* `MODEL_MODE` – currently only `local` using Ollama is supported.
+* `MODEL_URL` – base URL of the Ollama HTTP API.
+* `MODEL_NAME` – model name for the local Ollama service (e.g. `mistral`).
+
+Example usage:
+
+```python
+from llm.llm_loader import load_llm
+
+llm = load_llm()
+text = await llm.generate("Hello world")
 ```

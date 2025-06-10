@@ -1,5 +1,10 @@
+import sys
+from pathlib import Path
 import pytest
 from httpx import AsyncClient, ASGITransport
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 from ai_assistant.app.main import app
 
 @pytest.mark.asyncio
