@@ -50,7 +50,7 @@
 ### 🚨 **Critical Gaps (Production Blockers)**
 - **Security** - нет аутентификации, rate limiting, cost controls
 - **Semantic Search** - Qdrant не интегрирован, нет embeddings
-- **Data Sources** - GitLab/Confluence connectors отсутствуют
+ - **Data Sources** - базовый GitLab connector готов, Confluence в процессе
 
 **📋 Детальный статус и планы:** [📚 DOCS_INDEX.md](./DOCS_INDEX.md)
 
@@ -268,7 +268,7 @@ make test ARGS="-v"         # Verbose output
 ### 🎯 **Next Priority Tasks**
 1. **Security Implementation** (JWT, Rate Limiting, Cost Controls) - 3-5 дней
 2. **Semantic Indexing** (Qdrant integration, Embeddings) - 5-7 дней  
-3. **Data Sources** (GitLab/Confluence connectors) - 7-10 дней
+3. **Data Sources** - GitLab connector implemented, Confluence pending
 4. **Production Deployment** (K8s, Monitoring) - 5-7 дней
 
 ---

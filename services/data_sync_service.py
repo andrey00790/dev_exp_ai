@@ -7,6 +7,8 @@ import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+import base64
+from gitlab import Gitlab
 
 from user_config_manager import UserConfigManager, get_user_config_manager
 from models.search import SourceType
@@ -41,8 +43,35 @@ class GitLabFetcher(SourceFetcher):
     """Выкачивает данные из GitLab."""
     async def fetch(self, config: Dict[str, Any]) -> List[Dict[str, Any]]:
         logger.info(f"Выкачивание данных из GitLab: {config.get('project_ids')}")
-        await asyncio.sleep(2)
-        return [{"source": "gitlab", "content": "GitLab file content"}]
+
+        url = config.get("url")
+        token = config.get("access_token")
+        project_ids = config.get("project_ids", [])
+
+        if not url or not token:
+            raise ValueError("GitLab 'url' and 'access_token' are required")
+
+        gl = Gitlab(url, private_token=token)
+
+        docs: List[Dict[str, Any]] = []
+        loop = asyncio.get_running_loop()
+
+        for pid in project_ids:
+            def _fetch_project(p: int) -> Optional[Dict[str, Any]]:
+                try:
+                    project = gl.projects.get(p)
+                    readme = project.files.get(file_path="README.md", ref=project.default_branch or "main")
+                    content = base64.b64decode(readme.content).decode()
+                    return {"source": "gitlab", "project_id": p, "content": content}
+                except Exception as exc:
+                    logger.warning(f"Не удалось получить данные проекта {p}: {exc}")
+                    return None
+
+            result = await loop.run_in_executor(None, _fetch_project, pid)
+            if result:
+                docs.append(result)
+
+        return docs
 
 class BootstrapConfigFetcher(SourceFetcher):
     """Читает данные из bootstrap_config.yml."""
