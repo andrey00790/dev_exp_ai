@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "generated_at": "2025-06-13T14:43:28.408613",
+    "total_pairs": 10,
+    "languages": [
+      "ru",
+      "en"
+    ],
+    "categories": [
+      "authentication",
+      "architecture",
+      "security",
+      "performance"
+    ],
+    "data_source": "auto_generated_e2e_dataset",
+    "config_loaded": "dataset_config.yml"
+  },
+  "training_pairs": [
+    {
+      "query": "Как реализовать OAuth 2.0 аутентификацию?",
+      "language": "ru",
+      "expected_docs": [
+        "oauth2_guide_ru.md",
+        "authentication_patterns_ru.md"
+      ],
+      "relevance_scores": [
+        0.95,
+        0.85
+      ]
+    },
+    {
+      "query": "How to implement OAuth 2.0 authentication?",
+      "language": "en",
+      "expected_docs": [
+        "oauth2_guide_en.md",
+        "authentication_patterns_en.md"
+      ],
+      "relevance_scores": [
+        0.95,
+        0.85
+      ]
+    },
+    {
+      "query": "Микросервисы архитектура лучшие практики",
+      "language": "ru",
+      "expected_docs": [
+        "microservices_architecture_ru.md",
+        "patterns_ru.md"
+      ],
+      "relevance_scores": [
+        0.9,
+        0.8
+      ]
+    },
+    {
+      "query": "Microservices architecture best practices",
+      "language": "en",
+      "expected_docs": [
+        "microservices_architecture_en.md",
+        "patterns_en.md"
+      ],
+      "relevance_scores": [
+        0.9,
+        0.8
+      ]
+    },
+    {
+      "query": "OAuth 2.0 implementation best practices",
+      "language": "en",
+      "expected_docs": [
+        "oauth_2_0_implementation_guide.md"
+      ],
+      "relevance_scores": [
+        0.95
+      ],
+      "category": "authentication"
+    },
+    {
+      "query": "Реализация аутентификации OAuth 2.0",
+      "language": "ru",
+      "expected_docs": [
+        "oauth_2_0_implementation_guide.md"
+      ],
+      "relevance_scores": [
+        0.95
+      ],
+      "category": "authentication"
+    },
+    {
+      "query": "microservices architecture patterns design",
+      "language": "en",
+      "expected_docs": [
+        "microservices_architecture_guide.md"
+      ],
+      "relevance_scores": [
+        0.9
+      ],
+      "category": "architecture"
+    },
+    {
+      "query": "паттерны архитектуры микросервисов",
+      "language": "ru",
+      "expected_docs": [
+        "microservices_architecture_guide.md"
+      ],
+      "relevance_scores": [
+        0.9
+      ],
+      "category": "architecture"
+    },
+    {
+      "query": "API security best practices implementation",
+      "language": "en",
+      "expected_docs": [
+        "api_security_guide.md"
+      ],
+      "relevance_scores": [
+        0.85
+      ],
+      "category": "security"
+    },
+    {
+      "query": "performance optimization techniques database",
+      "language": "en",
+      "expected_docs": [
+        "performance_optimization_guide.md"
+      ],
+      "relevance_scores": [
+        0.8
+      ],
+      "category": "performance"
+    }
+  ],
+  "evaluation_queries": [
+    {
+      "text": "OAuth authentication",
+      "language": "en",
+      "expected_category": "authentication"
+    },
+    {
+      "text": "микросервисы",
+      "language": "ru",
+      "expected_category": "architecture"
+    },
+    {
+      "text": "API security",
+      "language": "en",
+      "expected_category": "security"
+    },
+    {
+      "text": "оптимизация производительности",
+      "language": "ru",
+      "expected_category": "performance"
+    }
+  ]
+}

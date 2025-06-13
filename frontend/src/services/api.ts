@@ -1,0 +1,1 @@
+export const API_BASE_URL = 'http://localhost:8000'; export const api = { search: async (query) => fetch(`${API_BASE_URL}/api/v1/search`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query})}).then(r => r.json()) };

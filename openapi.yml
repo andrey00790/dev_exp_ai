@@ -1,0 +1,227 @@
+openapi: 3.0.3
+info:
+  title: AI Assistant API
+  description: |
+    Комплексная ИИ-платформа для семантического поиска и генерации RFC с пользовательскими настройками
+  version: 2.0.0
+  contact:
+    name: AI Assistant Support
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Health
+    description: Проверка состояния системы
+  - name: User Management
+    description: Управление пользователями и настройками
+  - name: Data Sources
+    description: Управление источниками данных
+  - name: Sync Management
+    description: Синхронизация данных
+  - name: AI Generation
+    description: AI-генерация документов
+  - name: Search
+    description: Поиск по данным
+
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      tags: [Health]
+      responses:
+        '200':
+          description: Информация о системе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemInfo'
+
+  /health:
+    get:
+      summary: Health check
+      tags: [Health]
+      responses:
+        '200':
+          description: Статус системы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /api/v1/users:
+    post:
+      summary: Create user
+      tags: [User Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /api/v1/configurations/jira:
+    post:
+      summary: Create Jira configuration
+      tags: [Data Sources]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JiraConfigCreate'
+      responses:
+        '201':
+          description: Конфигурация создана
+
+  /api/v1/sync/tasks:
+    post:
+      summary: Start sync task
+      tags: [Sync Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncTaskCreate'
+      responses:
+        '201':
+          description: Задача создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncTask'
+
+  /api/v1/generate:
+    post:
+      summary: Generate RFC
+      tags: [AI Generation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRequest'
+      responses:
+        '200':
+          description: RFC сгенерирован
+
+  /api/v1/search:
+    post:
+      summary: Semantic search
+      tags: [Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Результаты поиска
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SystemInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+      required: [username, email]
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+
+    JiraConfigCreate:
+      type: object
+      properties:
+        config_name:
+          type: string
+        jira_url:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+      required: [config_name, jira_url, username, password]
+
+    SyncTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        progress_percentage:
+          type: integer
+
+    SyncTaskCreate:
+      type: object
+      properties:
+        sources:
+          type: array
+          items:
+            type: string
+      required: [sources]
+
+    GenerateRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+        language:
+          type: string
+      required: [topic]
+
+    SearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        language:
+          type: string
+      required: [query]

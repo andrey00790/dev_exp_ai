@@ -1,0 +1,20 @@
+#/usr/bin/env bash /Users/a.kotenev/PycharmProjects/AiPrototype/check_creds.sh python3
+import requests
+
+API_BASE_URL = "http://localhost:8000"
+
+def test_settings():
+    resp = requests.get(f"{API_BASE_URL}/api/v1/users/current/settings")
+    if resp.status_code == 200:
+        print("✅ Settings API works)
+        print(f"Data sources: {len(resp.json().get("data_sources", []))}") 
+    else:
+        print(f"❌ Failed: {resp.status_code}")
+
+if __name__ == "__main__":
+    try:
+        requests.get(f"{API_BASE_URL}/health", timeout=5)
+        test_settings()
+        print("GUI: http://localhost:3000/settings")
+    except:
+        print("Server not available")

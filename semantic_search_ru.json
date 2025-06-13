@@ -1,0 +1,52 @@
+{
+  "evaluation_timestamp": "2025-06-12T23:40:41.259024",
+  "overall_metrics": {
+    "total_queries": 30,
+    "languages": [
+      "ru"
+    ],
+    "precision_at_1": 0.0,
+    "precision_at_3": 0.0,
+    "precision_at_5": 0.0,
+    "mrr": 0.0,
+    "cosine_similarity": 0.7268123188377946,
+    "avg_execution_time_ms": 0.9160666666666668
+  },
+  "language_breakdown": {
+    "ru": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7268123188377946,
+      "execution_time_ms": 0.9160666666666668,
+      "query_count": 30
+    }
+  },
+  "role_breakdown": {
+    "developer": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7282185943567259,
+      "execution_time_ms": 1.8290666666666668,
+      "query_count": 15,
+      "languages": [
+        "ru"
+      ]
+    },
+    "analyst": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7254060433188637,
+      "execution_time_ms": 0.0030666666666666676,
+      "query_count": 15,
+      "languages": [
+        "ru"
+      ]
+    }
+  }
+}

@@ -1,224 +1,150 @@
-resources:
-  # 🎓 Academic (Harvard)
-  - name: IQSS Dataverse (Harvard)
-    role: All
-    category: academic
-    url: https://github.com/IQSS/dataverse
-  - name: Harvard CS50 (edX)
-    role: All
-    category: academic
-    url: https://pll.harvard.edu/course/cs50-introduction-computer-science
-  - name: Open Source Governance (Harvard PDF)
-    role: All
-    category: academic
-    url: https://clinic.cyber.harvard.edu/wp-content/uploads/2017/03/2017-03_governance-FINAL.pdf
+# Dataset Configuration for E2E Model Training
+metadata:
+  version: "1.0"
+  description: "E2E dataset for model training and evaluation"
+  languages: ["ru", "en"]
+  total_documents: 500
+  categories: ["technical", "business", "architecture", "development"]
 
-  # 🏗 System Design & Microservices
-  - name: System Design Primer
-    role: System Architect
-    category: system_design
-    url: https://github.com/donnemartin/system-design-primer
-  - name: Awesome System Design
-    role: System Architect
-    category: system_design
-    url: https://github.com/ashishps1/awesome-system-design-resources
-  - name: Low-Level Design Primer
-    role: System Architect
-    category: system_design
-    url: https://github.com/prasadgujar/low-level-design-primer
-  - name: Awesome Microservices
-    role: System Architect
-    category: microservices
-    url: https://github.com/mfornos/awesome-microservices
-  - name: System Design Patterns
-    role: System Architect
-    category: microservices
-    url: https://github.com/Sairyss/system-design-patterns
+# Источники данных для обучения
+data_sources:
+  confluence:
+    enabled: true
+    spaces: ["TECH", "ARCH", "DEV", "TESTSPACE"]
+    content_types: ["pages", "blog_posts", "comments"]
+    languages: ["ru", "en"]
+    
+  jira:
+    enabled: true
+    projects: ["TEST", "API", "ARCH", "DEV"]
+    issue_types: ["Story", "Task", "Bug", "Epic"]
+    include_comments: true
+    languages: ["ru", "en"]
+    
+  gitlab:
+    enabled: true
+    projects: ["api-gateway", "auth-service", "microservices-demo"]
+    include_files: ["*.md", "*.txt", "docs/*"]
+    include_issues: true
+    include_merge_requests: true
+    languages: ["ru", "en"]
 
-  # 🐍 Python, 🐹 Go + profiling, 🦀 Rust, ☕ Java, 🐘 PHP
-  - name: Awesome Python
-    role: Developer
-    category: language_python
-    url: https://github.com/vinta/awesome-python
-  - name: Best-of-Python Tools
-    role: Developer
-    category: language_python
-    url: https://github.com/ml-tooling/best-of-python
-  - name: Awesome Go
-    role: Developer
-    category: language_go
-    url: https://github.com/avelino/awesome-go
-  - name: Awesome Go Profiling
-    role: Developer
-    category: profiling
-    url: https://github.com/go-perf/awesome-go-perf
-  - name: Awesome Rust
-    role: Developer
-    category: language_rust
-    url: https://github.com/rust-unofficial/awesome-rust
-  - name: Awesome Java
-    role: Developer
-    category: language_java
-    url: https://github.com/akullpp/awesome-java
-  - name: JVM Internals
-    role: Developer
-    category: jvm_internals
-    url: https://github.com/sparvu/jvm-internals
-  - name: Awesome PHP
-    role: Developer
-    category: language_php
-    url: https://github.com/ziadoz/awesome-php
+# Синтетические данные для обучения
+synthetic_data:
+  technical_docs:
+    - category: "authentication"
+      language: "ru"
+      count: 50
+      topics: ["OAuth 2.0", "JWT", "SAML", "аутентификация", "авторизация"]
+      
+    - category: "authentication" 
+      language: "en"
+      count: 50
+      topics: ["OAuth 2.0", "JWT", "SAML", "authentication", "authorization"]
+      
+    - category: "microservices"
+      language: "ru"
+      count: 40
+      topics: ["микросервисы", "контейнеры", "Docker", "Kubernetes", "архитектура"]
+      
+    - category: "microservices"
+      language: "en" 
+      count: 40
+      topics: ["microservices", "containers", "Docker", "Kubernetes", "architecture"]
 
-  # ⚙️ Infrastructure as Code & Docker
-  - name: Awesome Terraform
-    role: DevOps / SRE
-    category: terraform
-    url: https://github.com/shuaibiyy/awesome-tf
-  - name: Awesome Terraform Enterprise
-    role: DevOps / SRE
-    category: terraform
-    url: https://github.com/hashicorp/awesome-terraform-enterprise
-  - name: Awesome Docker
-    role: DevOps / SRE
-    category: docker
-    url: https://github.com/veggiemonk/awesome-docker
-  - name: Awesome Docker Compose
-    role: DevOps / SRE
-    category: docker
-    url: https://github.com/docker/awesome-compose
+# Обучающие пары вопрос-ответ
+training_pairs:
+  semantic_search:
+    - query: "Как реализовать OAuth 2.0 аутентификацию?"
+      language: "ru"
+      expected_docs: ["oauth2_guide_ru.md", "authentication_patterns_ru.md"]
+      relevance_scores: [0.95, 0.85]
+      
+    - query: "How to implement OAuth 2.0 authentication?"
+      language: "en"
+      expected_docs: ["oauth2_guide_en.md", "authentication_patterns_en.md"]
+      relevance_scores: [0.95, 0.85]
+      
+    - query: "Микросервисы архитектура лучшие практики"
+      language: "ru"
+      expected_docs: ["microservices_architecture_ru.md", "patterns_ru.md"]
+      relevance_scores: [0.90, 0.80]
+      
+    - query: "Microservices architecture best practices"
+      language: "en"
+      expected_docs: ["microservices_architecture_en.md", "patterns_en.md"]
+      relevance_scores: [0.90, 0.80]
 
-  # ☁️ Cloud — AWS & GCP
-  - name: Awesome AWS
-    role: DevOps / SRE
-    category: cloud_aws
-    url: https://github.com/donnemartin/awesome-aws
-  - name: Awesome GCP
-    role: DevOps / SRE
-    category: cloud_gcp
-    url: https://github.com/GoogleCloudPlatform/awesome-google-cloud
-  - name: Awesome GCP Certifications
-    role: DevOps / SRE
-    category: cloud_gcp
-    url: https://github.com/sathishvj/awesome-gcp-certifications
+# Конфигурация модели
+model_config:
+  embeddings:
+    model_name: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    dimensions: 384
+    batch_size: 32
+    max_sequence_length: 512
+    
+  training:
+    epochs: 10
+    learning_rate: 0.00005
+    warmup_steps: 100
+    evaluation_steps: 500
+    save_steps: 1000
+    
+  fine_tuning:
+    enabled: true
+    base_model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    target_languages: ["ru", "en"]
+    domain_adaptation: true
 
-  # 🗃 Databases & Streaming
-  - name: Awesome Postgres
-    role: Database Engineer
-    category: rdbms
-    url: https://github.com/sroeschus/awesome-postgresql
-  - name: Awesome Cassandra Guide
-    role: Database Engineer
-    category: nosql
-    url: https://github.com/mikeroyal/Apache-Cassandra-Guide
-  - name: Awesome Redis
-    role: Database Engineer
-    category: nosql
-    url: https://github.com/JamzyWang/awesome-redis
-  - name: Awesome Kafka
-    role: Database Engineer
-    category: messaging
-    url: https://github.com/semantalytics/awesome-kafka
-  - name: Awesome Kafka Streams
-    role: Database Engineer
-    category: messaging
-    url: https://github.com/responsivedev/awesome-kafka-streams
-  - name: Awesome Streaming Frameworks
-    role: Database Engineer
-    category: messaging
-    url: https://github.com/manuzhang/awesome-streaming-frameworks
+# Метрики качества для отслеживания
+quality_metrics:
+  semantic_search:
+    precision_at_1: 0.80
+    precision_at_3: 0.75
+    precision_at_5: 0.70
+    mrr: 0.65
+    cosine_similarity: 0.75
+    
+  by_language:
+    ru:
+      precision_at_3: 0.70
+      mrr: 0.60
+    en:
+      precision_at_3: 0.75
+      mrr: 0.65
+      
+  rfc_generation:
+    section_coverage: 0.90
+    technical_depth: 0.75
+    markdown_quality: 0.85
 
-  # 🔐 Security & Pentesting
-  - name: Awesome Security
-    role: Admin / Security Engineer
-    category: security
-    url: https://github.com/sbilly/awesome-security
-  - name: Awesome Pentester
-    role: Admin / Security Engineer
-    category: security
-    url: https://github.com/x0x8x/awesome-pentester
-  - name: Awesome AWS Security
-    role: Admin / Security Engineer
-    category: security
-    url: https://github.com/jassics/awesome-aws-security
-  - name: GCP Pentesting
-    role: Admin / Security Engineer
-    category: security
-    url: https://github.com/Littlehack3r/awesome-gcp-pentesting
+# Конфигурация обратной связи
+feedback_config:
+  collection:
+    enabled: true
+    store_in_postgres: true
+    table_name: "model_feedback"
+    
+  retraining:
+    trigger_threshold: 100  # новых отзывов
+    min_quality_drop: 0.05  # падение качества на 5%
+    schedule: "weekly"
+    
+  validation:
+    test_set_size: 0.2
+    validation_split: 0.1
+    cross_validation_folds: 5
 
-  # 🧪 QA, Performance & Monitoring
-  - name: Awesome Performance Testing
-    role: QA Engineer
-    category: performance
-    url: https://github.com/andriisoldatenko/awesome-performance-testing
-  - name: Awesome JMeter
-    role: QA Engineer
-    category: performance
-    url: https://github.com/aliesbelik/awesome-jmeter
-  - name: Awesome Monitoring
-    role: DevOps / SRE
-    category: monitoring
-    url: https://github.com/Enapiuz/awesome-monitoring
-  - name: Uptime Kuma
-    role: DevOps / SRE
-    category: monitoring
-    url: https://github.com/louislam/uptime-kuma
-
-  # 🧰 Configuration Management
-  - name: Awesome Ansible
-    role: DevOps / SRE
-    category: ansible
-    url: https://github.com/ansible-community/awesome-ansible
-
-  # 🌐 OS, Unix, Shell
-  - name: Awesome Unix
-    role: Admin / Security Engineer
-    category: unix
-    url: https://github.com/sirredbeard/awesome-unix
-  - name: Awesome Shell
-    role: Admin / Security Engineer
-    category: shell
-    url: https://github.com/alebcay/awesome-shell
-
-  # 🇷🇺 Russian Tech (Avito, Yandex, VK)
-  - name: Avito Tech GitHub
-    role: Developer
-    category: company
-    url: https://github.com/avito-tech
-  - name: Avito Mixbox
-    role: QA Engineer
-    category: company
-    url: https://github.com/avito-tech/Mixbox
-  - name: Yandex Open Source
-    role: Developer
-    category: company
-    url: https://github.com/yandex
-  - name: YDB (Yandex)
-    role: DevOps / SRE
-    category: company
-    url: https://opensource.yandex/projects/ydb
-  - name: VKCOM Official
-    role: Developer
-    category: company
-    url: https://github.com/VKCOM
-
-  # 📚 Martin Kleppmann (Distributed Systems)
-  - name: Designing Data‑Intensive Applications PDF
-    role: All
-    category: book
-    url: https://sip.25karats.com/academic-conferences/fetch.php/textbooks/Martin_Kleppmann_Designing_Data_intensive_Applications.pdf  #  [oai_citation:0‡unidel.edu.ng](https://unidel.edu.ng/focelibrary/books/Designing%20Data-Intensive%20Applications%20The%20Big%20Ideas%20Behind%20Reliable%2C%20Scalable%2C%20and%20Maintainable%20Systems%20by%20Martin%20Kleppmann%20%28z-lib.org%29.pdf?utm_source=chatgpt.com)
-  - ^[name: Designing Data‑Intensive Applications Notes]({"attribution":{"attributableIndex":"6857-0"}})
-    role: All
-    category: book_notes
-    ^[url: https://github.com/mkassm/designing-data-intensive-applications-notes  #]({"attribution":{"attributableIndex":"6857-1"}})  [oai_citation:1‡github.com](https://github.com/aboelkassem/designing-data-intensive-applications-notes?utm_source=chatgpt.com)
-  - ^[name: DDIA References]({"attribution":{"attributableIndex":"7052-0"}})
-    role: All
-    category: book_references
-    ^[url: https://github.com/ept/ddia-references  #]({"attribution":{"attributableIndex":"7052-1"}})  [oai_citation:2‡github.com](https://github.com/ept/ddia-references?utm_source=chatgpt.com)
-  - ^[name: DDIA Lecture Slides & Notes (Cambridge)]({"attribution":{"attributableIndex":"7194-0"}})
-    role: All
-    category: lecture_slides
-    ^[url: https://github.com/ept/dist-sys  #]({"attribution":{"attributableIndex":"7194-1"}})  [oai_citation:3‡github.com](https://github.com/ept/dist-sys?utm_source=chatgpt.com)
-  - ^[name: Making Sense of Stream Processing (free ebook)]({"attribution":{"attributableIndex":"7352-0"}})
-    role: All
-    category: stream_processing
-    ^[url: https://gist.github.com/5d8d6b74e85767548fe807164685e743  #]({"attribution":{"attributableIndex":"7352-1"}})  [oai_citation:4‡gist.github.com](https://gist.github.com/5d8d6b74e85767548fe807164685e743?utm_source=chatgpt.com)
+# Экспериментальные функции
+experimental:
+  active_learning:
+    enabled: true
+    uncertainty_threshold: 0.3
+    
+  domain_adaptation:
+    enabled: true
+    target_domains: ["fintech", "healthcare", "ecommerce"]
+    
+  multilingual_alignment:
+    enabled: true
+    language_pairs: [["ru", "en"]]

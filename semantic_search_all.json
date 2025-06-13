@@ -1,0 +1,124 @@
+{
+  "evaluation_timestamp": "2025-06-12T23:41:23.516290",
+  "overall_metrics": {
+    "total_queries": 135,
+    "languages": [
+      "en",
+      "ru"
+    ],
+    "precision_at_1": 0.0,
+    "precision_at_3": 0.0,
+    "precision_at_5": 0.0,
+    "mrr": 0.0,
+    "cosine_similarity": 0.7482544699540546,
+    "avg_execution_time_ms": 0.1718
+  },
+  "language_breakdown": {
+    "en": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7477242449803606,
+      "execution_time_ms": 0.003114285714285715,
+      "query_count": 105
+    },
+    "ru": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7501102573619832,
+      "execution_time_ms": 0.7622,
+      "query_count": 30
+    }
+  },
+  "role_breakdown": {
+    "developer": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7457651524047217,
+      "execution_time_ms": 0.7622000000000001,
+      "query_count": 30,
+      "languages": [
+        "en",
+        "ru"
+      ]
+    },
+    "analyst": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7541866728810092,
+      "execution_time_ms": 0.0030666666666666676,
+      "query_count": 30,
+      "languages": [
+        "en",
+        "ru"
+      ]
+    },
+    "architect": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7583254000007612,
+      "execution_time_ms": 0.003000000000000001,
+      "query_count": 15,
+      "languages": [
+        "en"
+      ]
+    },
+    "business_architect": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7423630698801126,
+      "execution_time_ms": 0.003000000000000001,
+      "query_count": 15,
+      "languages": [
+        "en"
+      ]
+    },
+    "qa_sdet": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7527605414886703,
+      "execution_time_ms": 0.0029333333333333342,
+      "query_count": 15,
+      "languages": [
+        "en"
+      ]
+    },
+    "devops_sre": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7498622060211593,
+      "execution_time_ms": 0.0038000000000000017,
+      "query_count": 15,
+      "languages": [
+        "en"
+      ]
+    },
+    "product_manager": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7310753616243257,
+      "execution_time_ms": 0.0029333333333333342,
+      "query_count": 15,
+      "languages": [
+        "en"
+      ]
+    }
+  }
+}

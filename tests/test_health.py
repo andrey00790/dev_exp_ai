@@ -1,14 +1,21 @@
-import sys
-from pathlib import Path
+import pytest
 from fastapi.testclient import TestClient
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from app.main import create_app
-
-client = TestClient(create_app())
-
-def test_health() -> None:
+def test_health(client: TestClient) -> None:
+    """Test the health check endpoint."""
     response = client.get('/health')
     assert response.status_code == 200
-    assert response.json() == {'status': 'ok'}
+    
+    data = response.json()
+    assert data['status'] == 'healthy'
+    assert 'timestamp' in data
+    assert 'version' in data
+    assert 'uptime' in data
+    assert 'environment' in data
+    assert 'checks' in data
+    
+    # Проверяем структуру checks
+    checks = data['checks']
+    assert 'api' in checks
+    assert 'memory' in checks
+    assert 'database' in checks

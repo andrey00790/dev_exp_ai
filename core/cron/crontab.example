@@ -1,0 +1,94 @@
+# AI Assistant - Cron Configuration Example
+# 
+# Копируйте этот файл и настройте под ваши потребности:
+# cp core/cron/crontab.example /etc/cron.d/ai-assistant
+# 
+# Или добавьте задачи в crontab пользователя:
+# crontab -e
+
+# Переменные окружения
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+PYTHONPATH=/path/to/ai_assistant
+
+# === СИНХРОНИЗАЦИЯ ИСТОЧНИКОВ ДАННЫХ ===
+
+# Полная синхронизация всех источников каждые 4 часа
+0 */4 * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py >> logs/cron.log 2>&1
+
+# Быстрая синхронизация каждый час (только измененные документы)
+0 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py >> logs/cron.log 2>&1
+
+# Синхронизация конкретного источника (например, Confluence) каждые 30 минут
+*/30 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --source-id confluence-main >> logs/cron.log 2>&1
+
+# Принудительная полная синхронизация каждую ночь в 2:00
+0 2 * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --force-full >> logs/cron.log 2>&1
+
+# === МОНИТОРИНГ И HEALTH CHECKS ===
+
+# Проверка состояния системы каждые 15 минут
+*/15 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --health-check-only >> logs/health.log 2>&1
+
+# === ОБСЛУЖИВАНИЕ СИСТЕМЫ ===
+
+# Очистка старых логов каждую неделю
+0 3 * * 0 find /path/to/ai_assistant/logs -name "*.log" -mtime +7 -delete
+
+# Бэкап метаданных базы данных каждый день в 1:00
+0 1 * * * cd /path/to/ai_assistant && python core/cron/backup_metadata.py >> logs/backup.log 2>&1
+
+# Очистка временных файлов каждый день в 4:00  
+0 4 * * * cd /path/to/ai_assistant && find tmp/ -type f -mtime +1 -delete
+
+# === ПЕРЕОБУЧЕНИЕ МОДЕЛИ ===
+
+# Автоматическое переобучение модели на основе обратной связи каждую неделю
+0 5 * * 0 cd /path/to/ai_assistant && python core/cron/auto_retrain.py >> logs/retrain.log 2>&1
+
+# === ПРИМЕРЫ ДЛЯ РАЗНЫХ СЦЕНАРИЕВ ===
+
+# Высокочастотная синхронизация для критичных источников (каждые 10 минут)
+# */10 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --source-id critical-confluence
+
+# Синхронизация только в рабочие часы (9:00-18:00, пн-пт)
+# 0 9-18 * * 1-5 cd /path/to/ai_assistant && python core/cron/sync_sources.py
+
+# Ночная обработка с подробным логированием
+# 0 23 * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --verbose --force-full
+
+# Синхронизация разных источников в разное время для распределения нагрузки
+# 0 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --source-id confluence-main
+# 15 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --source-id gitlab-rfcs  
+# 30 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --source-id jira-issues
+# 45 * * * * cd /path/to/ai_assistant && python core/cron/sync_sources.py --source-id uploaded-docs
+
+# === УВЕДОМЛЕНИЯ ===
+
+# Отправка отчета о синхронизации каждый день в 8:00
+# 0 8 * * * cd /path/to/ai_assistant && python core/cron/sync_report.py | mail -s "AI Assistant Sync Report" admin@company.com
+
+# === РЕКОМЕНДАЦИИ ===
+#
+# 1. Настройте логирование:
+#    - Создайте директорию logs/
+#    - Настройте ротацию логов через logrotate
+#
+# 2. Мониторинг:
+#    - Используйте --health-check-only для проверки состояния
+#    - Настройте алерты при ошибках синхронизации
+#
+# 3. Производительность:
+#    - Распределите синхронизацию разных источников по времени
+#    - Используйте --force-full только при необходимости
+#    - Мониторьте нагрузку на источники данных
+#
+# 4. Безопасность:
+#    - Убедитесь, что токены доступа в .env.local
+#    - Ограничьте права доступа к cron файлам (600)
+#    - Регулярно обновляйте токены доступа
+#
+# 5. Отладка:
+#    - Используйте --verbose для подробного логирования
+#    - Проверяйте logs/sync_sources.log при проблемах
+#    - Тестируйте изменения сначала с --health-check-only 

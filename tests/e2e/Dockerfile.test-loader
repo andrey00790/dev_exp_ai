@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование requirements
+COPY requirements-e2e.txt .
+RUN pip install --no-cache-dir -r requirements-e2e.txt
+
+# Копирование кода загрузчика данных
+COPY test_data_loader.py .
+COPY utils/ ./utils/
+
+# Копирование скриптов ожидания сервисов
+COPY scripts/wait-for-services.sh .
+RUN chmod +x wait-for-services.sh
+
+# Скрипт запуска
+COPY scripts/load-test-data.sh .
+RUN chmod +x load-test-data.sh
+
+CMD ["./load-test-data.sh"] 

@@ -1,0 +1,77 @@
+{
+  "evaluation_timestamp": "2025-06-12T19:01:46.278692",
+  "overall_metrics": {
+    "total_queries": 105,
+    "precision_at_1": 0.0,
+    "precision_at_3": 0.0,
+    "precision_at_5": 0.0,
+    "mrr": 0.0,
+    "cosine_similarity": 0.7503133459042526,
+    "avg_execution_time_ms": 1.3177809523809512
+  },
+  "role_breakdown": {
+    "developer": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7661955267735028,
+      "execution_time_ms": 9.202133333333329,
+      "query_count": 15
+    },
+    "analyst": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7701871604655224,
+      "execution_time_ms": 0.003666666666666668,
+      "query_count": 15
+    },
+    "architect": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7454881458068849,
+      "execution_time_ms": 0.003666666666666668,
+      "query_count": 15
+    },
+    "business_architect": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7415685519134689,
+      "execution_time_ms": 0.004066666666666667,
+      "query_count": 15
+    },
+    "qa_sdet": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.6982509700555098,
+      "execution_time_ms": 0.004000000000000002,
+      "query_count": 15
+    },
+    "devops_sre": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7679150596774236,
+      "execution_time_ms": 0.003400000000000001,
+      "query_count": 15
+    },
+    "product_manager": {
+      "precision_at_1": 0.0,
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "cosine_similarity": 0.7625880066374549,
+      "execution_time_ms": 0.0035333333333333345,
+      "query_count": 15
+    }
+  }
+}
