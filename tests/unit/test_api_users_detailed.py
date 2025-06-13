@@ -7,6 +7,8 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 
+pytestmark = pytest.mark.integration
+
 
 class TestUsersAPIDetailed:
     """Детальные тесты API пользователей"""

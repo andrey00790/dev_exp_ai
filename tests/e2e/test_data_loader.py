@@ -10,10 +10,17 @@ import logging
 from typing import Dict, List
 import requests
 from pathlib import Path
+import pytest
 
+pytest.importorskip("atlassian")
+pytest.importorskip("gitlab")
 from atlassian import Jira, Confluence
 import gitlab
+
+pytestmark = pytest.mark.e2e
+pytest.importorskip("psycopg2")
 import psycopg2
+pytest.importorskip("elasticsearch")
 from elasticsearch import Elasticsearch
 import redis
 from faker import Faker

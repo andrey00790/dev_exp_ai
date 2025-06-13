@@ -9,15 +9,23 @@ import asyncio
 import time
 import requests
 from pathlib import Path
+pytest.importorskip("docker")
 import docker
 import logging
 
+pytest.importorskip("atlassian")
+pytest.importorskip("gitlab")
+pytest.importorskip("elasticsearch")
+pytest.importorskip("redis")
 from atlassian import Jira, Confluence
 import gitlab
 from elasticsearch import Elasticsearch
 import redis
 
 logger = logging.getLogger(__name__)
+
+# Mark entire module as E2E so it's skipped by default
+pytestmark = pytest.mark.e2e
 
 @pytest.fixture(scope="session")
 def docker_services():

@@ -1,0 +1,27 @@
+[run]
+omit =
+    tests/*
+    demo_*
+    example_*
+    docs/*
+    scripts/*
+    frontend/*
+    model_training.py
+    run_server.py
+    start-dev.sh
+    services/*
+    vectorstore/*
+    llm/*
+    app/api/*
+    app/security/*
+    user_config_manager.py
+    demo_ai_assistant.py
+    demo_code_documentation.py
+    demo_results.json
+    demo_rfc_templates.py
+    demo_user_settings.py
+    validate_rfc.py
+    create_data.py
+    openapi.yml
+    evaluate_semantic_search.py
+    test_integration.py

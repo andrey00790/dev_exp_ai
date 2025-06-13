@@ -17,6 +17,9 @@ from typing import Dict, List, Any
 from fastapi.testclient import TestClient
 from app.main import app
 
+# Mark entire module as E2E
+pytestmark = pytest.mark.e2e
+
 # Test data paths
 TEST_DATA_DIR = Path("test-data")
 
