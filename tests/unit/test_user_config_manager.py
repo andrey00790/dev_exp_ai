@@ -9,8 +9,11 @@ import pytest
 import tempfile
 import os
 from unittest.mock import Mock, patch, MagicMock
+pytest.importorskip("psycopg2")
 import psycopg2
 from datetime import datetime
+
+pytestmark = pytest.mark.integration
 
 
 class TestUserConfigManager:

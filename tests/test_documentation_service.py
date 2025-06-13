@@ -246,7 +246,3 @@ Example usage here.
         assert documentation.sections[0].title == "Overview"
         assert documentation.sections[1].title == "Features"
         assert documentation.sections[2].title == "Usage"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__]) 

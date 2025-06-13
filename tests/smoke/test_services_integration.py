@@ -7,6 +7,8 @@ import time
 import logging
 from typing import Dict, Any
 
+pytestmark = pytest.mark.integration
+
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

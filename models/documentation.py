@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Union
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 import os
 
@@ -42,7 +42,7 @@ class CodeFile(BaseModel):
     path: Optional[str] = None              # Относительный путь к файлу
     size_bytes: Optional[int] = None
     
-    @validator('size_bytes', pre=True, always=True)
+    @field_validator('size_bytes', mode='before')
     def set_size_bytes(cls, v, values):
         if v is None and 'content' in values:
             return len(values['content'].encode('utf-8'))
@@ -58,7 +58,7 @@ class CodeRepository(BaseModel):
     framework: Optional[str] = None         # React, Django, Spring, etc.
     dependencies: List[str] = []            # package.json, requirements.txt, etc.
     
-    @validator('main_language', pre=True, always=True)
+    @field_validator('main_language', mode='before')
     def detect_main_language(cls, v, values):
         if v is None and 'files' in values:
             # Автоматически определяем основной язык по файлам

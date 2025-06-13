@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 from fastapi import HTTPException, status
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field
 
 logger = logging.getLogger(__name__)
 
@@ -280,7 +280,7 @@ class SecureRFCRequest(BaseModel):
     initial_request: str = Field(..., max_length=5000)
     context: Optional[str] = Field(None, max_length=10000)
     
-    @validator('task_type', 'initial_request', 'context')
+    @field_validator('task_type', 'initial_request', 'context')
     def validate_text_fields(cls, v):
         if v is not None:
             return validate_input(v)
@@ -291,7 +291,7 @@ class SecureSearchRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=1000)
     limit: Optional[int] = Field(10, ge=1, le=100)
     
-    @validator('query')
+    @field_validator('query')
     def validate_query(cls, v):
         return validate_input(v, "search_query")
 
@@ -301,11 +301,11 @@ class SecureDocumentationRequest(BaseModel):
     language: Optional[str] = Field(None, max_length=50)
     doc_type: Optional[str] = Field("readme", max_length=50)
     
-    @validator('code')
+    @field_validator('code')
     def validate_code(cls, v):
         return validate_file_content(v)
     
-    @validator('language', 'doc_type')
+    @field_validator('language', 'doc_type')
     def validate_string_fields(cls, v):
         if v is not None:
             return validate_input(v)
@@ -316,11 +316,11 @@ class SecureUserCredentials(BaseModel):
     user_id: str = Field(..., min_length=1, max_length=100)
     password: str = Field(..., min_length=8, max_length=128)
     
-    @validator('user_id')
+    @field_validator('user_id')
     def validate_user_id_field(cls, v):
         return validate_user_id(v)
     
-    @validator('password')
+    @field_validator('password')
     def validate_password(cls, v):
         # Basic password validation
         if len(v) < 8:

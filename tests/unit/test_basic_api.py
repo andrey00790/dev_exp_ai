@@ -8,6 +8,8 @@ Basic API Tests
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
+
+pytestmark = pytest.mark.integration
 import json
 
 

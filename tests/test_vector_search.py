@@ -17,6 +17,8 @@ from services.vector_search_service import VectorSearchService, SearchRequest, g
 from fastapi.testclient import TestClient
 from app.main import app
 
+pytestmark = pytest.mark.integration
+
 # Test fixtures and utilities
 
 @pytest.fixture

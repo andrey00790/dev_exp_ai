@@ -5,11 +5,17 @@ import subprocess
 import json
 import logging
 import requests
+pytest.importorskip("psycopg2")
 import psycopg2
 import os
 from typing import Dict, List, Any
+pytest.importorskip("atlassian")
+pytest.importorskip("gitlab")
 from atlassian import Confluence, Jira
 from gitlab import Gitlab
+
+# Mark as E2E to skip by default
+pytestmark = pytest.mark.e2e
 from sklearn.metrics.pairwise import cosine_similarity
 from model_training import ModelTrainer
 # from evaluate_semantic_search import run_evaluation as run_semantic_evaluation
