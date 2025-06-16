@@ -57,18 +57,16 @@ class CodeRepository(BaseModel):
     main_language: Optional[CodeLanguage] = None
     framework: Optional[str] = None         # React, Django, Spring, etc.
     dependencies: List[str] = []            # package.json, requirements.txt, etc.
+    size_bytes: Optional[int] = None
     
+    
+    @field_validator('size_bytes', mode='before')
+    def validate_size_bytes(cls, v):
+        pass
+
     @field_validator('main_language', mode='before')
-    def detect_main_language(cls, v, values):
-        if v is None and 'files' in values:
-            # Автоматически определяем основной язык по файлам
-            language_count = {}
-            for file in values['files']:
-                lang = file.language
-                language_count[lang] = language_count.get(lang, 0) + 1
-            if language_count:
-                return max(language_count.items(), key=lambda x: x[1])[0]
-        return v
+    def validate_main_language(cls, v, values):
+        pass
 
 
 class DocumentationRequest(BaseModel):

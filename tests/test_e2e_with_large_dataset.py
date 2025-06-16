@@ -15,7 +15,7 @@ from typing import Dict, List, Any
 
 # Test imports
 from fastapi.testclient import TestClient
-from app.main import app
+from app.main import create_app
 
 # Mark entire module as E2E
 pytestmark = pytest.mark.e2e
@@ -27,6 +27,25 @@ class E2EDataManager:
     """Manages large-scale test data generation and model training."""
     
     def __init__(self):
+        # Create app with proper authentication
+        app = create_app()
+        
+        # Mock authentication
+        from app.security.auth import get_current_user, User
+        def mock_get_current_user():
+            return User(
+                user_id="test_user",
+                email="test@example.com",
+                name="Test User",
+                is_active=True,
+                budget_limit=100.0,
+                current_usage=0.0,
+                scopes=["basic", "admin", "search", "generate"]
+            )
+        
+        # Override the dependency
+        app.dependency_overrides[get_current_user] = mock_get_current_user
+        
         self.client = TestClient(app)
         
     def setup_large_dataset(self):

@@ -1,0 +1,1610 @@
+openapi: 3.0.3
+info:
+  title: AI Assistant API
+  description: |
+    Комплексная ИИ-платформа для семантического поиска и генерации RFC с пользовательскими настройками
+    
+    **ВАЖНО:** Все новые API endpoints должны быть отражены в этой OpenAPI спецификации!
+    При добавлении новых endpoints обязательно обновляйте этот файл.
+  version: 2.1.0
+  contact:
+    name: AI Assistant Support
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Health
+    description: Проверка состояния системы
+  - name: Authentication
+    description: Аутентификация и авторизация
+  - name: User Management
+    description: Управление пользователями и настройками
+  - name: Data Sources
+    description: Управление источниками данных
+  - name: Sync Management
+    description: Синхронизация данных
+  - name: AI Generation
+    description: AI-генерация документов
+  - name: AI Enhancement
+    description: Улучшение AI возможностей (fine-tuning, качество RFC, оптимизация)
+  - name: Search
+    description: Поиск по данным
+  - name: Vector Search
+    description: Семантический поиск с векторами
+  - name: Documentation
+    description: Генерация документации кода
+  - name: Feedback
+    description: Система обратной связи
+  - name: Learning
+    description: Система обучения с подкреплением
+  - name: LLM Management
+    description: Управление LLM провайдерами
+
+paths:
+  # ===== HEALTH & ROOT =====
+  /:
+    get:
+      summary: Root endpoint
+      tags: [Health]
+      responses:
+        '200':
+          description: Информация о системе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemInfo'
+
+  /health:
+    get:
+      summary: Health check
+      tags: [Health]
+      responses:
+        '200':
+          description: Статус системы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /api/v1/health:
+    get:
+      summary: Health Check V1
+      description: Проверяет работоспособность API v1
+      tags: [Health]
+      responses:
+        '200':
+          description: Статус API v1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  # ===== AUTHENTICATION =====
+  /api/v1/auth/register:
+    post:
+      summary: Register new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+
+  /api/v1/auth/login:
+    post:
+      summary: Login user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+
+  /api/v1/auth/me:
+    get:
+      summary: Get current user info
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Информация о текущем пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/v1/auth/verify:
+    get:
+      summary: Verify token
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Токен валиден
+
+  /api/v1/auth/refresh:
+    post:
+      summary: Refresh token
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Новый токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+
+  /api/v1/auth/budget:
+    get:
+      summary: Get user budget info
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Информация о бюджете пользователя
+
+  /api/v1/auth/scopes:
+    get:
+      summary: Get user scopes
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Права доступа пользователя
+
+  /api/v1/auth/profile:
+    get:
+      summary: Get user profile
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Профиль пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+
+  /api/v1/auth/usage-stats:
+    get:
+      summary: Get usage statistics
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Статистика использования
+
+  /api/v1/auth/logout:
+    post:
+      summary: Logout user
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Пользователь вышел из системы
+
+  /api/v1/auth/demo-users:
+    get:
+      summary: Get demo users
+      tags: [Authentication]
+      responses:
+        '200':
+          description: Список демо пользователей
+
+  # ===== USER MANAGEMENT =====
+  /api/v1/users:
+    post:
+      summary: Create user
+      tags: [User Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /api/v1/users/{user_id}:
+    get:
+      summary: Get user by ID
+      tags: [User Management]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Информация о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /api/v1/users/current/settings:
+    get:
+      summary: Get current user settings
+      tags: [User Management]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Настройки пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+    put:
+      summary: Update current user settings
+      tags: [User Management]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSettings'
+      responses:
+        '200':
+          description: Настройки обновлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+
+  # ===== CONFIGURATIONS =====
+  /api/v1/configurations/jira:
+    post:
+      summary: Create Jira configuration
+      tags: [Data Sources]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JiraConfigCreate'
+      responses:
+        '201':
+          description: Конфигурация создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+    get:
+      summary: Get Jira configurations
+      tags: [Data Sources]
+      responses:
+        '200':
+          description: Список конфигураций Jira
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigResponse'
+
+  # ===== SYNC MANAGEMENT =====
+  /api/v1/sync/tasks:
+    post:
+      summary: Start sync task
+      tags: [Sync Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncTaskCreate'
+      responses:
+        '201':
+          description: Задача создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncTask'
+
+  /api/v1/sync/jira:
+    post:
+      summary: Sync Jira data
+      tags: [Sync Management]
+      responses:
+        '200':
+          description: Синхронизация Jira запущена
+
+  /api/v1/sync/confluence:
+    post:
+      summary: Sync Confluence data
+      tags: [Sync Management]
+      responses:
+        '200':
+          description: Синхронизация Confluence запущена
+
+  # ===== AI GENERATION =====
+  /api/v1/generate:
+    post:
+      summary: Generate RFC
+      tags: [AI Generation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRequest'
+      responses:
+        '200':
+          description: RFC сгенерирован
+
+  /api/v1/generate/rfc:
+    post:
+      summary: Generate RFC document
+      tags: [AI Generation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRFCRequest'
+      responses:
+        '200':
+          description: RFC документ сгенерирован
+
+  /api/v1/generate/session:
+    post:
+      summary: Start generation session
+      tags: [AI Generation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartSessionRequest'
+      responses:
+        '200':
+          description: Сессия генерации запущена
+
+  /api/v1/generate/session/{session_id}:
+    get:
+      summary: Get generation session
+      tags: [AI Generation]
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о сессии генерации
+
+  /api/v1/generate/sessions:
+    get:
+      summary: Get user sessions
+      tags: [AI Generation]
+      responses:
+        '200':
+          description: Список сессий пользователя
+
+  /api/v1/generate/sessions/{session_id}:
+    delete:
+      summary: Delete generation session
+      tags: [AI Generation]
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Сессия удалена
+
+  /api/v1/generate/templates:
+    get:
+      summary: Get available templates
+      tags: [AI Generation]
+      responses:
+        '200':
+          description: Список доступных шаблонов
+
+  # ===== AI ENHANCEMENT =====
+  /api/v1/ai-enhancement/model/train:
+    post:
+      summary: Train AI model
+      description: Запускает обучение модели семантического поиска (fine-tuning, мультиязычная оптимизация)
+      tags: [AI Enhancement]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelTrainingRequest'
+      responses:
+        '200':
+          description: Обучение модели запущено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelTrainingResponse'
+
+  /api/v1/ai-enhancement/model/training/{training_id}/status:
+    get:
+      summary: Get training status
+      description: Получает статус обучения модели
+      tags: [AI Enhancement]
+      parameters:
+        - name: training_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Статус обучения модели
+
+  /api/v1/ai-enhancement/rfc/analyze-quality:
+    post:
+      summary: Analyze RFC quality
+      description: Анализирует качество RFC документа (структура, полнота, техническая глубина, ясность)
+      tags: [AI Enhancement]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RFCQualityAnalysisRequest'
+      responses:
+        '200':
+          description: Анализ качества RFC
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RFCQualityAnalysisResponse'
+
+  /api/v1/ai-enhancement/search/optimize:
+    post:
+      summary: Optimize search performance
+      description: Оптимизирует производительность семантического поиска (кэширование, переранжирование)
+      tags: [AI Enhancement]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchOptimizationRequest'
+      responses:
+        '200':
+          description: Результаты оптимизации поиска
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchOptimizationResponse'
+
+  /api/v1/ai-enhancement/status:
+    get:
+      summary: Get AI enhancement status
+      description: Получает общий статус AI возможностей (fine-tuning, качество RFC, оптимизация поиска)
+      tags: [AI Enhancement]
+      responses:
+        '200':
+          description: Статус AI возможностей
+
+  # ===== VECTOR SEARCH =====
+  /api/v1/vector-search/search:
+    post:
+      summary: Semantic vector search
+      description: Выполняет семантический поиск с использованием векторов
+      tags: [Vector Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VectorSearchRequest'
+      responses:
+        '200':
+          description: Результаты семантического поиска
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorSearchResponse'
+
+  /api/v1/vector-search/index:
+    post:
+      summary: Index document
+      tags: [Vector Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndexDocumentRequest'
+      responses:
+        '200':
+          description: Документ проиндексирован
+
+  /api/v1/vector-search/documents/{doc_id}:
+    delete:
+      summary: Delete document
+      tags: [Vector Search]
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Документ удален
+
+  /api/v1/vector-search/similar/{doc_id}:
+    get:
+      summary: Find similar documents
+      tags: [Vector Search]
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Похожие документы
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResult'
+
+  /api/v1/vector-search/stats:
+    get:
+      summary: Get search statistics
+      tags: [Vector Search]
+      responses:
+        '200':
+          description: Статистика поиска
+
+  /api/v1/vector-search/collections/initialize:
+    post:
+      summary: Initialize collections
+      tags: [Vector Search]
+      responses:
+        '200':
+          description: Коллекции инициализированы
+
+  /api/v1/vector-search/upload-file:
+    post:
+      summary: Upload file for indexing
+      tags: [Vector Search]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Файл загружен и проиндексирован
+
+  /api/v1/vector-search/collections:
+    get:
+      summary: Get collections info
+      tags: [Vector Search]
+      responses:
+        '200':
+          description: Информация о коллекциях
+
+  /api/v1/vector-search/health:
+    get:
+      summary: Vector search health check
+      tags: [Vector Search]
+      responses:
+        '200':
+          description: Статус vector search
+
+  # ===== DOCUMENTATION =====
+  /api/v1/documentation/analyze:
+    post:
+      summary: Analyze code for documentation
+      tags: [Documentation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeAnalysisRequest'
+      responses:
+        '200':
+          description: Анализ кода выполнен
+
+  /api/v1/documentation/generate:
+    post:
+      summary: Generate documentation
+      tags: [Documentation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentationGenerateRequest'
+      responses:
+        '200':
+          description: Документация сгенерирована
+
+  /api/v1/documentation/projects:
+    get:
+      summary: Get analyzed projects
+      tags: [Documentation]
+      responses:
+        '200':
+          description: Список проанализированных проектов
+
+  /api/v1/documentation/projects/{project_id}:
+    get:
+      summary: Get project details
+      tags: [Documentation]
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Детали проекта
+
+  /api/v1/documentation/upload:
+    post:
+      summary: Upload code for analysis
+      tags: [Documentation]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Код загружен для анализа
+
+  /api/v1/documentation/types:
+    get:
+      summary: Get supported documentation types
+      tags: [Documentation]
+      responses:
+        '200':
+          description: Поддерживаемые типы документации
+
+  # ===== FEEDBACK =====
+  /api/v1/feedback:
+    post:
+      summary: Submit feedback
+      tags: [Feedback]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '200':
+          description: Отзыв отправлен
+
+  /api/v1/feedback/session/{session_id}:
+    get:
+      summary: Get session feedback
+      tags: [Feedback]
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Отзывы по сессии
+
+  /api/v1/feedback/stats:
+    get:
+      summary: Get feedback statistics
+      tags: [Feedback]
+      responses:
+        '200':
+          description: Статистика отзывов
+
+  /api/v1/feedback/quality:
+    post:
+      summary: Submit quality feedback
+      tags: [Feedback]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityFeedbackRequest'
+      responses:
+        '200':
+          description: Отзыв о качестве отправлен
+
+  /api/v1/feedback/analytics:
+    get:
+      summary: Get feedback analytics
+      tags: [Feedback]
+      responses:
+        '200':
+          description: Аналитика отзывов
+
+  /api/v1/feedback/trends:
+    get:
+      summary: Get feedback trends
+      tags: [Feedback]
+      responses:
+        '200':
+          description: Тренды отзывов
+
+  /api/v1/feedback/summary:
+    get:
+      summary: Get feedback summary
+      tags: [Feedback]
+      responses:
+        '200':
+          description: Сводка отзывов
+
+  /api/v1/feedback/{feedback_id}:
+    delete:
+      summary: Delete feedback
+      tags: [Feedback]
+      parameters:
+        - name: feedback_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Отзыв удален
+
+  /api/v1/feedback/export:
+    get:
+      summary: Export feedback data
+      tags: [Feedback]
+      responses:
+        '200':
+          description: Экспорт данных отзывов
+
+  # ===== LEARNING =====
+  /api/v1/learning/feedback:
+    post:
+      summary: Submit learning feedback
+      tags: [Learning]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningFeedbackRequest'
+      responses:
+        '200':
+          description: Обучающий отзыв отправлен
+
+  /api/v1/learning/stats:
+    get:
+      summary: Get learning statistics
+      tags: [Learning]
+      responses:
+        '200':
+          description: Статистика обучения
+
+  /api/v1/learning/retrain:
+    post:
+      summary: Trigger model retraining
+      tags: [Learning]
+      responses:
+        '200':
+          description: Переобучение модели запущено
+
+  /api/v1/learning/examples:
+    get:
+      summary: Get learning examples
+      tags: [Learning]
+      responses:
+        '200':
+          description: Обучающие примеры
+
+  # ===== LLM MANAGEMENT =====
+  /api/v1/llm/providers:
+    get:
+      summary: Get LLM providers
+      tags: [LLM Management]
+      responses:
+        '200':
+          description: Список LLM провайдеров
+
+  /api/v1/llm/health:
+    get:
+      summary: Check LLM health
+      tags: [LLM Management]
+      responses:
+        '200':
+          description: Статус LLM провайдеров
+
+  /api/v1/llm/usage:
+    get:
+      summary: Get LLM usage statistics
+      tags: [LLM Management]
+      responses:
+        '200':
+          description: Статистика использования LLM
+
+  /api/v1/llm/routing-strategy:
+    post:
+      summary: Set routing strategy
+      tags: [LLM Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutingStrategyRequest'
+      responses:
+        '200':
+          description: Стратегия маршрутизации установлена
+
+  /api/v1/llm/benchmark:
+    post:
+      summary: Run LLM benchmark
+      tags: [LLM Management]
+      responses:
+        '200':
+          description: Бенчмарк LLM запущен
+
+  /api/v1/llm/recommendations:
+    get:
+      summary: Get LLM recommendations
+      tags: [LLM Management]
+      responses:
+        '200':
+          description: Рекомендации по LLM
+
+  /api/v1/llm/test:
+    post:
+      summary: Test LLM providers
+      tags: [LLM Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LLMTestRequest'
+      responses:
+        '200':
+          description: Тест LLM провайдеров выполнен
+
+  # ===== SEARCH =====
+  /api/v1/search:
+    post:
+      summary: Semantic search
+      tags: [Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Результаты поиска
+
+  /api/v1/search/history:
+    get:
+      summary: Get search history
+      tags: [Search]
+      responses:
+        '200':
+          description: История поиска
+
+  /api/v1/search/suggestions:
+    post:
+      summary: Get search suggestions
+      tags: [Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchSuggestionsRequest'
+      responses:
+        '200':
+          description: Предложения для поиска
+
+  /api/v1/search/filters:
+    put:
+      summary: Update search filters
+      tags: [Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchFiltersRequest'
+      responses:
+        '200':
+          description: Фильтры поиска обновлены
+
+  /api/v1/search/filters/{filter_id}:
+    delete:
+      summary: Delete search filter
+      tags: [Search]
+      parameters:
+        - name: filter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Фильтр удален
+
+  /api/v1/search/advanced:
+    post:
+      summary: Advanced search
+      tags: [Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvancedSearchRequest'
+      responses:
+        '200':
+          description: Результаты расширенного поиска
+
+  /api/v1/search/export:
+    post:
+      summary: Export search results
+      tags: [Search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchExportRequest'
+      responses:
+        '200':
+          description: Экспорт результатов поиска
+
+  /api/v1/search/analytics:
+    get:
+      summary: Get search analytics
+      tags: [Search]
+      responses:
+        '200':
+          description: Аналитика поиска
+
+  /api/v1/search/popular:
+    get:
+      summary: Get popular searches
+      tags: [Search]
+      responses:
+        '200':
+          description: Популярные запросы
+
+  # ===== DOCUMENTS =====
+  /api/v1/documents:
+    post:
+      summary: Create document
+      tags: [Data Sources]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentRequest'
+      responses:
+        '201':
+          description: Документ создан
+
+  /api/v1/documents/{doc_id}:
+    get:
+      summary: Get document
+      tags: [Data Sources]
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Документ найден
+    put:
+      summary: Update document
+      tags: [Data Sources]
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Документ обновлен
+    delete:
+      summary: Delete document
+      tags: [Data Sources]
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Документ удален
+
+  /api/v1/documents/search:
+    post:
+      summary: Search documents
+      tags: [Data Sources]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentSearchRequest'
+      responses:
+        '200':
+          description: Результаты поиска документов
+
+  /api/v1/documents/bulk:
+    get:
+      summary: Get documents in bulk
+      tags: [Data Sources]
+      responses:
+        '200':
+          description: Массовое получение документов
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ===== BASIC SCHEMAS =====
+    SystemInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+
+    # ===== AUTHENTICATION SCHEMAS =====
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required: [username, email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+
+    UserProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+        settings:
+          type: object
+
+    # ===== USER MANAGEMENT SCHEMAS =====
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+      required: [username, email]
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+
+    UserSettings:
+      type: object
+      properties:
+        language:
+          type: string
+        theme:
+          type: string
+        notifications:
+          type: boolean
+
+    # ===== CONFIGURATION SCHEMAS =====
+    JiraConfigCreate:
+      type: object
+      properties:
+        config_name:
+          type: string
+        jira_url:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+      required: [config_name, jira_url, username, password]
+
+    ConfigResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        config_name:
+          type: string
+        jira_url:
+          type: string
+        status:
+          type: string
+
+    # ===== SYNC SCHEMAS =====
+    SyncTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        progress_percentage:
+          type: integer
+
+    SyncTaskCreate:
+      type: object
+      properties:
+        sources:
+          type: array
+          items:
+            type: string
+      required: [sources]
+
+    # ===== GENERATION SCHEMAS =====
+    GenerateRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+        language:
+          type: string
+      required: [topic]
+
+    GenerateRFCRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        template:
+          type: string
+      required: [title, description]
+
+    StartSessionRequest:
+      type: object
+      properties:
+        task_type:
+          type: string
+        initial_request:
+          type: string
+      required: [task_type, initial_request]
+
+    # ===== AI ENHANCEMENT SCHEMAS =====
+    ModelTrainingRequest:
+      type: object
+      properties:
+        training_type:
+          type: string
+          enum: [full, incremental, multilingual]
+        use_feedback:
+          type: boolean
+          default: true
+        epochs:
+          type: integer
+      required: [training_type]
+
+    ModelTrainingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        training_id:
+          type: string
+        message:
+          type: string
+        estimated_duration_minutes:
+          type: integer
+
+    RFCQualityAnalysisRequest:
+      type: object
+      properties:
+        rfc_content:
+          type: string
+        rfc_title:
+          type: string
+      required: [rfc_content]
+
+    RFCQualityAnalysisResponse:
+      type: object
+      properties:
+        overall_score:
+          type: number
+        structure_score:
+          type: number
+        completeness_score:
+          type: number
+        technical_depth_score:
+          type: number
+        clarity_score:
+          type: number
+        improvement_suggestions:
+          type: array
+          items:
+            type: string
+        missing_sections:
+          type: array
+          items:
+            type: string
+        weak_areas:
+          type: array
+          items:
+            type: string
+
+    SearchOptimizationRequest:
+      type: object
+      properties:
+        test_queries:
+          type: array
+          items:
+            type: string
+        optimization_type:
+          type: string
+          enum: [performance, quality, full]
+          default: full
+
+    SearchOptimizationResponse:
+      type: object
+      properties:
+        performance_metrics:
+          type: object
+        optimization_recommendations:
+          type: array
+          items:
+            type: object
+        cache_statistics:
+          type: object
+        improvement_summary:
+          type: string
+
+    # ===== SEARCH SCHEMAS =====
+    SearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        language:
+          type: string
+      required: [query]
+
+    VectorSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        collections:
+          type: array
+          items:
+            type: string
+        limit:
+          type: integer
+          default: 10
+        filters:
+          type: object
+        include_snippets:
+          type: boolean
+          default: true
+        hybrid_search:
+          type: boolean
+          default: true
+      required: [query]
+
+    VectorSearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total_results:
+          type: integer
+        search_time_ms:
+          type: number
+        collections_searched:
+          type: array
+          items:
+            type: string
+
+    SearchResult:
+      type: object
+      properties:
+        doc_id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        score:
+          type: number
+        source:
+          type: string
+        source_type:
+          type: string
+        url:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+
+    SearchSuggestionsRequest:
+      type: object
+      properties:
+        partial_query:
+          type: string
+      required: [partial_query]
+
+    SearchFiltersRequest:
+      type: object
+      properties:
+        filters:
+          type: object
+
+    AdvancedSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        filters:
+          type: object
+        sort_by:
+          type: string
+        date_range:
+          type: object
+      required: [query]
+
+    SearchExportRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        format:
+          type: string
+          enum: [json, csv, xlsx]
+      required: [query, format]
+
+    # ===== DOCUMENT SCHEMAS =====
+    IndexDocumentRequest:
+      type: object
+      properties:
+        content:
+          type: string
+        metadata:
+          type: object
+      required: [content]
+
+    CreateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        source_type:
+          type: string
+      required: [title, content]
+
+    UpdateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+
+    DocumentSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        filters:
+          type: object
+      required: [query]
+
+    # ===== DOCUMENTATION SCHEMAS =====
+    CodeAnalysisRequest:
+      type: object
+      properties:
+        code:
+          type: string
+        language:
+          type: string
+      required: [code, language]
+
+    DocumentationGenerateRequest:
+      type: object
+      properties:
+        project_id:
+          type: string
+        doc_type:
+          type: string
+      required: [project_id, doc_type]
+
+    # ===== FEEDBACK SCHEMAS =====
+    FeedbackRequest:
+      type: object
+      properties:
+        session_id:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: string
+      required: [session_id, rating]
+
+    QualityFeedbackRequest:
+      type: object
+      properties:
+        rfc_id:
+          type: string
+        quality_score:
+          type: number
+        feedback_text:
+          type: string
+      required: [rfc_id, quality_score]
+
+    LearningFeedbackRequest:
+      type: object
+      properties:
+        session_id:
+          type: string
+        feedback_type:
+          type: string
+        rating:
+          type: integer
+      required: [session_id, feedback_type]
+
+    # ===== LLM MANAGEMENT SCHEMAS =====
+    RoutingStrategyRequest:
+      type: object
+      properties:
+        strategy:
+          type: string
+          enum: [round_robin, cost_optimized, performance_optimized, balanced, quality_first, fallback_chain]
+      required: [strategy]
+
+    LLMTestRequest:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            type: string
+        test_prompt:
+          type: string
+      required: [providers]

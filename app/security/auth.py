@@ -1,76 +1,138 @@
 """
-JWT Authentication module for AI Assistant MVP
+JWT Authentication system for AI Assistant MVP.
 
-Provides secure authentication using JWT tokens with proper validation,
-user management, and access control for all API endpoints.
+Provides secure user authentication with JWT tokens, password hashing,
+and user management functionality.
 """
 
 import os
+import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
-import logging
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from passlib.context import CryptContext
 from jose import JWTError, jwt
-from pydantic import BaseModel
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, EmailStr, validator
+import logging
 
 logger = logging.getLogger(__name__)
 
-# Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "ai-assistant-secret-key-change-in-production")
+# Security configuration
+SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# HTTP Bearer token scheme
 security = HTTPBearer()
 
+class User(BaseModel):
+    """User model for authenticated users."""
+    user_id: str
+    email: EmailStr
+    name: str
+    is_active: bool = True
+    budget_limit: float = 100.0  # USD limit for LLM usage
+    current_usage: float = 0.0   # Current month usage
+    scopes: list[str] = ["basic"]  # User permissions
+    created_at: Optional[datetime] = None
+    last_login: Optional[datetime] = None
+
+class UserCreate(BaseModel):
+    """Model for user registration."""
+    email: EmailStr
+    password: str
+    name: str
+    budget_limit: Optional[float] = 100.0
+    
+    @validator('password')
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters long')
+        if not any(c.isupper() for c in v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not any(c.islower() for c in v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Password must contain at least one digit')
+        return v
+
+class UserLogin(BaseModel):
+    """Model for user login."""
+    email: EmailStr
+    password: str
+
 class Token(BaseModel):
+    """JWT token response model."""
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
+    expires_in: int
+    user: User
 
 class TokenData(BaseModel):
+    """Token payload data."""
     user_id: Optional[str] = None
     email: Optional[str] = None
     scopes: list[str] = []
 
-class User(BaseModel):
-    user_id: str
-    email: str
-    name: str
-    is_active: bool = True
-    budget_limit: float = 100.0  # Default budget in USD
-    current_usage: float = 0.0
-    scopes: list[str] = ["basic"]  # Default permissions
-
-# Simple in-memory user store (replace with database in production)
-USERS_DB: Dict[str, User] = {
-    "demo_user": User(
-        user_id="demo_user",
-        email="demo@ai-assistant.com", 
-        name="Demo User",
-        budget_limit=50.0,
-        scopes=["basic", "rfc_generation", "documentation"]
-    ),
-    "admin_user": User(
-        user_id="admin_user",
-        email="admin@ai-assistant.com",
-        name="Admin User", 
-        budget_limit=1000.0,
-        scopes=["basic", "rfc_generation", "documentation", "admin"]
-    )
+# In-memory user storage (replace with database in production)
+USERS_DB: Dict[str, Dict[str, Any]] = {
+    "admin@example.com": {
+        "user_id": "admin_001",
+        "email": "admin@example.com",
+        "name": "Admin User",
+        "hashed_password": pwd_context.hash("admin123"),
+        "is_active": True,
+        "budget_limit": 1000.0,
+        "current_usage": 0.0,
+        "scopes": ["basic", "admin", "search", "generate"],
+        "created_at": datetime.now(),
+        "last_login": None
+    },
+    "user@example.com": {
+        "user_id": "user_001", 
+        "email": "user@example.com",
+        "name": "Test User",
+        "hashed_password": pwd_context.hash("user123"),
+        "is_active": True,
+        "budget_limit": 100.0,
+        "current_usage": 0.0,
+        "scopes": ["basic", "search", "generate"],
+        "created_at": datetime.now(),
+        "last_login": None
+    }
 }
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """
-    Create a new JWT access token
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash."""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    """Hash a password."""
+    return pwd_context.hash(password)
+
+def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """Get user by email from database."""
+    return USERS_DB.get(email)
+
+def authenticate_user(email: str, password: str) -> Optional[User]:
+    """Authenticate user with email and password."""
+    user_data = get_user_by_email(email)
+    if not user_data:
+        return None
+    if not verify_password(password, user_data["hashed_password"]):
+        return None
     
-    Args:
-        data: Token payload data
-        expires_delta: Token expiration time
-        
-    Returns:
-        Encoded JWT token string
-    """
+    # Update last login
+    user_data["last_login"] = datetime.now()
+    
+    return User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create JWT access token."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -79,129 +141,92 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    logger.info(f"Created access token for user: {data.get('sub', 'unknown')}")
     return encoded_jwt
 
-async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenData:
-    """
-    Verify and decode JWT token
-    
-    Args:
-        credentials: HTTP Bearer token credentials
-        
-    Returns:
-        TokenData: Decoded token data
-        
-    Raises:
-        HTTPException: If token is invalid or expired
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
+def verify_token(token: str) -> TokenData:
+    """Verify and decode JWT token."""
     try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
-        if user_id is None:
-            logger.warning("Token missing 'sub' claim")
-            raise credentials_exception
-            
-        token_data = TokenData(
-            user_id=user_id,
-            email=payload.get("email"),
-            scopes=payload.get("scopes", [])
-        )
-        logger.debug(f"Token verified for user: {user_id}")
-        return token_data
+        email: str = payload.get("email")
+        scopes: list = payload.get("scopes", [])
         
+        if user_id is None or email is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        return TokenData(user_id=user_id, email=email, scopes=scopes)
+    
     except JWTError as e:
-        logger.warning(f"JWT validation failed: {str(e)}")
-        raise credentials_exception
-
-async def get_current_user(token_data: TokenData = Depends(verify_token)) -> User:
-    """
-    Get current authenticated user
-    
-    Args:
-        token_data: Validated token data
-        
-    Returns:
-        User: Current user object
-        
-    Raises:
-        HTTPException: If user not found or inactive
-    """
-    user = USERS_DB.get(token_data.user_id)
-    if user is None:
-        logger.warning(f"User not found: {token_data.user_id}")
+        logger.warning(f"JWT verification failed: {e}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> User:
+    """Get current authenticated user from JWT token."""
+    token = credentials.credentials
+    token_data = verify_token(token)
+    
+    user_data = get_user_by_email(token_data.email)
+    if user_data is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     
-    if not user.is_active:
-        logger.warning(f"Inactive user attempted access: {token_data.user_id}")
+    if not user_data["is_active"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Inactive user"
         )
     
-    logger.debug(f"Retrieved current user: {user.user_id}")
-    return user
+    return User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
 
-def require_scope(required_scope: str):
-    """
-    Dependency to check if user has required scope/permission
+def create_user(user_create: UserCreate) -> User:
+    """Create a new user."""
+    if get_user_by_email(user_create.email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
     
-    Args:
-        required_scope: Required permission scope
-        
-    Returns:
-        Dependency function
-    """
-    async def check_scope(current_user: User = Depends(get_current_user)):
-        if required_scope not in current_user.scopes:
-            logger.warning(f"User {current_user.user_id} lacks scope: {required_scope}")
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Operation requires '{required_scope}' permission"
-            )
-        return current_user
+    user_id = f"user_{secrets.token_hex(8)}"
+    hashed_password = get_password_hash(user_create.password)
     
-    return check_scope
+    user_data = {
+        "user_id": user_id,
+        "email": user_create.email,
+        "name": user_create.name,
+        "hashed_password": hashed_password,
+        "is_active": True,
+        "budget_limit": user_create.budget_limit,
+        "current_usage": 0.0,
+        "scopes": ["basic", "search", "generate"],
+        "created_at": datetime.now(),
+        "last_login": None
+    }
+    
+    USERS_DB[user_create.email] = user_data
+    
+    return User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
 
-# Authentication utility functions
-def authenticate_user(user_id: str, password: str) -> Optional[User]:
-    """
-    Authenticate user credentials (simplified for demo)
+def login_user(user_login: UserLogin) -> Token:
+    """Login user and return JWT token."""
+    user = authenticate_user(user_login.email, user_login.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
-    Args:
-        user_id: User identifier
-        password: User password
-        
-    Returns:
-        User object if authenticated, None otherwise
-    """
-    # In production, verify password hash from database
-    if user_id in USERS_DB and password == "demo_password":
-        logger.info(f"User authenticated: {user_id}")
-        return USERS_DB[user_id]
-    
-    logger.warning(f"Authentication failed for user: {user_id}")
-    return None
-
-def create_user_token(user: User) -> Dict[str, Any]:
-    """
-    Create token response for authenticated user
-    
-    Args:
-        user: Authenticated user
-        
-    Returns:
-        Token response dictionary
-    """
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={
@@ -212,30 +237,39 @@ def create_user_token(user: User) -> Dict[str, Any]:
         expires_delta=access_token_expires
     )
     
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        "user_info": {
-            "user_id": user.user_id,
-            "email": user.email,
-            "name": user.name,
-            "budget_limit": user.budget_limit,
-            "current_usage": user.current_usage,
-            "scopes": user.scopes
-        }
-    }
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # seconds
+        user=user
+    )
 
-def update_user_usage(user_id: str, cost: float) -> None:
-    """
-    Update user's current usage/cost
-    
-    Args:
-        user_id: User identifier
-        cost: Cost to add to current usage
-    """
-    if user_id in USERS_DB:
-        USERS_DB[user_id].current_usage += cost
-        logger.info(f"Updated usage for {user_id}: +${cost:.4f}")
-    else:
-        logger.warning(f"Attempted to update usage for unknown user: {user_id}") 
+def check_user_scope(user: User, required_scope: str) -> bool:
+    """Check if user has required scope."""
+    return required_scope in user.scopes
+
+def require_scope(scope: str):
+    """Decorator to require specific scope for endpoint access."""
+    def scope_checker(user: User = Depends(get_current_user)) -> User:
+        if not check_user_scope(user, scope):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions. Required scope: {scope}"
+            )
+        return user
+    return scope_checker
+
+def check_budget_limit(user: User, cost: float) -> bool:
+    """Check if user has sufficient budget for operation."""
+    return user.current_usage + cost <= user.budget_limit
+
+def update_user_usage(user_email: str, cost: float) -> None:
+    """Update user's current usage."""
+    if user_email in USERS_DB:
+        USERS_DB[user_email]["current_usage"] += cost
+        logger.info(f"Updated usage for {user_email}: +${cost:.4f}")
+
+# Convenience dependencies for common scopes
+require_admin = require_scope("admin")
+require_search = require_scope("search") 
+require_generate = require_scope("generate") 

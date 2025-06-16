@@ -3,7 +3,7 @@
 API роутер для управления пользователями
 """
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 import logging
@@ -11,15 +11,55 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# Заглушка для UserConfigManager
+# Исправленная заглушка для UserConfigManager с валидацией
 class MockUserConfigManager:
+    def __init__(self):
+        # Симуляция базы данных пользователей
+        self.users_db: Dict[int, Dict] = {}
+        self.emails_db: Dict[str, int] = {}  # email -> user_id mapping
+        self.next_user_id = 1
+    
+    def reset_state(self):
+        """Сброс состояния для тестов"""
+        self.users_db.clear()
+        self.emails_db.clear()
+        self.next_user_id = 1
+    
     def create_user_with_defaults(self, username: str, email: str) -> int:
-        return 1
+        # Проверяем дублирующийся email
+        if email in self.emails_db:
+            raise ValueError(f"User with email {email} already exists")
+        
+        user_id = self.next_user_id
+        self.next_user_id += 1
+        
+        # Сохраняем пользователя
+        self.users_db[user_id] = {
+            "user_id": user_id,
+            "username": username,
+            "email": email,
+            "is_active": True
+        }
+        self.emails_db[email] = user_id
+        
+        return user_id
     
     def get_user_config(self, user_id: int):
-        return MockUserConfig(user_id, "test_user", "test@example.com", {})
+        user_data = self.users_db.get(user_id)
+        if not user_data:
+            return None
+        return MockUserConfig(
+            user_data["user_id"], 
+            user_data["username"], 
+            user_data["email"], 
+            {}
+        )
     
     def get_user_data_sources(self, user_id: int):
+        # Проверяем существование пользователя
+        if user_id not in self.users_db:
+            raise ValueError(f"User {user_id} not found")
+            
         return [
             {
                 "source_type": "jira",
@@ -49,6 +89,9 @@ class MockUserConfigManager:
     
     def update_data_source_config(self, user_id: int, source_type: str, source_name: str,
                                   is_enabled_semantic_search: bool, is_enabled_architecture_generation: bool):
+        if user_id not in self.users_db:
+            raise ValueError(f"User {user_id} not found")
+            
         logger.info(f"Updated {source_type}:{source_name} for user {user_id}")
         return True
 
@@ -84,8 +127,16 @@ class UpdateUserSettingsRequest(BaseModel):
     data_sources: Optional[List[DataSourceConfig]] = None
     preferences: Optional[dict] = None
 
+# Глобальный экземпляр для сохранения состояния между запросами
+_mock_user_manager = MockUserConfigManager()
+
 def get_user_config_manager():
-    return MockUserConfigManager()
+    return _mock_user_manager
+
+def reset_user_manager_state():
+    """Функция для сброса состояния в тестах"""
+    global _mock_user_manager
+    _mock_user_manager.reset_state()
 
 @router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
@@ -104,6 +155,18 @@ async def create_user(
             username=request.username,
             email=request.email
         )
+    except ValueError as e:
+        # Дублирующийся email или другая ошибка валидации
+        if "already exists" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(e)
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
     except Exception as e:
         logger.error(f"Error creating user: {e}")
         raise HTTPException(
@@ -163,6 +226,17 @@ async def get_user_settings(
                 "default_doc_type": "readme"
             }
         )
+    except ValueError as e:
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
     except Exception as e:
         logger.error(f"Error getting user settings: {e}")
         raise HTTPException(
@@ -196,6 +270,17 @@ async def update_user_settings(
         # Возвращаем обновленные настройки
         return await get_user_settings(user_id, config_manager)
         
+    except ValueError as e:
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
     except Exception as e:
         logger.error(f"Error updating user settings: {e}")
         raise HTTPException(

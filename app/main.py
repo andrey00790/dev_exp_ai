@@ -1,3 +1,24 @@
+"""
+AI Assistant MVP - Главное приложение
+
+Комплексная платформа для автоматизации архитектурной работы с тремя ключевыми функциями:
+1. 🔍 Семантический поиск по корпоративным данным
+2. 📝 Генерация RFC документов с помощью AI
+3. 📖 Генерация документации по коду
+
+Архитектура:
+- FastAPI backend с async/await
+- PostgreSQL для метаданных
+- Qdrant для векторного поиска
+- Multi-LLM поддержка (OpenAI, Anthropic, Ollama)
+- JWT аутентификация
+- Prometheus мониторинг
+- Rate limiting защита
+
+Автор: AI Assistant Team
+Версия: 4.0
+"""
+
 import logging
 from contextlib import asynccontextmanager
 
@@ -5,18 +26,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import health
-from app.api.v1 import health as health_v1, documents, generate, search, feedback, learning, llm_management, documentation, auth, vector_search
-# Импорты новых модулей для пользовательских настроек
-try:
-    from app.api.v1 import users, data_sources, sync, configurations
-except ImportError:
-    # Заглушки для новых модулей пока их нет
-    users = None
-    data_sources = None
-    sync = None
-    configurations = None
+from app.api.v1 import health as health_v1, documents, generate, search, feedback, learning, llm_management, documentation, auth, vector_search, users, data_sources, sync, configurations
 from app.config import settings
 from app.security.rate_limiter import setup_rate_limiting_middleware
+
+# Import monitoring components
+try:
+    from app.monitoring.metrics import (
+        metrics_middleware, 
+        get_metrics_handler,
+        initialize_app_info
+    )
+    MONITORING_AVAILABLE = True
+except ImportError:
+    MONITORING_AVAILABLE = False
+    logging.warning("Monitoring components not available. Install prometheus-client to enable metrics.")
 
 # Configure logging
 logging.basicConfig(
@@ -28,11 +52,22 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan manager for startup and shutdown events."""
+    """
+    Application lifespan manager for startup and shutdown events.
+    
+    Управляет жизненным циклом приложения:
+    - Startup: инициализация мониторинга, подключение к БД
+    - Shutdown: корректное закрытие соединений и очистка ресурсов
+    """
     # Startup
     logger.info(f"Starting {settings.title}...")
     logger.info(f"Environment: {settings.environment}")
     logger.info(f"Debug mode: {settings.debug}")
+    
+    # Initialize monitoring
+    if MONITORING_AVAILABLE:
+        initialize_app_info(settings.version, settings.environment)
+        logger.info("✅ Monitoring initialized")
     
     # Здесь можно добавить инициализацию:
     # - Подключение к базам данных
@@ -47,7 +82,18 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    """Create and configure FastAPI application."""
+    """
+    Create and configure FastAPI application.
+    
+    Создает и настраивает основное приложение FastAPI со всеми:
+    - Middleware (CORS, мониторинг, rate limiting)
+    - Роутерами API endpoints
+    - Документацией OpenAPI
+    - Системой безопасности
+    
+    Returns:
+        FastAPI: Настроенное приложение готовое к запуску
+    """
     application = FastAPI(
         title=settings.title,
         description="AI Assistant для ускорения архитектурного дизайна и генерации стандартизированных документов",
@@ -67,8 +113,18 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     
+    # Add monitoring middleware
+    if MONITORING_AVAILABLE:
+        application.middleware("http")(metrics_middleware)
+        logger.info("✅ Monitoring middleware added")
+    
     # Setup rate limiting middleware
     setup_rate_limiting_middleware(application)
+    
+    # Add metrics endpoint
+    if MONITORING_AVAILABLE:
+        application.get("/metrics", summary="Prometheus Metrics")(get_metrics_handler())
+        logger.info("✅ Metrics endpoint added: /metrics")
     
     # Базовые роутеры
     application.include_router(health.router, tags=["Health"])
@@ -87,33 +143,10 @@ def create_app() -> FastAPI:
     )
     
     # Новые роутеры для пользовательских настроек
-    if users:
-        application.include_router(
-            users.router,
-            prefix="/api/v1",
-            tags=["User Management"]
-        )
-    
-    if data_sources:
-        application.include_router(
-            data_sources.router,
-            prefix="/api/v1", 
-            tags=["Data Sources"]
-        )
-    
-    if sync:
-        application.include_router(
-            sync.router,
-            prefix="/api/v1",
-            tags=["Sync Management"]
-        )
-    
-    if configurations:
-        application.include_router(
-            configurations.router,
-            prefix="/api/v1",
-            tags=["Configurations"]
-        )
+    application.include_router(users.router, prefix="/api/v1", tags=["User Management"])
+    application.include_router(data_sources.router, prefix="/api/v1", tags=["Data Sources"])
+    application.include_router(sync.router, prefix="/api/v1/sync", tags=["Data Sync"])
+    application.include_router(configurations.router, prefix="/api/v1", tags=["Configurations"])
     
     # Основной функционал AI Assistant
     application.include_router(
@@ -168,7 +201,15 @@ def create_app() -> FastAPI:
     
     @application.get("/", summary="Root", description="Корневой endpoint с информацией об AI Assistant")
     async def root():
-        """Корневой endpoint с информацией о системе."""
+        """
+        Корневой endpoint с информацией о системе.
+        
+        Возвращает:
+        - Название и версию системы
+        - Список доступных функций
+        - Ссылки на документацию
+        - Статус мониторинга
+        """
         return {
             "name": settings.title,
             "version": settings.version,
@@ -188,16 +229,19 @@ def create_app() -> FastAPI:
                 "📁 Загрузка и индексация документов (PDF, DOC, TXT и др.)",
                 "👤 Пользовательские настройки источников данных",
                 "🔧 Управление конфигурациями внешних систем",
-                "📊 Мониторинг синхронизации в реальном времени"
+                "📊 Мониторинг синхронизации в реальном времени",
+                "📈 Prometheus metrics и Grafana dashboards" if MONITORING_AVAILABLE else ""
             ],
             "endpoints": {
                 "docs": "/docs",
                 "redoc": "/redoc",
                 "health": "/health",
-                "api_v1": "/api/v1"
+                "api_v1": "/api/v1",
+                "metrics": "/metrics" if MONITORING_AVAILABLE else None
             },
             "status": "running",
-            "environment": settings.environment
+            "environment": settings.environment,
+            "monitoring": MONITORING_AVAILABLE
         }
     
     logger.info("FastAPI application created successfully")
@@ -225,6 +269,8 @@ def create_app() -> FastAPI:
     logger.info("  - Code Analysis: POST /api/v1/documentation/analyze")
     logger.info("  - Data Sources: GET /api/v1/sources")
     logger.info("  - File Upload: POST /api/v1/upload")
+    if MONITORING_AVAILABLE:
+        logger.info("  - Prometheus Metrics: GET /metrics")
     
     return application
 

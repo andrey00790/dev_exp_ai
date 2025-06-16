@@ -302,10 +302,28 @@ Q4: [вопрос 4] (опционально)
 **Operational Metrics:**
 - [метрика 1]: [целевое значение]
 
+**AI Assistant Core Functions Metrics:**
+- **RFC Generation Quality** (/api/v1/generate): Качество генерации RFC при создании/изменении/анализе функционала
+  - Время генерации RFC: < 30 секунд
+  - Полнота секций RFC: > 95%
+  - Качество контента (1-5): > 4.0
+  - Соответствие шаблону: 100%
+- **Semantic Search Accuracy**: Точность семантического поиска по корпоративным данным
+  - Precision@5: > 85%
+  - Response time: < 500ms
+  - Relevance score: > 0.8
+  - User satisfaction: > 4.0/5
+- **Code Documentation Generation**: Качество автогенерации документации по коду
+  - Documentation completeness: > 90%
+  - Code coverage: > 80%
+  - Generation time: < 60 секунд
+  - Developer satisfaction: > 4.0/5
+
 Требования:
 - Измеримые KPI
 - Реалистичные targets
 - Связь с бизнес-целями
+- Фокус на трех ключевых функциях AI ассистента
 """
         }
         

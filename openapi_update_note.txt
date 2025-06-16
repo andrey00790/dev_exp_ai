@@ -1,0 +1,1 @@
+# OpenAPI обновлен - добавлены AI Enhancement endpoints

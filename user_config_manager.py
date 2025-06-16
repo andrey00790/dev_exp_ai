@@ -919,9 +919,17 @@ class SyncManager:
             return logs
 
 
+_user_config_manager: Optional[UserConfigManager] = None
+
+def get_user_config_manager() -> UserConfigManager:
+    global _user_config_manager
+    if _user_config_manager is None:
+        _user_config_manager = UserConfigManager()
+    return _user_config_manager
+
 if __name__ == "__main__":
     # Пример использования
-    config_manager = UserConfigManager()
+    config_manager = get_user_config_manager()
     
     # Создание пользователя с настройками по умолчанию
     user_id = config_manager.create_user_with_defaults("test_user", "test@example.com")

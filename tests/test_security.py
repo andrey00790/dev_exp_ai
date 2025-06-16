@@ -31,10 +31,10 @@ class TestAuthentication:
     
     def test_authenticate_user_success(self):
         """Test successful user authentication"""
-        user = authenticate_user("demo_user", "demo_password")
+        user = authenticate_user("user@example.com", "user123")
         
         assert user is not None
-        assert user.user_id == "demo_user"
+        assert user.user_id == "user_001"
         assert user.is_active is True
     
     def test_authenticate_user_failure(self):
@@ -119,9 +119,9 @@ class TestAPIEndpoints:
     
     def test_login_endpoint(self):
         """Test login endpoint"""
-        response = self.client.post("/api/v1/auth/login", json={
-            "user_id": "demo_user",
-            "password": "demo_password"
+        response = self.client.post("/auth/login", json={
+            "email": "user@example.com",
+            "password": "user123"
         })
         
         assert response.status_code == 200
@@ -131,8 +131,8 @@ class TestAPIEndpoints:
     
     def test_login_invalid_credentials(self):
         """Test login with invalid credentials"""
-        response = self.client.post("/api/v1/auth/login", json={
-            "user_id": "invalid_user",
+        response = self.client.post("/auth/login", json={
+            "email": "invalid@example.com",
             "password": "wrong_password"
         })
         
@@ -140,7 +140,7 @@ class TestAPIEndpoints:
     
     def test_demo_users_endpoint(self):
         """Test demo users endpoint"""
-        response = self.client.get("/api/v1/auth/demo-users")
+        response = self.client.get("/auth/demo-users")
         
         assert response.status_code == 200
         data = response.json()

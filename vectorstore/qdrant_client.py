@@ -67,14 +67,23 @@ class QdrantVectorStore:
             if not self._connected:
                 self._connect()
             
-            # Try to get cluster info
-            info = self.client.get_cluster_info()
+            # For in-memory mode, always return healthy
+            if self.use_memory:
+                return {
+                    "status": "healthy",
+                    "connected": True,
+                    "mode": "memory",
+                    "cluster_info": None
+                }
+            
+            # For server mode, try to get collections to test connection
+            collections = self.client.get_collections()
             
             return {
                 "status": "healthy",
                 "connected": True,
-                "mode": "memory" if self.use_memory else "server",
-                "cluster_info": info if not self.use_memory else None
+                "mode": "server",
+                "collections_count": len(collections.collections) if collections else 0
             }
             
         except Exception as e:

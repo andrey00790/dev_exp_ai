@@ -1,1 +1,6 @@
-import React, { useState } from 'react'; export default function Generate() { const [topic, setTopic] = useState(''); const [requirements, setRequirements] = useState(['']); const [generating, setGenerating] = useState(false); const handleGenerate = async () => { setGenerating(true); console.log('Generating RFC for:', topic, requirements); setTimeout(() => setGenerating(false), 3000); }; return <div className='p-6'><h1 className='text-3xl font-bold mb-6'>RFC Generation</h1><div className='bg-white p-6 rounded-lg shadow'><div className='mb-4'><label className='block text-sm font-medium mb-2'>Topic</label><input type='text' value={topic} onChange={(e) => setTopic(e.target.value)} placeholder='Enter RFC topic...' className='w-full p-3 border rounded-lg' /></div><div className='mb-4'><label className='block text-sm font-medium mb-2'>Requirements</label>{requirements.map((req, i) => <input key={i} type='text' value={req} onChange={(e) => { const newReqs = [...requirements]; newReqs[i] = e.target.value; setRequirements(newReqs); }} placeholder='Enter requirement...' className='w-full p-3 border rounded-lg mb-2' />)}</div><button onClick={handleGenerate} disabled={generating} className='px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50'>{generating ? 'Generating...' : 'Generate RFC'}</button></div></div>; }
+import React from 'react';
+import EnhancedRFCGenerator from '../components/EnhancedRFCGenerator';
+
+export default function Generate() {
+  return <EnhancedRFCGenerator />;
+}

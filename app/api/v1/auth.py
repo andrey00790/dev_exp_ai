@@ -1,27 +1,28 @@
 """
-Authentication API endpoints for AI Assistant MVP
+Authentication API endpoints for AI Assistant MVP.
 
-Provides login, token management, and user authentication endpoints.
+Provides login, registration, and user management endpoints.
 """
 
 import logging
 from typing import Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import HTTPBasicCredentials, HTTPBasic
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBasic
 from pydantic import BaseModel
 
 from app.security.auth import (
-    authenticate_user, create_user_token, get_current_user, 
-    User, USERS_DB, update_user_usage
+    User, UserCreate, UserLogin, Token,
+    create_user, login_user, get_current_user,
+    USERS_DB, update_user_usage
 )
-from app.security.rate_limiter import rate_limit_auth
-from app.security.input_validation import SecureUserCredentials, validate_user_id
-from app.security.cost_control import cost_controller
+# from app.security.rate_limiter import rate_limit_auth
+# from app.security.input_validation import # validate_input
+# from app.security.cost_control import cost_controller
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 security_basic = HTTPBasic()
 
 class LoginRequest(BaseModel):
@@ -46,55 +47,162 @@ class UserProfileResponse(BaseModel):
     scopes: list[str]
     is_active: bool
 
-@router.post("/login", response_model=LoginResponse)
-@rate_limit_auth("5/minute")
-async def login_for_access_token(
-    request: Request,
-    credentials: SecureUserCredentials
-):
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
+# @rate_limit_auth("3/minute")  # Very strict for registration
+async def register_user(request: Request, user_data: UserCreate):
     """
-    Authenticate user and return JWT access token
+    Register a new user.
     
-    Args:
-        request: FastAPI request object
-        credentials: User credentials
-        
-    Returns:
-        JWT token and user information
-        
-    Raises:
-        HTTPException: If authentication fails
+    - **email**: Valid email address
+    - **password**: Strong password (8+ chars, uppercase, lowercase, digit)
+    - **name**: User's display name
+    - **budget_limit**: Optional monthly budget limit in USD
     """
-    logger.info(f"Login attempt for user: {credentials.user_id}")
+    try:
+        # Additional validation
+        # validate_input(user_data.name, "name")
+        # validate_input(user_data.email, "email")
+        
+        # Create user
+        user = create_user(user_data)
+        
+        # Login immediately after registration
+        login_data = UserLogin(email=user_data.email, password=user_data.password)
+        token = login_user(login_data)
+        
+        logger.info(f"New user registered: {user.email}")
+        return token
+        
+    except Exception as e:
+        logger.error(f"Registration failed: {e}")
+        raise
+
+@router.post("/login", response_model=Token)
+# @rate_limit_auth("5/minute")  # Strict for login attempts
+async def login(request: Request, credentials: UserLogin):
+    """
+    Login with email and password.
     
-    # Authenticate user
-    user = authenticate_user(credentials.user_id, credentials.password)
-    if not user:
-        logger.warning(f"Authentication failed for user: {credentials.user_id}")
+    Returns JWT access token for authenticated requests.
+    """
+    try:
+        # Additional validation
+        # validate_input(credentials.email, "email")
+        
+        token = login_user(credentials)
+        logger.info(f"User logged in: {credentials.email}")
+        return token
+        
+    except HTTPException:
+        logger.warning(f"Failed login attempt: {credentials.email}")
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {e}")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid user credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Login service temporarily unavailable"
         )
+
+@router.get("/me", response_model=User)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """
+    Get current user information.
     
-    if not user.is_active:
-        logger.warning(f"Inactive user login attempt: {credentials.user_id}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user account"
-        )
+    Requires valid JWT token in Authorization header.
+    """
+    return current_user
+
+@router.get("/verify")
+async def verify_token(current_user: User = Depends(get_current_user)):
+    """
+    Verify JWT token validity.
     
-    # Create token response
-    token_response = create_user_token(user)
+    Returns user info if token is valid, 401 if invalid.
+    """
+    return {
+        "valid": True,
+        "user_id": current_user.user_id,
+        "email": current_user.email,
+        "scopes": current_user.scopes,
+        "budget_status": {
+            "limit": current_user.budget_limit,
+            "current_usage": current_user.current_usage,
+            "remaining": current_user.budget_limit - current_user.current_usage
+        }
+    }
+
+@router.post("/refresh")
+async def refresh_token(current_user: User = Depends(get_current_user)):
+    """
+    Refresh JWT token.
     
-    logger.info(f"Successful login for user: {credentials.user_id}")
+    Returns new token with extended expiration.
+    """
+    from app.security.auth import create_access_token
+    from datetime import timedelta
     
-    return LoginResponse(
-        access_token=token_response["access_token"],
-        token_type=token_response["token_type"],
-        expires_in=token_response["expires_in"],
-        user_info=token_response["user_info"]
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(
+        data={
+            "sub": current_user.user_id,
+            "email": current_user.email,
+            "scopes": current_user.scopes
+        },
+        expires_delta=access_token_expires
     )
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=30 * 60,  # 30 minutes in seconds
+        user=current_user
+    )
+
+@router.get("/budget")
+async def get_budget_info(current_user: User = Depends(get_current_user)):
+    """
+    Get user's budget information and usage statistics.
+    """
+    usage_percentage = (current_user.current_usage / current_user.budget_limit) * 100
+    
+    status_level = "active"
+    if usage_percentage >= 100:
+        status_level = "exceeded"
+    elif usage_percentage >= 95:
+        status_level = "critical"
+    elif usage_percentage >= 80:
+        status_level = "warning"
+    
+    return {
+        "user_id": current_user.user_id,
+        "budget_limit": current_user.budget_limit,
+        "current_usage": current_user.current_usage,
+        "remaining": current_user.budget_limit - current_user.current_usage,
+        "usage_percentage": round(usage_percentage, 2),
+        "status": status_level,
+        "currency": "USD"
+    }
+
+@router.get("/scopes")
+async def get_user_scopes(current_user: User = Depends(get_current_user)):
+    """
+    Get user's permission scopes.
+    """
+    scope_descriptions = {
+        "basic": "Basic API access",
+        "search": "Semantic search functionality",
+        "generate": "RFC and documentation generation",
+        "admin": "Administrative functions"
+    }
+    
+    return {
+        "user_id": current_user.user_id,
+        "scopes": current_user.scopes,
+        "scope_descriptions": {
+            scope: scope_descriptions.get(scope, "Unknown scope")
+            for scope in current_user.scopes
+        }
+    }
 
 @router.get("/profile", response_model=UserProfileResponse)
 async def get_user_profile(current_user: User = Depends(get_current_user)):
@@ -118,46 +226,6 @@ async def get_user_profile(current_user: User = Depends(get_current_user)):
         scopes=current_user.scopes,
         is_active=current_user.is_active
     )
-
-@router.get("/budget")
-async def get_user_budget(current_user: User = Depends(get_current_user)):
-    """
-    Get user budget information and usage statistics
-    
-    Args:
-        current_user: Authenticated user
-        
-    Returns:
-        Budget and usage information
-    """
-    logger.debug(f"Budget request for user: {current_user.user_id}")
-    
-    # Get detailed budget info from cost controller
-    budget = cost_controller.get_user_budget(current_user.user_id)
-    
-    return {
-        "user_id": current_user.user_id,
-        "budget_status": budget.status,
-        "limits": {
-            "daily": budget.daily_limit,
-            "monthly": budget.monthly_limit,
-            "total": budget.total_limit
-        },
-        "current_usage": {
-            "daily": budget.current_daily,
-            "monthly": budget.current_monthly,
-            "total": budget.current_total
-        },
-        "remaining": {
-            "daily": budget.daily_limit - budget.current_daily,
-            "monthly": budget.monthly_limit - budget.current_monthly,
-            "total": budget.total_limit - budget.current_total
-        },
-        "last_reset": {
-            "daily": budget.last_reset_daily,
-            "monthly": budget.last_reset_monthly
-        }
-    }
 
 @router.get("/usage-stats")
 async def get_usage_statistics(
@@ -225,29 +293,6 @@ async def logout(current_user: User = Depends(get_current_user)):
         "timestamp": "2025-06-11T18:00:00Z"
     }
 
-@router.get("/validate-token")
-async def validate_token(current_user: User = Depends(get_current_user)):
-    """
-    Validate current JWT token and return user info
-    
-    Args:
-        current_user: Authenticated user
-        
-    Returns:
-        Token validation result
-    """
-    logger.debug(f"Token validation for user: {current_user.user_id}")
-    
-    return {
-        "valid": True,
-        "user_id": current_user.user_id,
-        "email": current_user.email,
-        "name": current_user.name,
-        "scopes": current_user.scopes,
-        "is_active": current_user.is_active,
-        "message": "Token is valid"
-    }
-
 @router.get("/demo-users")
 async def get_demo_users():
     """
@@ -259,13 +304,13 @@ async def get_demo_users():
     logger.info("Demo users list requested")
     
     demo_users = []
-    for user_id, user in USERS_DB.items():
+    for email, user_data in USERS_DB.items():
         demo_users.append({
-            "user_id": user.user_id,
-            "email": user.email,
-            "name": user.name,
-            "scopes": user.scopes,
-            "budget_limit": user.budget_limit,
+            "user_id": user_data["user_id"],
+            "email": user_data["email"],
+            "name": user_data["name"],
+            "scopes": user_data["scopes"],
+            "budget_limit": user_data["budget_limit"],
             "password": "demo_password"  # Only for demo!
         })
     

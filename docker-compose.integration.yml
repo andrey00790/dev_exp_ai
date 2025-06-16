@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # PostgreSQL для хранения данных
+  postgres:
+    image: postgres:15-alpine
+    container_name: dev_exp_ai_postgres_test
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"  # Используем другой порт чтобы не конфликтовать с основной БД
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test_network
+
+  # Qdrant для векторного поиска
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: dev_exp_ai_qdrant_test
+    ports:
+      - "6334:6333"  # HTTP API
+      - "6335:6334"  # gRPC API
+    volumes:
+      - qdrant_test_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - test_network
+
+  # Тестовое приложение
+  app_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: dev_exp_ai_app_test
+    environment:
+      - DATABASE_URL=postgresql://testuser:testpass@postgres:5432/testdb
+      - QDRANT_URL=http://qdrant:6333
+      - ENVIRONMENT=test
+      - LOG_LEVEL=DEBUG
+      # Отключаем Redis и Elasticsearch
+      - USE_REDIS=false
+      - USE_ELASTICSEARCH=false
+      # Используем PostgreSQL для кэширования и поиска
+      - CACHE_BACKEND=postgresql
+      - SEARCH_BACKEND=postgresql
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./test-data:/app/test-data
+      - ./logs:/app/logs
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres_test_data:
+    driver: local
+  qdrant_test_data:
+    driver: local
+
+networks:
+  test_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16 

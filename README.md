@@ -258,10 +258,9 @@ make test ARGS="-v"         # Verbose output
 
 ### 🎯 **For Quick Navigation**
 - **[📚 DOCS_INDEX.md](./DOCS_INDEX.md)** - Навигация по всей документации
-- **[🤖 AGENTS.md](./AGENTS.md)** - Главный файл с актуальными задачами
+- **[🗺️ ROADMAP.md](./ROADMAP.md)** - Единый план развития с атомарными итерациями
 
 ### 📋 **Detailed Plans** 
-- **[🗺️ NEXT_STEPS_ROADMAP.md](./NEXT_STEPS_ROADMAP.md)** - Полная дорожная карта
 - **[🔐 SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md)** - Security requirements
 - **[🚀 INFRASTRUCTURE_IMPROVEMENTS.md](./INFRASTRUCTURE_IMPROVEMENTS.md)** - Что уже сделано
 
@@ -374,7 +373,7 @@ make clean                 # Full cleanup
 - 📋 **Clear Roadmap** - приоритизированные задачи на месяцы вперед
 - 🛠️ **Developer Ready** - отличный DX с `make bootstrap`
 
-**Next command:** Implement security according to [🤖 AGENTS.md](./AGENTS.md) Priority 1 task!
+**Next command:** Start GUI development according to [🗺️ ROADMAP.md](./ROADMAP.md) Iteration 1!
 
 ---
 
