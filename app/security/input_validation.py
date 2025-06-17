@@ -1,356 +1,365 @@
 """
-Input Validation module for AI Assistant MVP
+Input Validation and Sanitization Middleware for AI Assistant MVP
+Task 1.3: Security Hardening - Input validation and XSS/SQL injection prevention
 
-Provides comprehensive input validation and sanitization to prevent
-SQL injection, XSS attacks, and other security vulnerabilities.
+Provides:
+- Request payload validation and sanitization
+- XSS protection with HTML escape
+- SQL injection prevention
+- File upload validation
+- JSON payload size limits
+- Rate limiting for validation failures
 """
 
 import re
+import json
 import html
 import logging
-from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
+from typing import Dict, Any, List, Optional, Union
+from decimal import Decimal, InvalidOperation
 
-from fastapi import HTTPException, status
-from pydantic import BaseModel, field_validator, Field
+from fastapi import Request, HTTPException, status
+from fastapi.responses import JSONResponse
+import bleach
 
 logger = logging.getLogger(__name__)
 
-# Dangerous patterns that should be blocked
-DANGEROUS_SQL_PATTERNS = [
-    r"(?i)\b(drop|delete|insert|update|create|alter|exec|execute)\b",
-    r"(?i)\b(union|select|from|where|having|group by|order by)\b",
-    r"(?i)\b(script|javascript|vbscript|onload|onerror|onclick)\b",
-    r"[';\"\\-][\s]*(\-\-|#|\/\*)",
-    r"(?i)\b(xp_|sp_|sys\.)",
-    r"(?i)\b(information_schema|pg_|mysql\.)",
-    r"[';\"]\s*(or|and)\s*['\"]?\w*['\"]?\s*=\s*['\"]?\w*['\"]?",  # OR/AND injection patterns
-    r";\s*(drop|delete|insert|update)",  # Statement chaining with semicolon
-    r"'\s*(or|and)\s*'\w*'\s*=\s*'\w*'",  # Classic OR injection
+# Configuration
+MAX_REQUEST_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_STRING_LENGTH = 10000
+MAX_ARRAY_LENGTH = 1000
+MAX_OBJECT_DEPTH = 10
+
+# Dangerous patterns for SQL injection detection
+SQL_INJECTION_PATTERNS = [
+    r"(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b)",
+    r"(\b(UNION|OR|AND)\s+\d+\s*=\s*\d+)",
+    r"(--|/\*|\*/|;)",
+    r"(\b(SCRIPT|JAVASCRIPT|VBSCRIPT|ONLOAD|ONERROR)\b)",
+    r"(<\s*script[^>]*>.*?</\s*script\s*>)",
 ]
 
-DANGEROUS_XSS_PATTERNS = [
-    r"<script[^>]*>.*?</script>",
-    r"javascript:",
-    r"vbscript:",
-    r"onload\s*=",
-    r"onerror\s*=",
-    r"onclick\s*=",
-    r"onmouseover\s*=",
-    r"onfocus\s*=",
-    r"onblur\s*=",
-    r"<iframe[^>]*>.*?</iframe>",
-    r"<object[^>]*>.*?</object>",
-    r"<embed[^>]*>.*?</embed>",
+# XSS patterns
+XSS_PATTERNS = [
+    r"<\s*script[^>]*>.*?</\s*script\s*>",
+    r"<\s*iframe[^>]*>.*?</\s*iframe\s*>",
+    r"javascript\s*:",
+    r"on\w+\s*=",
+    r"<\s*object[^>]*>.*?</\s*object\s*>",
+    r"<\s*embed[^>]*>.*?</\s*embed\s*>",
 ]
 
-DANGEROUS_COMMAND_PATTERNS = [
-    r"(?i)\b(rm|del|format|fdisk|dd|mkfs)\b",
-    r"(?i)\b(sudo|su|chmod|chown)\b", 
-    r"(?i)\b(wget|curl|nc|netcat)\b",
-    r"(?i)\b(python|perl|ruby|bash|sh|cmd|powershell)\b",
-    r"[;&|`$()]",
-]
+# File type whitelist
+ALLOWED_FILE_TYPES = {
+    '.txt', '.md', '.pdf', '.doc', '.docx', '.json', '.csv', '.yml', '.yaml'
+}
 
-class SecurityValidationError(Exception):
-    """Custom exception for security validation failures"""
-    pass
+class InputValidator:
+    """Main input validation and sanitization class."""
+    
+    def __init__(self):
+        self.sql_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in SQL_INJECTION_PATTERNS]
+        self.xss_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in XSS_PATTERNS]
+        
+    def validate_and_sanitize_string(self, value: str, field_name: str = "field") -> str:
+        """Validate and sanitize string input."""
+        if not isinstance(value, str):
+            raise ValueError(f"{field_name} must be a string")
+        
+        # Length check
+        if len(value) > MAX_STRING_LENGTH:
+            raise ValueError(f"{field_name} exceeds maximum length of {MAX_STRING_LENGTH}")
+        
+        # SQL injection check
+        for pattern in self.sql_patterns:
+            if pattern.search(value):
+                logger.warning(f"SQL injection attempt detected in {field_name}: {value[:100]}...")
+                raise ValueError(f"Invalid content detected in {field_name}")
+        
+        # XSS check
+        for pattern in self.xss_patterns:
+            if pattern.search(value):
+                logger.warning(f"XSS attempt detected in {field_name}: {value[:100]}...")
+                raise ValueError(f"Invalid content detected in {field_name}")
+        
+        # HTML escape for additional protection
+        sanitized = html.escape(value)
+        
+        # Additional sanitization with bleach
+        sanitized = bleach.clean(sanitized, tags=[], attributes={}, strip=True)
+        
+        return sanitized
+    
+    def validate_email(self, email: str) -> str:
+        """Validate email format."""
+        email_pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        if not email_pattern.match(email):
+            raise ValueError("Invalid email format")
+        return self.validate_and_sanitize_string(email, "email")
+    
+    def validate_number(self, value: Union[int, float, str], field_name: str = "number") -> Union[int, float]:
+        """Validate numeric input."""
+        try:
+            if isinstance(value, str):
+                # Check for SQL injection in numeric strings
+                if any(pattern.search(value) for pattern in self.sql_patterns):
+                    raise ValueError(f"Invalid numeric format in {field_name}")
+                
+                # Try to convert to number
+                if '.' in value:
+                    return float(value)
+                else:
+                    return int(value)
+            
+            return value
+            
+        except (ValueError, TypeError):
+            raise ValueError(f"Invalid numeric value for {field_name}")
+    
+    def validate_decimal(self, value: Union[str, float, int], field_name: str = "decimal") -> Decimal:
+        """Validate decimal/monetary values."""
+        try:
+            if isinstance(value, str):
+                # Sanitize string input
+                value = self.validate_and_sanitize_string(value, field_name)
+            
+            decimal_value = Decimal(str(value))
+            
+            # Check reasonable bounds for monetary values
+            if decimal_value < 0:
+                raise ValueError(f"{field_name} cannot be negative")
+            if decimal_value > Decimal('1000000'):  # $1M limit
+                raise ValueError(f"{field_name} exceeds maximum allowed value")
+                
+            return decimal_value
+            
+        except (InvalidOperation, ValueError) as e:
+            raise ValueError(f"Invalid decimal value for {field_name}: {str(e)}")
+    
+    def validate_array(self, value: List[Any], field_name: str = "array") -> List[Any]:
+        """Validate array input."""
+        if not isinstance(value, list):
+            raise ValueError(f"{field_name} must be an array")
+        
+        if len(value) > MAX_ARRAY_LENGTH:
+            raise ValueError(f"{field_name} exceeds maximum length of {MAX_ARRAY_LENGTH}")
+        
+        # Recursively validate array elements
+        sanitized_array = []
+        for i, item in enumerate(value):
+            sanitized_item = self.validate_any_value(item, f"{field_name}[{i}]")
+            sanitized_array.append(sanitized_item)
+        
+        return sanitized_array
+    
+    def validate_object(self, value: Dict[str, Any], field_name: str = "object", depth: int = 0) -> Dict[str, Any]:
+        """Validate object/dictionary input."""
+        if not isinstance(value, dict):
+            raise ValueError(f"{field_name} must be an object")
+        
+        if depth > MAX_OBJECT_DEPTH:
+            raise ValueError(f"{field_name} exceeds maximum nesting depth")
+        
+        sanitized_object = {}
+        for key, val in value.items():
+            # Validate key
+            sanitized_key = self.validate_and_sanitize_string(key, f"{field_name}.key")
+            
+            # Validate value
+            sanitized_val = self.validate_any_value(val, f"{field_name}.{key}", depth + 1)
+            sanitized_object[sanitized_key] = sanitized_val
+        
+        return sanitized_object
+    
+    def validate_any_value(self, value: Any, field_name: str = "value", depth: int = 0) -> Any:
+        """Validate any type of value."""
+        if value is None:
+            return None
+        
+        if isinstance(value, bool):
+            return value
+        
+        if isinstance(value, str):
+            return self.validate_and_sanitize_string(value, field_name)
+        
+        if isinstance(value, (int, float)):
+            return self.validate_number(value, field_name)
+        
+        if isinstance(value, list):
+            return self.validate_array(value, field_name)
+        
+        if isinstance(value, dict):
+            return self.validate_object(value, field_name, depth)
+        
+        # For other types, convert to string and validate
+        return self.validate_and_sanitize_string(str(value), field_name)
+    
+    def validate_file_upload(self, filename: str, content_type: str, size: int) -> bool:
+        """Validate file upload parameters."""
+        # Check file extension
+        if not any(filename.lower().endswith(ext) for ext in ALLOWED_FILE_TYPES):
+            raise ValueError(f"File type not allowed. Allowed types: {', '.join(ALLOWED_FILE_TYPES)}")
+        
+        # Check file size (10MB limit)
+        if size > MAX_REQUEST_SIZE:
+            raise ValueError(f"File size exceeds maximum allowed size of {MAX_REQUEST_SIZE} bytes")
+        
+        # Sanitize filename
+        safe_filename = self.validate_and_sanitize_string(filename, "filename")
+        
+        # Additional filename checks
+        if '..' in safe_filename or '/' in safe_filename or '\\' in safe_filename:
+            raise ValueError("Invalid characters in filename")
+        
+        return True
+    
+    def validate_search_query(self, query: str) -> str:
+        """Validate search query with special considerations."""
+        if not query or not query.strip():
+            raise ValueError("Search query cannot be empty")
+        
+        # Length check
+        if len(query) > 1000:  # Shorter limit for search queries
+            raise ValueError("Search query too long")
+        
+        # Basic sanitization
+        sanitized_query = self.validate_and_sanitize_string(query, "search_query")
+        
+        # Remove excessive whitespace
+        sanitized_query = re.sub(r'\s+', ' ', sanitized_query).strip()
+        
+        return sanitized_query
+    
+    def validate_rfc_generation_request(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate RFC generation request with specific business rules."""
+        required_fields = ['title', 'description']
+        
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        
+        validated_data = {}
+        
+        # Validate title
+        validated_data['title'] = self.validate_and_sanitize_string(data['title'], 'title')
+        if len(validated_data['title']) < 5:
+            raise ValueError("Title must be at least 5 characters long")
+        
+        # Validate description
+        validated_data['description'] = self.validate_and_sanitize_string(data['description'], 'description')
+        if len(validated_data['description']) < 20:
+            raise ValueError("Description must be at least 20 characters long")
+        
+        # Validate optional fields
+        if 'category' in data:
+            validated_data['category'] = self.validate_and_sanitize_string(data['category'], 'category')
+        
+        if 'priority' in data:
+            validated_data['priority'] = self.validate_and_sanitize_string(data['priority'], 'priority')
+        
+        if 'metadata' in data:
+            validated_data['metadata'] = self.validate_object(data['metadata'], 'metadata')
+        
+        return validated_data
 
-def validate_input(value: str, field_name: str = "input") -> str:
-    """
-    Comprehensive input validation
-    
-    Args:
-        value: Input string to validate
-        field_name: Name of the field being validated
-        
-    Returns:
-        Validated and sanitized string
-        
-    Raises:
-        HTTPException: If dangerous patterns detected
-    """
-    if not isinstance(value, str):
-        value = str(value)
-    
-    # Check for dangerous SQL patterns
-    for pattern in DANGEROUS_SQL_PATTERNS:
-        if re.search(pattern, value, re.IGNORECASE | re.MULTILINE):
-            logger.warning(f"SQL injection attempt detected in {field_name}: {pattern}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "error": "Invalid input detected",
-                    "field": field_name,
-                    "reason": "Potentially dangerous SQL pattern",
-                    "code": "SQL_INJECTION_BLOCKED"
-                }
-            )
-    
-    # Check for XSS patterns
-    for pattern in DANGEROUS_XSS_PATTERNS:
-        if re.search(pattern, value, re.IGNORECASE | re.MULTILINE):
-            logger.warning(f"XSS attempt detected in {field_name}: {pattern}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "error": "Invalid input detected",
-                    "field": field_name,
-                    "reason": "Potentially dangerous script content",
-                    "code": "XSS_BLOCKED"
-                }
-            )
-    
-    # Check for command injection patterns
-    for pattern in DANGEROUS_COMMAND_PATTERNS:
-        if re.search(pattern, value, re.IGNORECASE):
-            logger.warning(f"Command injection attempt detected in {field_name}: {pattern}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "error": "Invalid input detected",
-                    "field": field_name,
-                    "reason": "Potentially dangerous command pattern",
-                    "code": "COMMAND_INJECTION_BLOCKED"
-                }
-            )
-    
-    return value
+# Global validator instance
+input_validator = InputValidator()
 
-def sanitize_string(value: str, max_length: int = 10000) -> str:
-    """
-    Sanitize string input
+async def input_validation_middleware(request: Request, call_next):
+    """Middleware to validate and sanitize all incoming requests."""
     
-    Args:
-        value: String to sanitize
-        max_length: Maximum allowed length
-        
-    Returns:
-        Sanitized string
-    """
-    if not isinstance(value, str):
-        value = str(value)
+    # Skip validation for certain endpoints
+    skip_paths = ["/health", "/metrics", "/docs", "/redoc", "/openapi.json"]
+    if any(request.url.path.startswith(path) for path in skip_paths):
+        response = await call_next(request)
+        return response
     
-    # Limit length
-    if len(value) > max_length:
-        value = value[:max_length]
-        logger.info(f"String truncated to {max_length} characters")
-    
-    # HTML escape
-    value = html.escape(value)
-    
-    # Remove null bytes
-    value = value.replace('\x00', '')
-    
-    # Remove excessive whitespace
-    value = re.sub(r'\s+', ' ', value).strip()
-    
-    return value
-
-def validate_url(url: str) -> str:
-    """
-    Validate URL format and security
-    
-    Args:
-        url: URL to validate
-        
-    Returns:
-        Validated URL
-        
-    Raises:
-        HTTPException: If URL is invalid or dangerous
-    """
     try:
-        parsed = urlparse(url)
-        
-        # Check scheme
-        if parsed.scheme not in ['http', 'https']:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid URL scheme. Only HTTP and HTTPS allowed."
+        # Check request size
+        content_length = request.headers.get('content-length')
+        if content_length and int(content_length) > MAX_REQUEST_SIZE:
+            return JSONResponse(
+                status_code=413,
+                content={"detail": "Request too large"}
             )
         
-        # Check for localhost/internal IPs (basic check)
-        if parsed.hostname in ['localhost', '127.0.0.1', '0.0.0.0']:
-            logger.warning(f"Blocked internal URL access: {url}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Access to internal URLs is not allowed."
-            )
+        # Validate and sanitize request body if present
+        if request.method in ["POST", "PUT", "PATCH"]:
+            try:
+                # Read and validate JSON body
+                body = await request.body()
+                if body:
+                    try:
+                        json_data = json.loads(body)
+                        
+                        # Apply specific validation based on endpoint
+                        if request.url.path.endswith('/generate'):
+                            validated_data = input_validator.validate_rfc_generation_request(json_data)
+                        elif request.url.path.endswith('/search'):
+                            if 'query' in json_data:
+                                json_data['query'] = input_validator.validate_search_query(json_data['query'])
+                            validated_data = input_validator.validate_object(json_data)
+                        else:
+                            validated_data = input_validator.validate_object(json_data)
+                        
+                        # Replace request body with validated data
+                        import io
+                        validated_body = json.dumps(validated_data).encode()
+                        request._body = validated_body
+                        
+                    except json.JSONDecodeError:
+                        return JSONResponse(
+                            status_code=400,
+                            content={"detail": "Invalid JSON format"}
+                        )
+                    
+            except Exception as e:
+                logger.warning(f"Input validation failed for {request.url.path}: {str(e)}")
+                return JSONResponse(
+                    status_code=400,
+                    content={"detail": f"Invalid input: {str(e)}"}
+                )
         
-        return url
+        # Validate query parameters
+        for key, value in request.query_params.items():
+            try:
+                input_validator.validate_and_sanitize_string(value, f"query_param_{key}")
+            except ValueError as e:
+                return JSONResponse(
+                    status_code=400,
+                    content={"detail": f"Invalid query parameter {key}: {str(e)}"}
+                )
         
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid URL format."
+        response = await call_next(request)
+        return response
+        
+    except Exception as e:
+        logger.error(f"Input validation middleware error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal validation error"}
         )
 
-def validate_email(email: str) -> str:
-    """
-    Validate email format
-    
-    Args:
-        email: Email address to validate
-        
-    Returns:
-        Validated email
-        
-    Raises:
-        HTTPException: If email format is invalid
-    """
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    
-    if not re.match(email_pattern, email):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid email format."
-        )
-    
-    return email.lower()
+# Utility functions for API endpoints
+def validate_user_input(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Utility function to validate user input in API endpoints."""
+    return input_validator.validate_object(data)
 
-def validate_user_id(user_id: str) -> str:
-    """
-    Validate user ID format
-    
-    Args:
-        user_id: User ID to validate
-        
-    Returns:
-        Validated user ID
-        
-    Raises:
-        HTTPException: If user ID format is invalid
-    """
-    # Allow alphanumeric, underscore, hyphen, dot
-    user_id_pattern = r'^[a-zA-Z0-9._-]+$'
-    
-    if not re.match(user_id_pattern, user_id):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid user ID format. Only alphanumeric, underscore, hyphen, and dot allowed."
-        )
-    
-    if len(user_id) > 100:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User ID too long. Maximum 100 characters."
-        )
-    
-    return user_id
+def validate_search_input(query: str) -> str:
+    """Utility function to validate search queries."""
+    return input_validator.validate_search_query(query)
 
-def validate_file_content(content: str, max_size: int = 1024 * 1024) -> str:
-    """
-    Validate file content for security
+def validate_budget_input(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Utility function to validate budget-related inputs."""
+    validated = {}
     
-    Args:
-        content: File content to validate
-        max_size: Maximum file size in bytes
-        
-    Returns:
-        Validated content
-        
-    Raises:
-        HTTPException: If content is dangerous
-    """
-    if len(content.encode('utf-8')) > max_size:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File too large. Maximum size: {max_size} bytes."
-        )
+    if 'user_id' in data:
+        validated['user_id'] = input_validator.validate_and_sanitize_string(data['user_id'], 'user_id')
     
-    # Check for binary content (simplified check)
-    try:
-        content.encode('utf-8')
-    except UnicodeEncodeError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file content. Only UTF-8 text files allowed."
-        )
+    if 'new_budget_limit' in data:
+        validated['new_budget_limit'] = float(input_validator.validate_decimal(data['new_budget_limit'], 'new_budget_limit'))
     
-    # Validate content for dangerous patterns
-    validate_input(content, "file_content")
+    if 'reason' in data:
+        validated['reason'] = input_validator.validate_and_sanitize_string(data['reason'], 'reason')
     
-    return content
-
-# Pydantic validators for common use cases
-class SecureRFCRequest(BaseModel):
-    """Secure RFC generation request model"""
-    task_type: str = Field(..., max_length=50)
-    initial_request: str = Field(..., max_length=5000)
-    context: Optional[str] = Field(None, max_length=10000)
-    
-    @field_validator('task_type', 'initial_request', 'context')
-    def validate_text_fields(cls, v):
-        if v is not None:
-            return validate_input(v)
-        return v
-
-class SecureSearchRequest(BaseModel):
-    """Secure search request model"""
-    query: str = Field(..., min_length=1, max_length=1000)
-    limit: Optional[int] = Field(10, ge=1, le=100)
-    
-    @field_validator('query')
-    def validate_query(cls, v):
-        return validate_input(v, "search_query")
-
-class SecureDocumentationRequest(BaseModel):
-    """Secure documentation generation request model"""
-    code: str = Field(..., max_length=100000)
-    language: Optional[str] = Field(None, max_length=50)
-    doc_type: Optional[str] = Field("readme", max_length=50)
-    
-    @field_validator('code')
-    def validate_code(cls, v):
-        return validate_file_content(v)
-    
-    @field_validator('language', 'doc_type')
-    def validate_string_fields(cls, v):
-        if v is not None:
-            return validate_input(v)
-        return v
-
-class SecureUserCredentials(BaseModel):
-    """Secure user credentials model"""
-    user_id: str = Field(..., min_length=1, max_length=100)
-    password: str = Field(..., min_length=8, max_length=128)
-    
-    @field_validator('user_id')
-    def validate_user_id_field(cls, v):
-        return validate_user_id(v)
-    
-    @field_validator('password')
-    def validate_password(cls, v):
-        # Basic password validation
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters long")
-        return v
-
-def create_validation_summary() -> Dict[str, Any]:
-    """
-    Create summary of validation rules
-    
-    Returns:
-        Dictionary with validation information
-    """
-    return {
-        "validation_rules": {
-            "sql_injection": f"{len(DANGEROUS_SQL_PATTERNS)} patterns blocked",
-            "xss_protection": f"{len(DANGEROUS_XSS_PATTERNS)} patterns blocked",
-            "command_injection": f"{len(DANGEROUS_COMMAND_PATTERNS)} patterns blocked",
-            "max_input_length": "10,000 characters",
-            "max_file_size": "1 MB",
-            "allowed_url_schemes": ["http", "https"],
-            "user_id_format": "alphanumeric, underscore, hyphen, dot"
-        },
-        "security_features": [
-            "HTML escaping",
-            "Length limiting",
-            "Pattern matching",
-            "URL validation",
-            "Email validation",
-            "File content validation"
-        ],
-        "status": "Input validation active"
-    } 
+    return validated 

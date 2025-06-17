@@ -5,10 +5,12 @@ import {
   Cog6ToothIcon,
   ServerStackIcon,
   UserCircleIcon,
+  CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
 import DataSourcesSettings from '../components/settings/DataSourcesSettings';
 import UserPreferences from '../components/settings/UserPreferences';
 import ExternalSystems from '../components/settings/ExternalSystems';
+import BudgetDashboard from '../components/BudgetDashboard';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -17,6 +19,7 @@ function classNames(...classes) {
 const tabs = [
   { name: 'Data Sources', icon: ServerStackIcon },
   { name: 'External Systems', icon: Cog6ToothIcon },
+  { name: 'Budget & Costs', icon: CurrencyDollarIcon },
   { name: 'User Preferences', icon: UserCircleIcon },
 ];
 
@@ -26,7 +29,7 @@ export default function Settings() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">⚙️ Settings</h1>
         <p className="text-gray-600 mt-1">
-          Manage your data sources, external system connections, and user preferences.
+          Manage your data sources, external system connections, budget tracking, and user preferences.
         </p>
       </div>
 
@@ -57,6 +60,9 @@ export default function Settings() {
           </Tab.Panel>
           <Tab.Panel>
             <ExternalSystems />
+          </Tab.Panel>
+          <Tab.Panel>
+            <BudgetDashboard />
           </Tab.Panel>
           <Tab.Panel>
             <UserPreferences />

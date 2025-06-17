@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBasic
 from pydantic import BaseModel
 
-from app.security.auth import (
+from app.security.auth import User, AuthMiddleware, get_password_hash, USERS_DB, create_access_token, verify_password, get_user_by_email, require_scope
     User, UserCreate, UserLogin, Token,
     create_user, login_user, get_current_user,
     USERS_DB, update_user_usage

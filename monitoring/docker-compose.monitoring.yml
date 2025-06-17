@@ -1,62 +1,117 @@
+# AI Assistant MVP - Production Monitoring Stack
+# Comprehensive observability with Prometheus, Grafana, Jaeger, and Loki
+
 version: '3.8'
 
 services:
-  # Prometheus для сбора метрик
+  # Prometheus - Metrics Collection
   prometheus:
-    image: prom/prometheus:latest
-    container_name: ai_prometheus
+    image: prom/prometheus:v2.45.0
+    container_name: ai-assistant-prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.enable-lifecycle'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--storage.tsdb.wal-compression'
     networks:
       - monitoring
-    restart: unless-stopped
+    labels:
+      org.label-schema.group: "monitoring"
 
-  # Grafana для визуализации
+  # Grafana - Visualization Dashboard
   grafana:
-    image: grafana/grafana:latest
-    container_name: ai_grafana
+    image: grafana/grafana:10.0.0
+    container_name: ai-assistant-grafana
+    restart: unless-stopped
     ports:
       - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel
     volumes:
       - grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     networks:
       - monitoring
-    restart: unless-stopped
     depends_on:
       - prometheus
+    labels:
+      org.label-schema.group: "monitoring"
 
-  # AlertManager для уведомлений
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: ai_alertmanager
+  # Jaeger - Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.47
+    container_name: ai-assistant-jaeger
+    restart: unless-stopped
     ports:
-      - "9093:9093"
+      - "16686:16686"  # UI
+      - "14268:14268"  # HTTP collector
+      - "6831:6831/udp"  # UDP agent
+      - "6832:6832/udp"  # UDP agent
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
     volumes:
-      - ./alerts/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-      - alertmanager_data:/alertmanager
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--storage.path=/alertmanager'
-      - '--web.external-url=http://localhost:9093'
+      - jaeger_data:/badger
     networks:
       - monitoring
-    restart: unless-stopped
+    labels:
+      org.label-schema.group: "monitoring"
 
-  # Node Exporter для системных метрик
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:2.8.0
+    container_name: ai-assistant-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+    labels:
+      org.label-schema.group: "monitoring"
+
+  # Promtail - Log Shipper
+  promtail:
+    image: grafana/promtail:2.8.0
+    container_name: ai-assistant-promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+    labels:
+      org.label-schema.group: "monitoring"
+
+  # Node Exporter - System Metrics
   node-exporter:
-    image: prom/node-exporter:latest
-    container_name: ai_node_exporter
+    image: prom/node-exporter:v1.6.0
+    container_name: ai-assistant-node-exporter
+    restart: unless-stopped
     ports:
       - "9100:9100"
     volumes:
@@ -70,37 +125,126 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
       - monitoring
-    restart: unless-stopped
+    labels:
+      org.label-schema.group: "monitoring"
 
-  # Redis Exporter для метрик Redis
+  # cAdvisor - Container Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: ai-assistant-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoring
+    labels:
+      org.label-schema.group: "monitoring"
+
+  # Alertmanager - Alert Management
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: ai-assistant-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    networks:
+      - monitoring
+    labels:
+      org.label-schema.group: "monitoring"
+
+  # Blackbox Exporter - External Monitoring
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.24.0
+    container_name: ai-assistant-blackbox
+    restart: unless-stopped
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - monitoring
+    labels:
+      org.label-schema.group: "monitoring"
+
+  # Redis Exporter - Redis Metrics
   redis-exporter:
-    image: oliver006/redis_exporter:latest
-    container_name: ai_redis_exporter
+    image: oliver006/redis_exporter:v1.51.0
+    container_name: ai-assistant-redis-exporter
+    restart: unless-stopped
     ports:
       - "9121:9121"
     environment:
       - REDIS_ADDR=redis://host.docker.internal:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
     networks:
       - monitoring
-    restart: unless-stopped
+    labels:
+      org.label-schema.group: "monitoring"
 
-  # PostgreSQL Exporter для метрик БД
+  # Postgres Exporter - Database Metrics
   postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: ai_postgres_exporter
+    image: prometheuscommunity/postgres-exporter:v0.12.0
+    container_name: ai-assistant-postgres-exporter
+    restart: unless-stopped
     ports:
       - "9187:9187"
     environment:
-      - DATA_SOURCE_NAME=postgresql://postgres:postgres@host.docker.internal:5432/postgres?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@host.docker.internal:5432/${POSTGRES_DB:-ai_assistant}?sslmode=disable
     networks:
       - monitoring
+    labels:
+      org.label-schema.group: "monitoring"
+
+  # ElasticSearch Exporter (if using ELK stack)
+  elasticsearch-exporter:
+    image: prometheuscommunity/elasticsearch-exporter:v1.5.0
+    container_name: ai-assistant-elasticsearch-exporter
     restart: unless-stopped
+    ports:
+      - "9114:9114"
+    command:
+      - '--es.uri=http://host.docker.internal:9200'
+      - '--es.all'
+      - '--es.indices'
+      - '--es.shards'
+    networks:
+      - monitoring
+    profiles:
+      - elk
+    labels:
+      org.label-schema.group: "monitoring"
 
 volumes:
   prometheus_data:
+    driver: local
   grafana_data:
+    driver: local
+  jaeger_data:
+    driver: local
+  loki_data:
+    driver: local
   alertmanager_data:
+    driver: local
 
 networks:
   monitoring:
-    driver: bridge 
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

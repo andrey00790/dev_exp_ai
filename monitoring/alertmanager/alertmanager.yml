@@ -1,0 +1,288 @@
+# AI Assistant MVP - Alertmanager Configuration
+# Comprehensive alert routing and notification management
+
+global:
+  # Default SMTP configuration
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@ai-assistant.com'
+  smtp_auth_username: 'alerts@ai-assistant.com'
+  smtp_auth_password: 'smtp_password'
+  smtp_require_tls: true
+
+  # Default Slack API URL (can be overridden per receiver)
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+
+# Template files for custom notification formatting
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Routing configuration
+route:
+  # Root route - catches all alerts
+  group_by: ['alertname', 'service', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'default-notifications'
+  
+  # Child routes for specific alert types
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+      
+    # Application-specific alerts
+    - match:
+        service: ai-assistant
+      receiver: 'application-team'
+      routes:
+        # High priority application alerts
+        - match:
+            alertname: 'ApplicationDown'
+          receiver: 'critical-alerts'
+        - match:
+            alertname: 'HighErrorRate'
+          receiver: 'application-team-urgent'
+    
+    # Infrastructure alerts
+    - match:
+        team: infrastructure
+      receiver: 'infrastructure-team'
+      routes:
+        # Database alerts
+        - match:
+            service: database
+          receiver: 'database-team'
+        # Cache alerts  
+        - match:
+            service: cache
+          receiver: 'infrastructure-team'
+    
+    # Security alerts
+    - match:
+        team: security
+      receiver: 'security-team'
+      group_wait: 5s
+      repeat_interval: 30m
+    
+    # Business metrics alerts
+    - match:
+        team: product
+      receiver: 'product-team'
+      repeat_interval: 4h
+      
+    # Warning alerts - less frequent notifications
+    - match:
+        severity: warning
+      receiver: 'warning-notifications'
+      repeat_interval: 6h
+
+# Inhibition rules - suppress alerts when other alerts are firing
+inhibit_rules:
+  # Suppress instance down alerts when entire service is down
+  - source_match:
+      alertname: 'ApplicationDown'
+    target_match_re:
+      alertname: '(InstanceDown|HighCPUUsage|HighMemoryUsage)'
+    equal: ['service']
+  
+  # Suppress high error rate when application is down
+  - source_match:
+      alertname: 'ApplicationDown'
+    target_match:
+      alertname: 'HighErrorRate'
+    equal: ['service']
+  
+  # Suppress cache alerts when Redis is down
+  - source_match:
+      alertname: 'RedisDown'
+    target_match_re:
+      alertname: '(LowCacheHitRatio|HighRedisMemoryUsage)'
+    equal: ['instance']
+
+# Notification receivers
+receivers:
+  # Default notifications
+  - name: 'default-notifications'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#ai-assistant-alerts'
+        title: 'AI Assistant Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+
+  # Critical alerts - multiple channels
+  - name: 'critical-alerts'
+    # Slack notification
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#ai-assistant-critical'
+        title: '🚨 CRITICAL: AI Assistant Alert'
+        text: |
+          <!channel>
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          *Runbook:* {{ .Annotations.runbook_url }}
+          {{ end }}
+        send_resolved: true
+        color: 'danger'
+    
+    # Email notification
+    email_configs:
+      - to: 'oncall@ai-assistant.com'
+        subject: '🚨 CRITICAL Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Critical alert fired for AI Assistant:
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+          
+          Runbook: {{ .Annotations.runbook_url }}
+          {{ end }}
+    
+    # PagerDuty integration (if configured)
+    pagerduty_configs:
+      - routing_key: 'YOUR_PAGERDUTY_INTEGRATION_KEY'
+        description: 'AI Assistant Critical Alert: {{ .GroupLabels.alertname }}'
+        client: 'AI Assistant Monitoring'
+        client_url: 'https://grafana.ai-assistant.com'
+        details:
+          service: '{{ .GroupLabels.service }}'
+          severity: '{{ .GroupLabels.severity }}'
+          alertname: '{{ .GroupLabels.alertname }}'
+
+  # Application team notifications
+  - name: 'application-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#backend-team'
+        title: 'AI Assistant Application Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        send_resolved: true
+
+  # Urgent application team notifications
+  - name: 'application-team-urgent'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#backend-team'
+        title: '⚠️ URGENT: AI Assistant Alert'
+        text: |
+          <!here>
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        send_resolved: true
+        color: 'warning'
+
+  # Infrastructure team notifications
+  - name: 'infrastructure-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#infrastructure'
+        title: 'Infrastructure Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Instance:* {{ .Labels.instance }}
+          *Severity:* {{ .Labels.severity }}
+          {{ end }}
+        send_resolved: true
+
+  # Database team notifications
+  - name: 'database-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#database-team'
+        title: 'Database Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Database:* {{ .Labels.datname }}
+          *Instance:* {{ .Labels.instance }}
+          {{ end }}
+        send_resolved: true
+    email_configs:
+      - to: 'dba@ai-assistant.com'
+        subject: 'Database Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Database alert for AI Assistant:
+          {{ range .Alerts }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  # Security team notifications
+  - name: 'security-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#security-alerts'
+        title: '🔒 Security Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+
+  # Product team notifications
+  - name: 'product-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#product-metrics'
+        title: 'Product Metrics Alert'
+        text: |
+          {{ range .Alerts }}
+          *Metric:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        send_resolved: true
+
+  # Warning notifications - less urgent
+  - name: 'warning-notifications'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#ai-assistant-warnings'
+        title: 'AI Assistant Warning'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        send_resolved: true
+        color: 'warning'
+
+# Time-based silencing (optional)
+# Can be used to silence alerts during maintenance windows
+time_intervals:
+  - name: maintenance_window
+    time_intervals:
+      - times:
+          - start_time: '02:00'
+            end_time: '04:00'
+        weekdays: ['sunday']
+        months: ['1:12'] 

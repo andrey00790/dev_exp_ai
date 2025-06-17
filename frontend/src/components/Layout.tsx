@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   HomeIcon, 
   MagnifyingGlassIcon, 
@@ -12,7 +13,9 @@ import {
   ChatBubbleLeftIcon,
   BeakerIcon,
   ChatBubbleLeftRightIcon,
-  SparklesIcon
+  SparklesIcon, 
+  ChartBarIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -22,6 +25,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
@@ -31,6 +35,7 @@ export default function Layout({ children }: LayoutProps) {
     { name: 'Code Docs', href: '/code-docs', icon: CodeBracketIcon },
     { name: 'API Test', href: '/api-test', icon: BeakerIcon },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+    { name: 'Monitoring', href: '/monitoring', icon: ChartBarIcon },
     { name: 'Enhanced RFC', href: '/enhanced-rfc', icon: SparklesIcon },
   ];
 
@@ -40,6 +45,26 @@ export default function Layout({ children }: LayoutProps) {
     { id: 2, title: 'Generate RFC for user auth', type: 'generate', timestamp: '1 day ago' },
     { id: 3, title: 'Document React components', type: 'docs', timestamp: '2 days ago' },
   ];
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getBudgetStatusColor = (usage: number, limit: number) => {
+    const percentage = (usage / limit) * 100;
+    if (percentage >= 95) return 'text-red-400';
+    if (percentage >= 80) return 'text-yellow-400';
+    return 'text-green-400';
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -127,16 +152,36 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* User Profile */}
           <div className="p-4 border-t border-gray-700">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="h-8 w-8 bg-gray-600 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-white">U</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center flex-1 min-w-0">
+                <div className="flex-shrink-0">
+                  <div className="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-white">
+                      {user ? getUserInitials(user.name) : 'U'}
+                    </span>
+                  </div>
+                </div>
+                <div className="ml-3 flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
+                    {user ? user.name : 'User'}
+                  </p>
+                  <p className="text-xs text-gray-400 truncate">
+                    {user ? user.email : 'user@example.com'}
+                  </p>
+                  {user && (
+                    <p className={`text-xs ${getBudgetStatusColor(user.current_usage, user.budget_limit)}`}>
+                      ${user.current_usage.toFixed(2)} / ${user.budget_limit.toFixed(2)}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">User</p>
-                <p className="text-xs text-gray-400">user@example.com</p>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="ml-2 p-1 text-gray-400 hover:text-white transition-colors"
+                title="Logout"
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </div>

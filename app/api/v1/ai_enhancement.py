@@ -11,7 +11,7 @@ import asyncio
 from datetime import datetime
 
 from app.security.auth import get_current_user
-from app.security.rate_limiter import rate_limit_ai_operations as rate_limit
+from app.security.rate_limiter import rate_limit_llm as rate_limit
 
 logger = logging.getLogger(__name__)
 

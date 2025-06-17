@@ -1,0 +1,84 @@
+# =============================================================================
+# AI Assistant MVP - Production Dependencies
+# =============================================================================
+# Additional packages needed for production deployment
+
+# Production WSGI Server
+gunicorn==21.2.0
+uvicorn[standard]==0.23.2
+
+# Security Updates (fix known vulnerabilities)
+transformers>=4.50.0
+jinja2>=3.1.6
+aiohttp>=3.10.11
+requests>=2.32.2
+python-multipart>=0.0.18
+qdrant-client>=1.9.0
+orjson>=3.9.15
+anyio>=4.4.0
+
+# Monitoring & Observability
+prometheus-client==0.17.1
+opentelemetry-api==1.20.0
+opentelemetry-sdk==1.20.0
+opentelemetry-instrumentation-fastapi==0.41b0
+
+# Production Logging
+structlog==23.1.0
+python-json-logger==2.0.7
+
+# Health Checks & Diagnostics
+psutil==5.9.6
+httpx==0.25.2
+
+# Security & Authentication  
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+cryptography==41.0.7
+
+# Database Optimizations
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.23
+
+# Caching
+redis==5.0.1
+python-memcached==1.59
+
+# File Processing & Storage
+Pillow==10.1.0
+python-magic==0.4.27
+
+# Email Support
+aiosmtplib==3.0.1
+email-validator==2.1.0
+
+# Background Tasks
+celery==5.3.4
+kombu==5.3.4
+
+# API Documentation
+fastapi-users==12.1.2
+fastapi-limiter==0.1.5
+
+# Error Tracking
+sentry-sdk[fastapi]==1.38.0
+
+# Configuration Management
+python-dotenv==1.0.0
+pydantic-settings==2.1.0
+
+# Development & Testing (for CI/CD)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+
+# Code Quality
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Documentation
+mkdocs==1.5.3
+mkdocs-material==9.5.2 

@@ -1,0 +1,332 @@
+# AI Assistant MVP - Prometheus Alerting Rules
+# Comprehensive alerting for production monitoring
+
+groups:
+  # Application-level alerts
+  - name: ai_assistant_application
+    interval: 30s
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: ai_assistant:error_rate_5m > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: ai-assistant
+          team: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+          runbook_url: "https://runbooks.ai-assistant.com/high-error-rate"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: ai_assistant:response_time_p95_5m > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: ai-assistant
+          team: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for the last 5 minutes"
+          runbook_url: "https://runbooks.ai-assistant.com/high-response-time"
+
+      # Low request rate (possible outage)
+      - alert: LowRequestRate
+        expr: ai_assistant:request_rate_5m < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: ai-assistant
+          team: backend
+        annotations:
+          summary: "Low request rate - possible outage"
+          description: "Request rate is {{ $value }} requests/sec for the last 5 minutes"
+
+      # Application down
+      - alert: ApplicationDown
+        expr: up{job="ai-assistant-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: ai-assistant
+          team: backend
+        annotations:
+          summary: "AI Assistant application is down"
+          description: "AI Assistant backend has been down for more than 1 minute"
+          runbook_url: "https://runbooks.ai-assistant.com/application-down"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes{name=~"ai-assistant.*"} / container_spec_memory_limit_bytes{name=~"ai-assistant.*"}) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+          service: ai-assistant
+          team: infrastructure
+        annotations:
+          summary: "High memory usage in AI Assistant container"
+          description: "Memory usage is {{ $value | humanizePercentage }} in container {{ $labels.name }}"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{name=~"ai-assistant.*"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: ai-assistant
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage in AI Assistant container"
+          description: "CPU usage is {{ $value | humanizePercentage }} in container {{ $labels.name }}"
+
+  # Database alerts
+  - name: ai_assistant_database
+    interval: 30s
+    rules:
+      # Database down
+      - alert: DatabaseDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+          team: infrastructure
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "PostgreSQL database has been down for more than 1 minute"
+          runbook_url: "https://runbooks.ai-assistant.com/database-down"
+
+      # High database connections
+      - alert: HighDatabaseConnections
+        expr: ai_assistant:db_pool_utilization > 85
+        for: 3m
+        labels:
+          severity: warning
+          service: database
+          team: backend
+        annotations:
+          summary: "High database connection pool utilization"
+          description: "Database connection pool utilization is {{ $value | humanizePercentage }}"
+
+      # Long-running queries
+      - alert: LongRunningQueries
+        expr: pg_stat_activity_max_tx_duration{datname="ai_assistant"} > 300
+        for: 1m
+        labels:
+          severity: warning
+          service: database
+          team: backend
+        annotations:
+          summary: "Long-running database queries detected"
+          description: "Query has been running for {{ $value }}s in database {{ $labels.datname }}"
+
+      # Database disk usage
+      - alert: HighDatabaseDiskUsage
+        expr: (pg_database_size_bytes / (1024^3)) > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+          team: infrastructure
+        annotations:
+          summary: "High database disk usage"
+          description: "Database {{ $labels.datname }} size is {{ $value }}GB"
+
+  # Cache (Redis) alerts
+  - name: ai_assistant_cache
+    interval: 30s
+    rules:
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: cache
+          team: infrastructure
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis cache has been down for more than 1 minute"
+          runbook_url: "https://runbooks.ai-assistant.com/redis-down"
+
+      # Low cache hit ratio
+      - alert: LowCacheHitRatio
+        expr: ai_assistant:cache_hit_ratio_5m < 0.7
+        for: 5m
+        labels:
+          severity: warning
+          service: cache
+          team: backend
+        annotations:
+          summary: "Low cache hit ratio"
+          description: "Cache hit ratio is {{ $value | humanizePercentage }} for the last 5 minutes"
+
+      # High Redis memory usage
+      - alert: HighRedisMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 3m
+        labels:
+          severity: warning
+          service: cache
+          team: infrastructure
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}"
+
+      # Redis rejected connections
+      - alert: RedisRejectedConnections
+        expr: increase(redis_rejected_connections_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: cache
+          team: infrastructure
+        annotations:
+          summary: "Redis is rejecting connections"
+          description: "Redis rejected {{ $value }} connections in the last 5 minutes"
+
+  # Infrastructure alerts
+  - name: ai_assistant_infrastructure
+    interval: 30s
+    rules:
+      # High system load
+      - alert: HighSystemLoad
+        expr: node_load1 > 4
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+          team: infrastructure
+        annotations:
+          summary: "High system load"
+          description: "System load is {{ $value }} on {{ $labels.instance }}"
+
+      # High disk usage
+      - alert: HighDiskUsage
+        expr: (1 - node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+          team: infrastructure
+        annotations:
+          summary: "High disk usage"
+          description: "Disk usage is {{ $value | humanizePercentage }} on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+
+      # High system memory usage
+      - alert: HighSystemMemoryUsage
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 3m
+        labels:
+          severity: critical
+          service: infrastructure
+          team: infrastructure
+        annotations:
+          summary: "High system memory usage"
+          description: "System memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      # Disk will fill up
+      - alert: DiskWillFillUp
+        expr: predict_linear(node_filesystem_avail_bytes{fstype!="tmpfs"}[6h], 4*3600) < 0
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+          team: infrastructure
+        annotations:
+          summary: "Disk will fill up soon"
+          description: "Disk {{ $labels.mountpoint }} on {{ $labels.instance }} will fill up in approximately 4 hours"
+
+      # Instance down
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: infrastructure
+          team: infrastructure
+        annotations:
+          summary: "Instance is down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute"
+
+  # Security alerts
+  - name: ai_assistant_security
+    interval: 60s
+    rules:
+      # Unusual request pattern
+      - alert: UnusualRequestPattern
+        expr: rate(http_requests_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: security
+          team: security
+        annotations:
+          summary: "Unusual request pattern detected"
+          description: "Request rate is {{ $value }} requests/sec, which is unusually high"
+
+      # High 4xx error rate
+      - alert: High4xxErrorRate
+        expr: rate(http_requests_total{status=~"4.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          service: security
+          team: backend
+        annotations:
+          summary: "High 4xx error rate"
+          description: "4xx error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+
+      # Failed authentication attempts
+      - alert: HighFailedAuthAttempts
+        expr: rate(auth_failed_attempts_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+          team: security
+        annotations:
+          summary: "High number of failed authentication attempts"
+          description: "Failed authentication rate is {{ $value }} attempts/sec"
+
+  # Business metrics alerts
+  - name: ai_assistant_business
+    interval: 60s
+    rules:
+      # Low user satisfaction
+      - alert: LowUserSatisfaction
+        expr: avg_over_time(user_satisfaction_score[1h]) < 3.5
+        for: 10m
+        labels:
+          severity: warning
+          service: business
+          team: product
+        annotations:
+          summary: "Low user satisfaction score"
+          description: "Average user satisfaction score is {{ $value }} over the last hour"
+
+      # Low feature adoption
+      - alert: LowFeatureAdoption
+        expr: feature_adoption_rate_percent < 50
+        for: 30m
+        labels:
+          severity: info
+          service: business
+          team: product
+        annotations:
+          summary: "Low feature adoption rate"
+          description: "Feature {{ $labels.feature }} adoption rate is {{ $value | humanizePercentage }}"
+
+      # Budget threshold exceeded
+      - alert: BudgetThresholdExceeded
+        expr: user_budget_usage_percent > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: business
+          team: finance
+        annotations:
+          summary: "User budget threshold exceeded"
+          description: "User {{ $labels.user_id }} has used {{ $value | humanizePercentage }} of their budget" 
