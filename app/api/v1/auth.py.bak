@@ -11,7 +11,12 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBasic
 from pydantic import BaseModel
 
-from app.security.auth import (User, UserCreate, UserLogin, Token, create_user, login_user, get_current_user, USERS_DB, update_user_usage, get_password_hash, create_access_token, verify_password, get_user_by_email, require_scope)
+from app.security.auth import (
+    User, UserCreate, UserLogin, Token,
+    create_user, login_user, get_current_user,
+    USERS_DB, update_user_usage,
+    get_password_hash, create_access_token, verify_password, get_user_by_email, require_scope
+)
 # from app.security.rate_limiter import rate_limit_auth
 # from app.security.input_validation import # validate_input
 # from app.security.cost_control import cost_controller

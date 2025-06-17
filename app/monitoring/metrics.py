@@ -414,3 +414,9 @@ METRIC_TARGETS = {
     "system_uptime_min": 99.5,  # процент
     "error_rate_max": 2.0,  # процент
 }
+def setup_metrics():
+    """Initialize metrics collection and set up default values"""
+    logger.info("Setting up AI Assistant metrics")
+    initialize_app_info("2.1.0", "production")
+    logger.info("Metrics setup completed")
+    return True

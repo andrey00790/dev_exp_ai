@@ -90,7 +90,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         """
         EXCLUDED_PATHS = ["/health_smoke", "/docs", "/redoc", "/openapi.json"]
         if request.url.path in EXCLUDED_PATHS or request.url.path.startswith("/api/v1/auth/token"):
-                return await call_next(request)
+            return await call_next(request)
         
         try:
             credentials = await security(request)
@@ -100,10 +100,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 return Response('{"detail":"Not authenticated"}', status_code=401, media_type="application/json")
             raise e # Reraise other exceptions
         
-            return await call_next(request)
+        return await call_next(request)
 
 # Закомментируйте старую функцию, чтобы избежать путаницы
-# class SimpleAuthMiddleware(BaseHTTPMiddleware): ...
+# async def auth_middleware(request: Request, call_next): ...
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
@@ -139,9 +139,6 @@ def require_scope(required_scope: str):
     def decorator(func):
         return func
     return decorator
-class SimpleAuthMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        return await call_next(request)
-
-# Alias for compatibility
-auth_middleware = SimpleAuthMiddleware
+async def auth_middleware(request: Request, call_next):
+    """Simple auth middleware"""
+    return await call_next(request)
