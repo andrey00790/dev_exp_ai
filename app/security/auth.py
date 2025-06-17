@@ -145,3 +145,7 @@ class SimpleAuthMiddleware(BaseHTTPMiddleware):
 
 # Alias for compatibility
 auth_middleware = SimpleAuthMiddleware
+def require_admin(user):
+    """Check if user has admin role"""
+    return "admin" in user.scopes if hasattr(user, "scopes") else False
+
