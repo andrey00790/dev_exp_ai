@@ -21,6 +21,7 @@ from app.api.v1.health import router as health_router
 from app.api.v1.search import router as search_router
 from app.api.v1.generate import router as generate_router
 from app.api.v1.vector_search import router as vector_search_router
+from app.api.v1.qdrant_vector_search import router as qdrant_router
 
 # Security
 from app.security.auth import auth_middleware
@@ -75,6 +76,7 @@ app.include_router(health_router, prefix="/api/v1", tags=["Health"])
 app.include_router(search_router, prefix="/api/v1", tags=["Search"])
 app.include_router(generate_router, prefix="/api/v1", tags=["Generation"])
 app.include_router(vector_search_router, prefix="/api/v1", tags=["Vector Search"])
+app.include_router(qdrant_router, prefix="/api/v1", tags=["Qdrant Vector Search"])
 
 # WebSocket endpoint
 @app.websocket("/ws")

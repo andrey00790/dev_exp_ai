@@ -2,6 +2,7 @@
 Document collections management for different data types.
 """
 import logging
+import uuid
 from typing import List, Dict, Any, Optional
 from enum import Enum
 from dataclasses import dataclass
@@ -121,17 +122,20 @@ class CollectionManager:
                 logger.error(f"Embedding count mismatch: {len(embeddings)} vs {len(chunks)}")
                 return False
             
-            # Prepare vectors and payloads
+            # Prepare vectors and payloads with proper UUIDs
             vectors = [emb.vector for emb in embeddings]
             payloads = []
             chunk_ids = []
             
             for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-                chunk_id = f"{metadata.doc_id}_{i}"
-                chunk_ids.append(chunk_id)
+                # Generate proper UUID for each chunk
+                chunk_uuid = str(uuid.uuid4())
+                chunk_ids.append(chunk_uuid)
                 
                 payload = {
                     **chunk,
+                    "original_doc_id": metadata.doc_id,  # Keep original doc ID in payload
+                    "chunk_id": f"{metadata.doc_id}_{i}",  # Human-readable chunk reference
                     "embedding_token_count": embedding.token_count,
                     "embedding_cost": embedding.cost_estimate,
                     "chunk_index": i,
@@ -237,7 +241,7 @@ class CollectionManager:
             
             # Find all chunks for this document
             # Use a filter to find all points with this doc_id
-            filter_condition = {"doc_id": doc_id}
+            filter_condition = {"original_doc_id": doc_id}
             
             # Search for all chunks (large limit to get all)
             results = self.qdrant.search_vectors(
