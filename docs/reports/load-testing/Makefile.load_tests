@@ -1,0 +1,386 @@
+# Makefile for AI Assistant Load Testing
+# Provides convenient commands for running different load test scenarios
+
+PYTHON := python3
+LOAD_TEST_RUNNER := scripts/run_load_tests.py
+PYTEST := pytest
+REPORTS_DIR := reports/load_tests
+
+# Default target
+.PHONY: help
+help: ## Show this help message
+	@echo "🚀 AI Assistant Load Testing Commands"
+	@echo "====================================="
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+
+# Setup and preparation
+.PHONY: setup-load-tests
+setup-load-tests: ## Setup load testing environment
+	@echo "🔧 Setting up load testing environment..."
+	mkdir -p $(REPORTS_DIR)
+	mkdir -p logs
+	$(PYTHON) -m pip install pytest pytest-asyncio httpx websockets pyyaml psutil
+	@echo "✅ Load testing environment ready"
+
+# Core functionality load tests
+.PHONY: test-core-dev
+test-core-dev: ## Run core functionality tests (development profile)
+	@echo "🚀 Running core functionality load tests - Development"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --core-only --profile development
+
+.PHONY: test-core-staging
+test-core-staging: ## Run core functionality tests (staging profile)
+	@echo "🚀 Running core functionality load tests - Staging"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --core-only --profile staging
+
+.PHONY: test-core-production
+test-core-production: ## Run core functionality tests (production profile)
+	@echo "🚀 Running core functionality load tests - Production"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --core-only --profile production
+
+# Stress tests
+.PHONY: test-stress-light
+test-stress-light: ## Run light stress tests
+	@echo "🔥 Running light stress tests"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --stress-only --stress light
+
+.PHONY: test-stress-moderate
+test-stress-moderate: ## Run moderate stress tests
+	@echo "🔥 Running moderate stress tests"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --stress-only --stress moderate
+
+.PHONY: test-stress-heavy
+test-stress-heavy: ## Run heavy stress tests
+	@echo "🔥 Running heavy stress tests"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --stress-only --stress heavy
+
+# Pytest-based tests
+.PHONY: test-pytest-performance
+test-pytest-performance: ## Run pytest-based performance tests
+	@echo "🧪 Running pytest performance tests"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --pytest-only
+
+.PHONY: test-pytest-unit-performance
+test-pytest-unit-performance: ## Run unit performance tests directly
+	@echo "🧪 Running unit performance tests"
+	$(PYTEST) tests/performance/ -v -m "not slow" --tb=short
+
+.PHONY: test-pytest-all-performance
+test-pytest-all-performance: ## Run all pytest performance tests (including slow)
+	@echo "🧪 Running all pytest performance tests"
+	$(PYTEST) tests/performance/ -v --tb=short
+
+# Comprehensive test suites
+.PHONY: test-suite-dev
+test-suite-dev: ## Run comprehensive development test suite
+	@echo "🎯 Running comprehensive development test suite"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --profile development --stress light
+
+.PHONY: test-suite-staging
+test-suite-staging: ## Run comprehensive staging test suite
+	@echo "🎯 Running comprehensive staging test suite"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --profile staging --stress moderate
+
+.PHONY: test-suite-production
+test-suite-production: ## Run comprehensive production test suite
+	@echo "🎯 Running comprehensive production test suite"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --profile production --stress heavy
+
+# Quick tests for CI/CD
+.PHONY: test-quick
+test-quick: ## Run quick load tests for CI/CD
+	@echo "⚡ Running quick load tests"
+	$(PYTEST) tests/performance/test_core_functionality_load.py::TestCoreFunctionalityLoad::test_health_check_load -v
+	$(PYTEST) tests/performance/test_stress_endurance.py::TestStressScenarios::test_escalating_load_moderate -v
+
+.PHONY: test-smoke-performance
+test-smoke-performance: ## Run performance smoke tests
+	@echo "💨 Running performance smoke tests"
+	$(PYTEST) tests/performance/ -v -k "health_check or moderate" --tb=short
+
+# Specific component tests
+.PHONY: test-health-load
+test-health-load: ## Test health endpoint under load
+	@echo "🏥 Testing health endpoint load"
+	$(PYTEST) tests/performance/test_core_functionality_load.py -v -k "health"
+
+.PHONY: test-auth-load
+test-auth-load: ## Test authentication under load
+	@echo "🔐 Testing authentication load"
+	$(PYTEST) tests/performance/test_core_functionality_load.py -v -k "auth"
+
+.PHONY: test-websocket-load
+test-websocket-load: ## Test WebSocket under load
+	@echo "🔌 Testing WebSocket load"
+	$(PYTEST) tests/performance/test_core_functionality_load.py -v -k "websocket"
+
+.PHONY: test-monitoring-load
+test-monitoring-load: ## Test monitoring endpoints under load
+	@echo "📊 Testing monitoring load"
+	$(PYTEST) tests/performance/test_core_functionality_load.py -v -k "monitoring"
+
+.PHONY: test-optimization-load
+test-optimization-load: ## Test optimization endpoints under load
+	@echo "⚡ Testing optimization load"
+	$(PYTEST) tests/performance/test_core_functionality_load.py -v -k "optimization"
+
+# Endurance tests
+.PHONY: test-endurance-short
+test-endurance-short: ## Run short endurance tests (5 minutes)
+	@echo "⏰ Running short endurance tests"
+	$(PYTEST) tests/performance/test_stress_endurance.py::TestStressScenarios::test_sustained_load_short -v
+
+.PHONY: test-endurance-medium
+test-endurance-medium: ## Run medium endurance tests (15 minutes)
+	@echo "⏰ Running medium endurance tests"
+	$(PYTHON) -c "
+import asyncio
+import sys
+sys.path.append('tests/performance')
+from test_stress_endurance import StressEnduranceTester
+async def main():
+    tester = StressEnduranceTester()
+    await tester.run_sustained_load_test(concurrent_users=40, duration_minutes=15)
+asyncio.run(main())
+"
+
+# Spike tests
+.PHONY: test-spike-small
+test-spike-small: ## Run small spike load tests
+	@echo "⚡ Running small spike tests"
+	$(PYTEST) tests/performance/test_stress_endurance.py::TestStressScenarios::test_spike_load_moderate -v
+
+.PHONY: test-spike-large
+test-spike-large: ## Run large spike load tests
+	@echo "⚡ Running large spike tests"
+	$(PYTHON) -c "
+import asyncio
+import sys
+sys.path.append('tests/performance')
+from test_stress_endurance import StressEnduranceTester
+async def main():
+    tester = StressEnduranceTester()
+    await tester.run_spike_load_test(baseline_users=25, spike_users=100, spike_duration=60)
+asyncio.run(main())
+"
+
+# Memory and resource tests
+.PHONY: test-memory-leak
+test-memory-leak: ## Test for memory leaks during sustained load
+	@echo "🧠 Testing for memory leaks"
+	$(PYTHON) -c "
+import asyncio
+import sys
+sys.path.append('tests/performance')
+from test_stress_endurance import StressEnduranceTester
+async def main():
+    tester = StressEnduranceTester()
+    result = await tester.run_sustained_load_test(concurrent_users=30, duration_minutes=10)
+    memory_growth = result.memory_end_mb - result.memory_start_mb
+    print(f'Memory growth: {memory_growth:.1f} MB')
+    if memory_growth > 50:
+        print('⚠️ Potential memory leak detected!')
+    else:
+        print('✅ Memory usage stable')
+asyncio.run(main())
+"
+
+# Reporting and analysis
+.PHONY: view-results
+view-results: ## View latest test results
+	@echo "📊 Latest test results:"
+	@ls -lt $(REPORTS_DIR)/ | head -10
+
+.PHONY: clean-results
+clean-results: ## Clean old test results
+	@echo "🧹 Cleaning old test results..."
+	find $(REPORTS_DIR) -name "*.json" -mtime +7 -delete
+	find $(REPORTS_DIR) -name "*.md" -mtime +7 -delete
+	find $(REPORTS_DIR) -name "*.xml" -mtime +7 -delete
+	@echo "✅ Old results cleaned"
+
+.PHONY: generate-summary
+generate-summary: ## Generate performance test summary
+	@echo "📋 Generating performance test summary..."
+	@echo "Recent Load Test Results:" > $(REPORTS_DIR)/summary.md
+	@echo "=========================" >> $(REPORTS_DIR)/summary.md
+	@echo "" >> $(REPORTS_DIR)/summary.md
+	@find $(REPORTS_DIR) -name "*comprehensive*report*.md" -mtime -1 -exec echo "## Recent Comprehensive Report:" \; -exec cat {} \; >> $(REPORTS_DIR)/summary.md
+	@echo "✅ Summary generated: $(REPORTS_DIR)/summary.md"
+
+# Continuous testing
+.PHONY: test-continuous
+test-continuous: ## Run continuous load testing (every 30 minutes)
+	@echo "🔄 Starting continuous load testing..."
+	while true; do \
+		echo "Running load test cycle at $$(date)"; \
+		$(MAKE) test-quick; \
+		echo "Waiting 30 minutes for next cycle..."; \
+		sleep 1800; \
+	done
+
+# Performance benchmarking
+.PHONY: benchmark-baseline
+benchmark-baseline: ## Establish performance baseline
+	@echo "📏 Establishing performance baseline"
+	$(PYTHON) $(LOAD_TEST_RUNNER) --profile development --stress light
+	cp $(REPORTS_DIR)/$$(ls -t $(REPORTS_DIR)/comprehensive_load_test_results_*.json | head -1) $(REPORTS_DIR)/baseline_performance.json
+	@echo "✅ Baseline established"
+
+.PHONY: benchmark-compare
+benchmark-compare: ## Compare current performance to baseline
+	@echo "📊 Comparing performance to baseline"
+	@if [ -f $(REPORTS_DIR)/baseline_performance.json ]; then \
+		echo "Baseline found, running comparison..."; \
+		$(PYTHON) $(LOAD_TEST_RUNNER) --profile development --stress light; \
+		echo "⚠️ Manual comparison required - check latest results vs baseline_performance.json"; \
+	else \
+		echo "❌ No baseline found. Run 'make benchmark-baseline' first"; \
+	fi
+
+# Load test for different user loads
+.PHONY: test-load-10-users
+test-load-10-users: ## Test with 10 concurrent users
+	@echo "👥 Testing with 10 concurrent users"
+	$(PYTHON) -c "
+import asyncio
+import sys
+sys.path.append('tests/performance')
+from test_core_functionality_load import CoreFunctionalityLoadTester
+async def main():
+    tester = CoreFunctionalityLoadTester()
+    await tester.run_health_check_load_test(concurrent_users=10, requests_per_user=20)
+asyncio.run(main())
+"
+
+.PHONY: test-load-50-users
+test-load-50-users: ## Test with 50 concurrent users
+	@echo "👥 Testing with 50 concurrent users"
+	$(PYTHON) -c "
+import asyncio
+import sys
+sys.path.append('tests/performance')
+from test_core_functionality_load import CoreFunctionalityLoadTester
+async def main():
+    tester = CoreFunctionalityLoadTester()
+    await tester.run_health_check_load_test(concurrent_users=50, requests_per_user=30)
+asyncio.run(main())
+"
+
+.PHONY: test-load-100-users
+test-load-100-users: ## Test with 100 concurrent users
+	@echo "👥 Testing with 100 concurrent users"
+	$(PYTHON) -c "
+import asyncio
+import sys
+sys.path.append('tests/performance')
+from test_core_functionality_load import CoreFunctionalityLoadTester
+async def main():
+    tester = CoreFunctionalityLoadTester()
+    await tester.run_health_check_load_test(concurrent_users=100, requests_per_user=40)
+asyncio.run(main())
+"
+
+# All-in-one comprehensive testing
+.PHONY: test-all-scenarios
+test-all-scenarios: ## Run all load test scenarios (comprehensive)
+	@echo "🎯 Running ALL load test scenarios - this will take a while!"
+	@echo "Starting at $$(date)"
+	$(MAKE) test-suite-dev
+	$(MAKE) test-suite-staging
+	$(MAKE) test-endurance-short
+	$(MAKE) test-spike-small
+	$(MAKE) test-memory-leak
+	@echo "🎉 All scenarios completed at $$(date)"
+	$(MAKE) generate-summary
+
+# Emergency stop
+.PHONY: stop-tests
+stop-tests: ## Stop all running load tests
+	@echo "🛑 Stopping all load tests..."
+	pkill -f "run_load_tests.py" || true
+	pkill -f "pytest.*performance" || true
+	@echo "✅ Load tests stopped"
+
+# System resource monitoring during tests
+.PHONY: monitor-resources
+monitor-resources: ## Monitor system resources during load tests
+	@echo "📊 Monitoring system resources..."
+	@echo "Press Ctrl+C to stop monitoring"
+	while true; do \
+		echo "$$(date): CPU: $$(top -l 1 | grep "CPU usage" | awk '{print $$3}' | sed 's/%//') | Memory: $$(top -l 1 | grep "PhysMem" | awk '{print $$2}')"; \
+		sleep 5; \
+	done
+
+# Test environment validation
+.PHONY: validate-test-env
+validate-test-env: ## Validate test environment setup
+	@echo "🔍 Validating test environment..."
+	@echo "Python version: $$($(PYTHON) --version)"
+	@echo "Required packages:"
+	@$(PYTHON) -c "
+import sys
+packages = ['pytest', 'httpx', 'websockets', 'yaml', 'psutil']
+missing = []
+for pkg in packages:
+    try:
+        __import__(pkg)
+        print(f'  ✅ {pkg}')
+    except ImportError:
+        print(f'  ❌ {pkg}')
+        missing.append(pkg)
+if missing:
+    print(f'Missing packages: {missing}')
+    sys.exit(1)
+else:
+    print('✅ All required packages available')
+"
+	@echo "✅ Test environment validated"
+
+# Default comprehensive test
+.PHONY: test-default
+test-default: test-suite-dev ## Run default comprehensive test suite
+
+# Special targets for different environments
+.PHONY: test-ci
+test-ci: test-quick ## Optimized tests for CI/CD environments
+
+.PHONY: test-local
+test-local: test-suite-dev ## Comprehensive tests for local development
+
+.PHONY: test-staging-env
+test-staging-env: test-suite-staging ## Tests optimized for staging environment
+
+.PHONY: test-prod-validation
+test-prod-validation: test-suite-production ## Production validation tests
+
+# Help for specific scenarios
+.PHONY: help-scenarios
+help-scenarios: ## Show help for different test scenarios
+	@echo ""
+	@echo "🎯 Load Test Scenarios Guide"
+	@echo "============================"
+	@echo ""
+	@echo "Development Testing:"
+	@echo "  make test-suite-dev      - Full development suite"
+	@echo "  make test-core-dev       - Core functionality only"
+	@echo "  make test-quick          - Quick validation tests"
+	@echo ""
+	@echo "Staging Testing:"
+	@echo "  make test-suite-staging  - Full staging suite"
+	@echo "  make test-core-staging   - Core with higher load"
+	@echo ""
+	@echo "Production Testing:"
+	@echo "  make test-suite-production - Full production suite"
+	@echo "  make test-core-production  - Production-level load"
+	@echo ""
+	@echo "Stress Testing:"
+	@echo "  make test-stress-light   - Light stress scenarios"
+	@echo "  make test-stress-moderate - Moderate stress"
+	@echo "  make test-stress-heavy   - Heavy stress testing"
+	@echo ""
+	@echo "Specialized Testing:"
+	@echo "  make test-endurance-short - 5-minute endurance"
+	@echo "  make test-spike-small     - Spike load testing"
+	@echo "  make test-memory-leak     - Memory leak detection"
+	@echo "" 

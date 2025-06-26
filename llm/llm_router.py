@@ -3,6 +3,8 @@ Smart LLM Router.
 
 Управляет множественными LLM провайдерами с интеллектуальной маршрутизацией,
 автоматическим fallback и оптимизацией по качеству/стоимости.
+
+Enhanced with standardized async patterns for enterprise reliability.
 """
 
 import asyncio
@@ -16,6 +18,10 @@ from .providers.base import (
     BaseLLMProvider, LLMRequest, LLMResponse, LLMProvider, LLMModel,
     LLMProviderError, LLMRateLimitError, LLMAuthenticationError
 )
+
+# Import standardized async patterns
+from app.core.async_utils import AsyncTimeouts, with_timeout, safe_gather
+from app.core.exceptions import AsyncTimeoutError
 
 logger = logging.getLogger(__name__)
 
@@ -350,55 +356,155 @@ class LLMRouter:
         )
     
     async def get_router_stats(self) -> Dict[str, Any]:
-        """Возвращает статистику роутера."""
-        
-        provider_stats = {}
-        for provider_type, provider in self.providers.items():
-            metrics = self.provider_performance[provider_type]
-            provider_metrics = provider.get_metrics()
+        """
+        Возвращает статистику роутера.
+        Enhanced with timeout protection for provider metrics collection.
+        """
+        try:
+            # Collect provider metrics with timeout protection
+            provider_stats = {}
             
-            provider_stats[provider_type.value] = {
-                **provider_metrics,
-                "performance": metrics,
-                "enabled": provider.config.enabled,
-                "priority": provider.config.priority
+            for provider_type, provider in self.providers.items():
+                try:
+                    metrics = self.provider_performance[provider_type]
+                    
+                    # Get provider metrics with timeout
+                    provider_metrics = await with_timeout(
+                        asyncio.to_thread(provider.get_metrics),  # Some metrics might be sync
+                        AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for metrics
+                        f"Provider {provider_type.value} metrics collection timed out"
+                    )
+                    
+                    provider_stats[provider_type.value] = {
+                        **provider_metrics,
+                        "performance": metrics,
+                        "enabled": provider.config.enabled,
+                        "priority": provider.config.priority,
+                        "status": "metrics_collected"
+                    }
+                    
+                except AsyncTimeoutError:
+                    logger.warning(f"⚠️ Metrics collection timed out for {provider_type.value}")
+                    provider_stats[provider_type.value] = {
+                        "status": "timeout",
+                        "error": "Metrics collection timed out",
+                        "enabled": provider.config.enabled,
+                        "priority": provider.config.priority
+                    }
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to collect metrics for {provider_type.value}: {e}")
+                    provider_stats[provider_type.value] = {
+                        "status": "error",
+                        "error": str(e),
+                        "enabled": provider.config.enabled,
+                        "priority": provider.config.priority
+                    }
+            
+            return {
+                "routing_strategy": self.routing_strategy.value,
+                "total_requests": self.request_count,
+                "total_cost_usd": round(self.total_cost, 4),
+                "avg_cost_per_request": round(self.total_cost / max(self.request_count, 1), 4),
+                "providers": provider_stats,
+                "available_providers": len(self.get_available_providers()),
+                "stats_collection_status": "completed"
             }
-        
-        return {
-            "routing_strategy": self.routing_strategy.value,
-            "total_requests": self.request_count,
-            "total_cost_usd": round(self.total_cost, 4),
-            "avg_cost_per_request": round(self.total_cost / max(self.request_count, 1), 4),
-            "providers": provider_stats,
-            "available_providers": len(self.get_available_providers())
-        }
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to collect router stats: {e}")
+            return {
+                "routing_strategy": self.routing_strategy.value,
+                "total_requests": self.request_count,
+                "total_cost_usd": round(self.total_cost, 4),
+                "avg_cost_per_request": round(self.total_cost / max(self.request_count, 1), 4),
+                "providers": {},
+                "available_providers": 0,
+                "stats_collection_status": "error",
+                "error": str(e)
+            }
     
     async def health_check_all(self) -> Dict[str, Any]:
-        """Проверяет здоровье всех провайдеров."""
+        """
+        Проверяет здоровье всех провайдеров.
+        Enhanced with concurrent execution and timeout protection.
+        """
+        if not self.providers:
+            return {
+                "router_status": "no_providers",
+                "providers": {},
+                "healthy_count": 0,
+                "total_count": 0
+            }
         
-        results = {}
+        logger.info(f"🔄 Running health checks for {len(self.providers)} providers...")
         
-        # Запускаем проверки параллельно
-        tasks = [
-            (provider_type, provider.health_check())
-            for provider_type, provider in self.providers.items()
-        ]
-        
-        # Ждем результаты
-        for provider_type, task in tasks:
-            try:
-                result = await task
-                results[provider_type.value] = result
-            except Exception as e:
-                results[provider_type.value] = {
-                    "provider": provider_type.value,
-                    "status": "error",
-                    "error": str(e)
-                }
-        
-        return {
-            "router_status": "healthy" if results else "no_providers",
-            "providers": results,
-            "healthy_count": sum(1 for r in results.values() if r.get("status") == "healthy"),
-            "total_count": len(results)
-        } 
+        try:
+            # Run health checks concurrently with timeout
+            health_tasks = [
+                provider.health_check()
+                for provider in self.providers.values()
+            ]
+            
+            results_list = await safe_gather(
+                *health_tasks,
+                return_exceptions=True,
+                timeout=AsyncTimeouts.HTTP_REQUEST,  # 30 seconds for all health checks
+                max_concurrency=5  # Limit concurrent health checks
+            )
+            
+            # Process results
+            results = {}
+            healthy_count = 0
+            
+            for provider_type, result in zip(self.providers.keys(), results_list):
+                if isinstance(result, Exception):
+                    results[provider_type.value] = {
+                        "provider": provider_type.value,
+                        "status": "error",
+                        "error": str(result),
+                        "error_type": type(result).__name__
+                    }
+                else:
+                    results[provider_type.value] = result
+                    if result.get("status") == "healthy":
+                        healthy_count += 1
+            
+            router_status = "healthy" if healthy_count > 0 else "unhealthy"
+            if healthy_count == 0 and len(self.providers) > 0:
+                router_status = "all_providers_unhealthy"
+            
+            logger.info(f"✅ Health check completed: {healthy_count}/{len(self.providers)} providers healthy")
+            
+            return {
+                "router_status": router_status,
+                "providers": results,
+                "healthy_count": healthy_count,
+                "total_count": len(results),
+                "check_duration_info": "Concurrent health checks with 30s timeout"
+            }
+            
+        except AsyncTimeoutError as e:
+            logger.warning(f"⚠️ Health check timed out: {e}")
+            return {
+                "router_status": "timeout",
+                "providers": {
+                    provider_type.value: {
+                        "provider": provider_type.value,
+                        "status": "timeout",
+                        "error": "Health check timed out"
+                    }
+                    for provider_type in self.providers.keys()
+                },
+                "healthy_count": 0,
+                "total_count": len(self.providers),
+                "error": f"Health check timed out: {e}"
+            }
+        except Exception as e:
+            logger.error(f"❌ Health check failed: {e}")
+            return {
+                "router_status": "error",
+                "providers": {},
+                "healthy_count": 0,
+                "total_count": len(self.providers),
+                "error": str(e)
+            } 

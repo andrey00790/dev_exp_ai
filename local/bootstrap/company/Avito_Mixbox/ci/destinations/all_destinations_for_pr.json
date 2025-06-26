@@ -1,0 +1,30 @@
+[
+	{
+		"testDestination": {
+			"deviceType": "iPhone 13 mini",
+			"iOSVersion": "15.0",
+			"iOSVersionShort": "15.0",
+			"iOSVersionLong": "15.0",
+			"deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-13-mini",
+			"runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-15-0"
+		},
+		"reportOutput": {
+			"junit": "tests-artifacts/ios_15.xml",
+			"tracingReport": "tests-artifacts/ios_15.trace"
+		}
+	},
+	{
+		"testDestination": {
+			"deviceType": "iPhone 14 Pro Max",
+			"iOSVersion": "16.1",
+			"iOSVersionShort": "16.1",
+			"iOSVersionLong": "16.1",
+			"deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro-Max",
+			"runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-16-1"
+		},
+		"reportOutput": {
+			"junit": "tests-artifacts/ios_16.xml",
+			"tracingReport": "tests-artifacts/ios_16.trace"
+		}
+	}
+]

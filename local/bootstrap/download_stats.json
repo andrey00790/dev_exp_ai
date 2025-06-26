@@ -1,0 +1,108 @@
+{
+  "total": 46,
+  "downloaded": 35,
+  "skipped": 5,
+  "failed": 6,
+  "sources": {
+    "academic": {
+      "count": 3,
+      "downloaded": 3
+    },
+    "system_design": {
+      "count": 3,
+      "downloaded": 3
+    },
+    "microservices": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "language_python": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "language_go": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "profiling": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "language_rust": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "language_java": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "jvm_internals": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "language_php": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "terraform": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "docker": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "cloud_aws": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "cloud_gcp": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "rdbms": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "nosql": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "messaging": {
+      "count": 3,
+      "downloaded": 2
+    },
+    "security": {
+      "count": 4,
+      "downloaded": 4
+    },
+    "performance": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "monitoring": {
+      "count": 2,
+      "downloaded": 2
+    },
+    "ansible": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "unix": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "shell": {
+      "count": 1,
+      "downloaded": 1
+    },
+    "company": {
+      "count": 5,
+      "downloaded": 1
+    },
+    "stream_processing": {
+      "count": 1,
+      "downloaded": 0
+    }
+  }
+}

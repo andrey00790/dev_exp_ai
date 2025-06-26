@@ -153,7 +153,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         
         try:
             # Process request with APM tracing
-            with active_request_context():
+            with active_request_context(request_id, f"{method} {path}"):
                 response = await call_next(request)
                 
         except Exception as e:

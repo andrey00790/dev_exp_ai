@@ -112,6 +112,63 @@ code_documentation_lines_processed = Histogram(
     buckets=[100, 500, 1000, 2500, 5000, 10000, 25000]
 )
 
+# ===== AI OPTIMIZATION METRICS =====
+ai_optimization_requests = Counter(
+    'ai_assistant_ai_optimization_requests_total',
+    'Total AI optimization requests',
+    ['model_type', 'optimization_type', 'status']
+)
+
+ai_optimization_duration = Histogram(
+    'ai_assistant_ai_optimization_duration_seconds',
+    'AI optimization duration',
+    ['model_type', 'optimization_type'],
+    buckets=[0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0]
+)
+
+ai_optimization_improvement = Histogram(
+    'ai_assistant_ai_optimization_improvement_percent',
+    'AI optimization improvement percentage',
+    ['model_type', 'metric_type'],
+    buckets=[-50, -25, -10, 0, 10, 25, 50, 75, 100]
+)
+
+model_performance_latency = Gauge(
+    'ai_assistant_model_performance_latency_ms',
+    'Model performance latency in milliseconds',
+    ['model_type']
+)
+
+model_performance_accuracy = Gauge(
+    'ai_assistant_model_performance_accuracy',
+    'Model performance accuracy (0-1)',
+    ['model_type']
+)
+
+model_performance_cost = Gauge(
+    'ai_assistant_model_performance_cost_per_request',
+    'Model cost per request in USD',
+    ['model_type']
+)
+
+model_performance_quality = Gauge(
+    'ai_assistant_model_performance_quality_score',
+    'Model quality score (0-10)',
+    ['model_type']
+)
+
+benchmark_runs = Counter(
+    'ai_assistant_benchmark_runs_total',
+    'Total benchmark runs',
+    ['status']
+)
+
+benchmark_duration = Histogram(
+    'ai_assistant_benchmark_duration_seconds',
+    'Benchmark duration',
+    buckets=[1, 5, 10, 30, 60, 120]
+)
+
 # ===== USER EXPERIENCE METRICS =====
 user_satisfaction_score = Histogram(
     'ai_assistant_user_satisfaction_score',
@@ -273,6 +330,54 @@ def record_code_documentation_metrics(
         language=language
     ).observe(lines_processed)
 
+def record_ai_optimization(
+    user_id: str,
+    model_type: str,
+    optimization_type: str,
+    duration: float,
+    improvements: Dict[str, float],
+    status: str = "success"
+):
+    """Записывает метрики AI оптимизации."""
+    ai_optimization_requests.labels(
+        model_type=model_type,
+        optimization_type=optimization_type,
+        status=status
+    ).inc()
+    
+    ai_optimization_duration.labels(
+        model_type=model_type,
+        optimization_type=optimization_type
+    ).observe(duration)
+    
+    # Записываем улучшения по метрикам
+    for metric_type, improvement_percent in improvements.items():
+        ai_optimization_improvement.labels(
+            model_type=model_type,
+            metric_type=metric_type
+        ).observe(improvement_percent)
+
+def update_model_performance_metrics(
+    model_type: str,
+    latency_ms: float,
+    accuracy: float,
+    cost_per_request: float,
+    quality_score: float
+):
+    """Обновляет метрики производительности модели."""
+    model_performance_latency.labels(model_type=model_type).set(latency_ms)
+    model_performance_accuracy.labels(model_type=model_type).set(accuracy)
+    model_performance_cost.labels(model_type=model_type).set(cost_per_request)
+    model_performance_quality.labels(model_type=model_type).set(quality_score)
+
+def record_benchmark_metrics(
+    duration: float,
+    status: str = "success"
+):
+    """Записывает метрики бенчмарков."""
+    benchmark_runs.labels(status=status).inc()
+    benchmark_duration.observe(duration)
+
 def record_user_experience_metrics(
     feature: str,
     satisfaction_score: float,
@@ -373,7 +478,8 @@ def initialize_app_info(version: str, environment: str):
     update_feature_adoption_rates({
         "semantic_search": 0.0,
         "rfc_generation": 0.0,
-        "code_documentation": 0.0
+        "code_documentation": 0.0,
+        "ai_optimization": 0.0
     })
     
     update_system_metrics(
@@ -382,7 +488,8 @@ def initialize_app_info(version: str, environment: str):
             "semantic_search": 0.0,
             "rfc_generation": 0.0,
             "code_documentation": 0.0,
-            "llm_client": 0.0
+            "llm_client": 0.0,
+            "ai_optimization": 0.0
         },
         daily_active_users=0,
         weekly_active_users=0,
@@ -406,6 +513,13 @@ METRIC_TARGETS = {
     "code_documentation_duration_avg": 60.0,  # секунды
     "code_documentation_coverage_avg": 90.0,  # процент
     
+    # AI Optimization
+    "ai_optimization_duration_avg": 5.0,  # секунды
+    "ai_optimization_improvement_min": 10.0,  # процент
+    "model_performance_latency_max": 2000.0,  # миллисекунды
+    "model_performance_accuracy_min": 0.8,
+    "model_performance_quality_min": 7.0,
+    
     # Пользовательский опыт
     "user_satisfaction_avg": 4.0,
     "feature_adoption_rate_min": 80.0,  # процент
@@ -414,9 +528,33 @@ METRIC_TARGETS = {
     "system_uptime_min": 99.5,  # процент
     "error_rate_max": 2.0,  # процент
 }
+
 def setup_metrics():
     """Initialize metrics collection and set up default values"""
     logger.info("Setting up AI Assistant metrics")
     initialize_app_info("2.1.0", "production")
     logger.info("Metrics setup completed")
     return True
+
+class MetricsCollector:
+    """Класс для централизованного сбора метрик"""
+    
+    def __init__(self):
+        self.metrics = {}
+    
+    def record(self, metric_name: str, value: float, labels: Dict[str, str] = None):
+        """Записывает метрику"""
+        if labels is None:
+            labels = {}
+        
+        if metric_name not in self.metrics:
+            self.metrics[metric_name] = []
+        
+        self.metrics[metric_name].append({
+            "value": value,
+            "labels": labels,
+            "timestamp": time.time()
+        })
+
+# Глобальный экземпляр сборщика метрик
+metrics = MetricsCollector()

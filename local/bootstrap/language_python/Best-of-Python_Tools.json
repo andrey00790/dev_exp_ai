@@ -1,0 +1,11 @@
+{
+  "name": "Best-of-Python Tools",
+  "role": "Developer",
+  "category": "language_python",
+  "url": "https://github.com/ml-tooling/best-of-python",
+  "downloaded_at": "2025-06-24T01:08:23.482390",
+  "file_path": "bootstrap/language_python/Best-of-Python_Tools",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 352
+}

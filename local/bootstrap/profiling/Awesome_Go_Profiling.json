@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Go Profiling",
+  "role": "Developer",
+  "category": "profiling",
+  "url": "https://github.com/go-perf/awesome-go-perf",
+  "downloaded_at": "2025-06-24T01:08:25.958582",
+  "file_path": "bootstrap/profiling/Awesome_Go_Profiling",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 160
+}

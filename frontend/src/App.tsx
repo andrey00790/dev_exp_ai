@@ -11,7 +11,15 @@ import Generate from './pages/Generate';
 import CodeDocumentation from './pages/CodeDocumentation';
 import Settings from './pages/Settings';
 import Monitoring from './pages/Monitoring';
+import Analytics from './pages/Analytics';
 import Chat from './pages/Chat';
+import VectorSearchPage from './pages/VectorSearch';
+import LLMOperationsPage from './pages/LLMOperations';
+import AdvancedAI from './pages/AdvancedAI';
+import AIOptimization from './pages/AIOptimization';
+import AIAnalytics from './pages/AIAnalytics';
+import RealtimeMonitoring from './pages/RealtimeMonitoring';
+import DataSourcesManagement from './pages/DataSourcesManagement';
 import ApiTest from './components/ApiTest';
 import RFCDemo from './components/RFCDemo';
 import EnhancedRFCGenerator from './components/EnhancedRFCGenerator';
@@ -72,11 +80,19 @@ const AppRoutes: React.FC = () => {
             <Layout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/vector-search" element={<VectorSearchPage />} />
+                <Route path="/llm-operations" element={<LLMOperationsPage />} />
+                <Route path="/advanced-ai" element={<AdvancedAI />} />
+                <Route path="/ai-optimization" element={<AIOptimization />} />
+                <Route path="/ai-analytics" element={<AIAnalytics />} />
+                <Route path="/realtime-monitoring" element={<RealtimeMonitoring />} />
+                <Route path="/data-sources" element={<DataSourcesManagement />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/generate" element={<Generate />} />
                 <Route path="/enhanced-rfc" element={<EnhancedRFCGenerator />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/code-docs" element={<CodeDocumentation />} />
+                <Route path="/analytics" element={<Analytics />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/monitoring" element={<Monitoring />} />
                 <Route path="/api-test" element={<ApiTest />} />

@@ -386,3 +386,14 @@ async def check_budget_before_request(user_id: str, estimated_cost: float) -> Tu
 async def get_user_budget_status(user_id: str) -> Dict[str, Any]:
     """Get comprehensive budget status for a user."""
     return await cost_controller.get_usage_statistics(user_id)
+
+
+# Create global instances for compatibility
+cost_controller = CostController()
+
+class BudgetStatus:
+    """Budget status enumeration"""
+    ACTIVE = "active"
+    WARNING = "warning"
+    EXCEEDED = "exceeded"
+    SUSPENDED = "suspended"

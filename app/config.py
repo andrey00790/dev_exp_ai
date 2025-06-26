@@ -52,4 +52,54 @@ class AppConfig:
 
 
 # Global configuration instance
-settings = AppConfig.from_env() 
+settings = AppConfig.from_env()
+
+
+def get_settings() -> AppConfig:
+    """Get application settings."""
+    return settings
+
+
+def validate_config() -> bool:
+    """Validate configuration settings."""
+    try:
+        # Проверяем базовые настройки
+        if not settings.host:
+            return False
+        if settings.port <= 0 or settings.port > 65535:
+            return False
+        if settings.environment not in ["development", "production", "testing"]:
+            return False
+        if settings.log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+            return False
+        
+        return True
+    except Exception as e:
+        logger.error(f"Configuration validation failed: {e}")
+        return False
+
+
+def load_environment_config() -> dict:
+    """Load configuration from environment variables."""
+    return {
+        "HOST": os.getenv("HOST", "0.0.0.0"),
+        "PORT": os.getenv("PORT", "8000"),
+        "ENVIRONMENT": os.getenv("ENVIRONMENT", "development"),
+        "LOG_LEVEL": os.getenv("LOG_LEVEL", "INFO"),
+        "DEBUG": os.getenv("DEBUG", "false").lower() == "true"
+    }
+
+
+def get_database_url() -> str:
+    """Get database URL from environment."""
+    return os.getenv("DATABASE_URL", "postgresql://localhost:5432/ai_assistant")
+
+
+def get_redis_url() -> str:
+    """Get Redis URL from environment."""
+    return os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+
+def get_qdrant_url() -> str:
+    """Get Qdrant URL from environment."""
+    return os.getenv("QDRANT_URL", "http://localhost:6333") 

@@ -1,0 +1,3 @@
+*.xcodeproj
+Package.swift
+.swiftpm

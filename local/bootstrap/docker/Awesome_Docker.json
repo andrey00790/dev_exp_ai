@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Docker",
+  "role": "DevOps / SRE",
+  "category": "docker",
+  "url": "https://github.com/veggiemonk/awesome-docker",
+  "downloaded_at": "2025-06-24T01:08:35.081479",
+  "file_path": "bootstrap/docker/Awesome_Docker",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 480
+}

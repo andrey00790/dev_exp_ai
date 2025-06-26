@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Terraform Enterprise",
+  "role": "DevOps / SRE",
+  "category": "terraform",
+  "url": "https://github.com/hashicorp/awesome-terraform-enterprise",
+  "downloaded_at": "2025-06-24T01:08:33.719326",
+  "file_path": "bootstrap/terraform/Awesome_Terraform_Enterprise",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 160
+}

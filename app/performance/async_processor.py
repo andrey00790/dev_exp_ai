@@ -1,13 +1,14 @@
 """
 Async Processing System for AI Assistant MVP
-Task 2.2: Scalability & Load Handling - Background Tasks
+Enhanced with standardized async patterns for enterprise reliability
+Version: 2.1 Async Optimized
 
 Features:
 - LLM request queuing with Redis Queue
-- Background task processing
+- Background task processing with timeout protection
 - WebSocket notifications for completion
 - Progress tracking for long-running tasks
-- Task status management
+- Task status management with retry logic
 """
 
 import asyncio
@@ -20,11 +21,22 @@ from datetime import datetime, timedelta
 from enum import Enum
 import traceback
 
+# Import standardized async patterns
+from app.core.async_utils import (
+    AsyncTimeouts, 
+    with_timeout, 
+    async_retry,
+    safe_gather,
+    create_background_task
+)
+from app.core.exceptions import AsyncTimeoutError, AsyncRetryError
+
 # Redis queue imports with fallback
 try:
-    import aioredis
     from rq import Queue, Worker, Connection
     import redis
+    # Skip aioredis for now due to TimeoutError conflict
+    # import aioredis
     REDIS_QUEUE_AVAILABLE = True
 except ImportError:
     REDIS_QUEUE_AVAILABLE = False
@@ -71,30 +83,69 @@ class AsyncTaskProcessor:
         self.memory_queue = []
         self.memory_tasks = {}
         
+    @async_retry(max_attempts=3, delay=2.0, exceptions=(Exception,))
     async def initialize(self):
-        """Initialize async task processor"""
+        """
+        Initialize async task processor
+        Enhanced with timeout protection and retry logic
+        """
         if self.use_redis:
             try:
-                # Setup Redis connection
-                self.redis_client = redis.from_url(self.redis_url)
-                
-                # Test connection
-                self.redis_client.ping()
-                
-                # Initialize RQ queues
-                self.task_queue = Queue('ai_assistant_tasks', connection=self.redis_client)
-                self.llm_queue = Queue('llm_requests', connection=self.redis_client)
-                self.notification_queue = Queue('notifications', connection=self.redis_client)
+                # Initialize Redis with timeout protection
+                await with_timeout(
+                    self._initialize_redis_internal(),
+                    AsyncTimeouts.DATABASE_TRANSACTION,  # 30 seconds for Redis setup
+                    "Redis initialization timed out",
+                    {"redis_url": self.redis_url}
+                )
                 
                 logger.info("✅ Redis Queue task processor initialized")
                 
+            except AsyncTimeoutError as e:
+                logger.warning(f"⚠️ Redis initialization timed out: {e}")
+                self.use_redis = False
             except Exception as e:
                 logger.warning(f"⚠️ Redis Queue unavailable, using memory fallback: {e}")
                 self.use_redis = False
         
         if not self.use_redis:
             logger.info("📝 Using in-memory task processor")
+            
+    async def _initialize_redis_internal(self):
+        """Internal Redis initialization with connection pooling"""
+        # Setup Redis connection
+        self.redis_client = redis.from_url(self.redis_url)
+        
+        # Test connection
+        self.redis_client.ping()
+        
+        # Initialize RQ queues concurrently
+        queue_tasks = [
+            self._create_redis_queue('ai_assistant_tasks'),
+            self._create_redis_queue('llm_requests'),
+            self._create_redis_queue('notifications')
+        ]
+        
+        task_queue, llm_queue, notification_queue = await safe_gather(
+            *queue_tasks,
+            return_exceptions=False,
+            timeout=AsyncTimeouts.DATABASE_QUERY,
+            max_concurrency=3
+        )
+        
+        self.task_queue = task_queue
+        self.llm_queue = llm_queue  
+        self.notification_queue = notification_queue
+        
+    async def _create_redis_queue(self, queue_name: str):
+        """Create Redis queue with error handling"""
+        try:
+            return Queue(queue_name, connection=self.redis_client)
+        except Exception as e:
+            logger.error(f"Failed to create queue {queue_name}: {e}")
+            raise
     
+    @async_retry(max_attempts=2, delay=1.0, exceptions=(Exception,))
     async def submit_task(
         self, 
         task_func: str, 
@@ -105,6 +156,7 @@ class AsyncTaskProcessor:
     ) -> str:
         """
         Submit a task for background processing
+        Enhanced with timeout protection and concurrent processing
         
         Args:
             task_func: Function name to execute
@@ -132,43 +184,87 @@ class AsyncTaskProcessor:
         }
         
         try:
-            if self.use_redis:
-                # Submit to Redis Queue
-                if task_func.startswith("llm_"):
-                    job = self.llm_queue.enqueue(
-                        self._execute_task,
-                        task_data,
-                        job_timeout='30m',
-                        result_ttl=3600  # Keep results for 1 hour
-                    )
-                    task_data["job_id"] = job.id
-                else:
-                    job = self.task_queue.enqueue(
-                        self._execute_task,
-                        task_data,
-                        job_timeout='10m',
-                        result_ttl=1800  # Keep results for 30 minutes
-                    )
-                    task_data["job_id"] = job.id
-                
-                # Store task metadata
-                await self._store_task_metadata(task_id, task_data)
-                
-            else:
-                # Memory fallback
-                task_data["job_id"] = task_id
-                self.memory_queue.append(task_data)
-                self.memory_tasks[task_id] = task_data
-                
-                # Process immediately in memory mode (for development)
-                asyncio.create_task(self._process_memory_task(task_data))
+            # Execute task submission with timeout protection
+            timeout = _calculate_submission_timeout(task_func)
             
-            logger.info(f"Task submitted: {task_id} ({task_func}) for user {user_id}")
+            await with_timeout(
+                self._submit_task_internal(task_data, task_func),
+                timeout,
+                f"Task submission timed out (func: {task_func}, priority: {priority})",
+                {
+                    "task_id": task_id,
+                    "task_func": task_func,
+                    "user_id": user_id,
+                    "priority": priority.value
+                }
+            )
+            
+            logger.info(f"✅ Task submitted: {task_id} ({task_func}) for user {user_id}")
             return task_id
             
-        except Exception as e:
-            logger.error(f"Failed to submit task {task_id}: {e}")
+        except AsyncTimeoutError as e:
+            logger.error(f"❌ Task submission timed out: {e}")
             raise
+        except Exception as e:
+            logger.error(f"❌ Failed to submit task {task_id}: {e}")
+            raise
+            
+    async def _submit_task_internal(self, task_data: Dict[str, Any], task_func: str):
+        """Internal task submission with concurrent processing"""
+        task_id = task_data["task_id"]
+        
+        if self.use_redis:
+            # Submit to Redis Queue with concurrent metadata storage
+            if task_func.startswith("llm_"):
+                job = self.llm_queue.enqueue(
+                    self._execute_task,
+                    task_data,
+                    job_timeout='30m',
+                    result_ttl=3600  # Keep results for 1 hour
+                )
+                task_data["job_id"] = job.id
+            else:
+                job = self.task_queue.enqueue(
+                    self._execute_task,
+                    task_data,
+                    job_timeout='10m',
+                    result_ttl=1800  # Keep results for 30 minutes
+                )
+                task_data["job_id"] = job.id
+            
+            # Store task metadata in background
+            create_background_task(
+                self._store_task_metadata(task_id, task_data),
+                name=f"store_metadata_{task_id}"
+            )
+            
+        else:
+            # Memory fallback with enhanced processing
+            task_data["job_id"] = task_id
+            self.memory_queue.append(task_data)
+            self.memory_tasks[task_id] = task_data
+            
+            # Process immediately in memory mode (for development)
+            create_background_task(
+                self._process_memory_task(task_data),
+                name=f"process_memory_{task_id}"
+            )
+
+def _calculate_submission_timeout(task_func: str) -> float:
+    """Calculate timeout for task submission based on complexity"""
+    base_timeout = AsyncTimeouts.BACKGROUND_TASK / 10  # 30 seconds
+    
+    # Task complexity multipliers
+    complexity_multipliers = {
+        "llm_generate_rfc": 1.5,
+        "llm_enhance_document": 1.2,
+        "generate_analytics_report": 1.3,
+        "process_data_sync": 1.0,
+        "send_budget_alert": 0.8
+    }
+    
+    multiplier = complexity_multipliers.get(task_func, 1.0)
+    return min(base_timeout * multiplier, 60.0)  # Cap at 1 minute
     
     async def get_task_status(self, task_id: str) -> Dict[str, Any]:
         """Get current status of a task"""
@@ -268,43 +364,152 @@ class AsyncTaskProcessor:
         return user_tasks
     
     async def get_queue_stats(self) -> Dict[str, Any]:
-        """Get queue statistics"""
+        """
+        Get queue statistics
+        Enhanced with timeout protection and concurrent stats collection
+        """
         stats = {
             "processor_type": "redis" if self.use_redis else "memory",
             "timestamp": datetime.now().isoformat()
         }
         
         try:
+            # Collect stats with timeout protection
             if self.use_redis:
-                # Redis Queue stats
-                stats.update({
-                    "task_queue_size": len(self.task_queue),
-                    "llm_queue_size": len(self.llm_queue),
-                    "notification_queue_size": len(self.notification_queue),
-                    "total_jobs_processed": self.task_queue.count,
-                    "failed_jobs": len(self.task_queue.failed_job_registry),
-                    "started_jobs": len(self.task_queue.started_job_registry)
-                })
+                redis_stats = await with_timeout(
+                    self._collect_redis_stats(),
+                    AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for Redis stats
+                    "Redis stats collection timed out",
+                    {"processor_type": "redis"}
+                )
+                stats.update(redis_stats)
             else:
-                # Memory stats
-                total_tasks = len(self.memory_tasks)
-                pending_tasks = len([t for t in self.memory_tasks.values() if t.get("status") == TaskStatus.PENDING.value])
-                running_tasks = len([t for t in self.memory_tasks.values() if t.get("status") == TaskStatus.RUNNING.value])
-                completed_tasks = len([t for t in self.memory_tasks.values() if t.get("status") == TaskStatus.COMPLETED.value])
+                memory_stats = await with_timeout(
+                    self._collect_memory_stats(),
+                    AsyncTimeouts.DATABASE_QUERY / 2,  # 5 seconds for memory stats
+                    "Memory stats collection timed out",
+                    {"processor_type": "memory"}
+                )
+                stats.update(memory_stats)
                 
-                stats.update({
-                    "memory_queue_size": len(self.memory_queue),
-                    "total_tasks": total_tasks,
-                    "pending_tasks": pending_tasks,
-                    "running_tasks": running_tasks,
-                    "completed_tasks": completed_tasks
-                })
-                
+        except AsyncTimeoutError as e:
+            stats["error"] = f"Stats collection timed out: {str(e)}"
+            logger.warning(f"⚠️ Queue stats collection timed out: {e}")
         except Exception as e:
             stats["error"] = str(e)
-            logger.error(f"Error getting queue stats: {e}")
+            logger.error(f"❌ Error getting queue stats: {e}")
         
         return stats
+        
+    async def _collect_redis_stats(self) -> Dict[str, Any]:
+        """Collect Redis queue statistics concurrently"""
+        
+        # Collect Redis stats concurrently
+        stats_tasks = [
+            self._get_queue_size(self.task_queue, "task"),
+            self._get_queue_size(self.llm_queue, "llm"),
+            self._get_queue_size(self.notification_queue, "notification"),
+            self._get_queue_count(self.task_queue),
+            self._get_failed_jobs_count(self.task_queue),
+            self._get_started_jobs_count(self.task_queue)
+        ]
+        
+        results = await safe_gather(
+            *stats_tasks,
+            return_exceptions=True,
+            timeout=AsyncTimeouts.DATABASE_QUERY / 2,
+            max_concurrency=6
+        )
+        
+        # Process results with error handling
+        task_size, llm_size, notif_size, total_count, failed_count, started_count = results
+        
+        return {
+            "task_queue_size": task_size if not isinstance(task_size, Exception) else 0,
+            "llm_queue_size": llm_size if not isinstance(llm_size, Exception) else 0,
+            "notification_queue_size": notif_size if not isinstance(notif_size, Exception) else 0,
+            "total_jobs_processed": total_count if not isinstance(total_count, Exception) else 0,
+            "failed_jobs": failed_count if not isinstance(failed_count, Exception) else 0,
+            "started_jobs": started_count if not isinstance(started_count, Exception) else 0
+        }
+        
+    async def _collect_memory_stats(self) -> Dict[str, Any]:
+        """Collect memory queue statistics concurrently"""
+        
+        # Collect memory stats concurrently
+        stats_tasks = [
+            self._count_memory_tasks_by_status(TaskStatus.PENDING),
+            self._count_memory_tasks_by_status(TaskStatus.RUNNING),
+            self._count_memory_tasks_by_status(TaskStatus.COMPLETED),
+            self._count_memory_tasks_by_status(TaskStatus.FAILED)
+        ]
+        
+        pending, running, completed, failed = await safe_gather(
+            *stats_tasks,
+            return_exceptions=True,
+            timeout=AsyncTimeouts.DATABASE_QUERY / 4,
+            max_concurrency=4
+        )
+        
+        # Handle exceptions
+        pending = pending if not isinstance(pending, Exception) else 0
+        running = running if not isinstance(running, Exception) else 0  
+        completed = completed if not isinstance(completed, Exception) else 0
+        failed = failed if not isinstance(failed, Exception) else 0
+        
+        total_tasks = len(self.memory_tasks)
+        
+        return {
+            "memory_queue_size": len(self.memory_queue),
+            "total_tasks": total_tasks,
+            "pending_tasks": pending,
+            "running_tasks": running,
+            "completed_tasks": completed,
+            "failed_tasks": failed
+        }
+        
+    async def _get_queue_size(self, queue, queue_type: str) -> int:
+        """Get queue size with error handling"""
+        try:
+            return len(queue)
+        except Exception as e:
+            logger.warning(f"Failed to get {queue_type} queue size: {e}")
+            return 0
+            
+    async def _get_queue_count(self, queue) -> int:
+        """Get queue processed count"""
+        try:
+            return queue.count
+        except Exception as e:
+            logger.warning(f"Failed to get queue count: {e}")
+            return 0
+            
+    async def _get_failed_jobs_count(self, queue) -> int:
+        """Get failed jobs count"""
+        try:
+            return len(queue.failed_job_registry)
+        except Exception as e:
+            logger.warning(f"Failed to get failed jobs count: {e}")
+            return 0
+            
+    async def _get_started_jobs_count(self, queue) -> int:
+        """Get started jobs count"""
+        try:
+            return len(queue.started_job_registry)
+        except Exception as e:
+            logger.warning(f"Failed to get started jobs count: {e}")
+            return 0
+            
+    async def _count_memory_tasks_by_status(self, status: TaskStatus) -> int:
+        """Count memory tasks by status"""
+        try:
+            return len([
+                t for t in self.memory_tasks.values() 
+                if t.get("status") == status.value
+            ])
+        except Exception as e:
+            logger.warning(f"Failed to count tasks by status {status}: {e}")
+            return 0
     
     def _execute_task(self, task_data: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a task (runs in worker process)"""
@@ -425,13 +630,12 @@ class AsyncTaskProcessor:
         """Store task metadata in Redis"""
         if self.use_redis:
             try:
-                redis_client = aioredis.from_url(self.redis_url)
-                await redis_client.setex(
+                # Use synchronous Redis client for metadata storage
+                self.redis_client.setex(
                     f"ai_assistant:task:{task_id}",
                     3600,  # 1 hour TTL
                     json.dumps(task_data, default=str)
                 )
-                await redis_client.close()
             except Exception as e:
                 logger.error(f"Failed to store task metadata: {e}")
     
@@ -439,9 +643,8 @@ class AsyncTaskProcessor:
         """Get task metadata from Redis"""
         if self.use_redis:
             try:
-                redis_client = aioredis.from_url(self.redis_url)
-                data = await redis_client.get(f"ai_assistant:task:{task_id}")
-                await redis_client.close()
+                # Use synchronous Redis client for metadata retrieval
+                data = self.redis_client.get(f"ai_assistant:task:{task_id}")
                 
                 if data:
                     return json.loads(data)

@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Ansible",
+  "role": "DevOps / SRE",
+  "category": "ansible",
+  "url": "https://github.com/ansible-community/awesome-ansible",
+  "downloaded_at": "2025-06-24T01:09:19.766698",
+  "file_path": "bootstrap/ansible/Awesome_Ansible",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 256
+}

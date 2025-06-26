@@ -15,7 +15,13 @@ import {
   ChatBubbleLeftRightIcon,
   SparklesIcon, 
   ChartBarIcon,
-  ArrowRightOnRectangleIcon
+  PresentationChartLineIcon,
+  ArrowRightOnRectangleIcon,
+  CpuChipIcon,
+  AdjustmentsHorizontalIcon,
+  ChartPieIcon,
+  EyeIcon,
+  ServerStackIcon
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -30,9 +36,17 @@ export default function Layout({ children }: LayoutProps) {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Chat', href: '/chat', icon: ChatBubbleLeftIcon },
+    { name: 'Vector Search', href: '/vector-search', icon: MagnifyingGlassIcon },
+    { name: 'LLM Operations', href: '/llm-operations', icon: SparklesIcon },
+    { name: 'Advanced AI', href: '/advanced-ai', icon: CpuChipIcon },
+    { name: 'AI Optimization', href: '/ai-optimization', icon: AdjustmentsHorizontalIcon },
+    { name: 'AI Analytics', href: '/ai-analytics', icon: ChartPieIcon },
+    { name: 'Real-time Monitoring', href: '/realtime-monitoring', icon: EyeIcon },
+    { name: 'Data Sources', href: '/data-sources', icon: ServerStackIcon },
     { name: 'Search', href: '/search', icon: MagnifyingGlassIcon },
     { name: 'Generate RFC', href: '/generate', icon: DocumentTextIcon },
     { name: 'Code Docs', href: '/code-docs', icon: CodeBracketIcon },
+    { name: 'Analytics', href: '/analytics', icon: PresentationChartLineIcon },
     { name: 'API Test', href: '/api-test', icon: BeakerIcon },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
     { name: 'Monitoring', href: '/monitoring', icon: ChartBarIcon },

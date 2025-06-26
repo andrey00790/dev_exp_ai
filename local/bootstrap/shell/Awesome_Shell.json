@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Shell",
+  "role": "Admin / Security Engineer",
+  "category": "shell",
+  "url": "https://github.com/alebcay/awesome-shell",
+  "downloaded_at": "2025-06-24T01:09:22.130304",
+  "file_path": "bootstrap/shell/Awesome_Shell",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 224
+}

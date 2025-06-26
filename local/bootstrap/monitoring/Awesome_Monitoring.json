@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Monitoring",
+  "role": "DevOps / SRE",
+  "category": "monitoring",
+  "url": "https://github.com/Enapiuz/awesome-monitoring",
+  "downloaded_at": "2025-06-24T01:09:17.092040",
+  "file_path": "bootstrap/monitoring/Awesome_Monitoring",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 128
+}

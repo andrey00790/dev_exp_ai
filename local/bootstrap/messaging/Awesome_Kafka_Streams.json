@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Kafka Streams",
+  "role": "Database Engineer",
+  "category": "messaging",
+  "url": "https://github.com/responsivedev/awesome-kafka-streams",
+  "downloaded_at": "2025-06-24T01:09:07.090972",
+  "file_path": "bootstrap/messaging/Awesome_Kafka_Streams",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 160
+}

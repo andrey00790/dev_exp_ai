@@ -36,7 +36,6 @@ SQL_INJECTION_PATTERNS = [
     r"(\b(UNION|OR|AND)\s+\d+\s*=\s*\d+)",
     r"(--|/\*|\*/|;)",
     r"(\b(SCRIPT|JAVASCRIPT|VBSCRIPT|ONLOAD|ONERROR)\b)",
-    r"(<\s*script[^>]*>.*?</\s*script\s*>)",
 ]
 
 # XSS patterns
@@ -269,7 +268,7 @@ async def input_validation_middleware(request: Request, call_next):
     """Middleware to validate and sanitize all incoming requests."""
     
     # Skip validation for certain endpoints
-    skip_paths = ["/health", "/metrics", "/docs", "/redoc", "/openapi.json"]
+    skip_paths = ["/health", "/metrics", "/docs", "/redoc", "/openapi.json", "/ws"]
     if any(request.url.path.startswith(path) for path in skip_paths):
         response = await call_next(request)
         return response
@@ -363,3 +362,16 @@ def validate_budget_input(data: Dict[str, Any]) -> Dict[str, Any]:
         validated['reason'] = input_validator.validate_and_sanitize_string(data['reason'], 'reason')
     
     return validated 
+
+# Compatibility functions for tests
+def validate_input(value: str, field_name: str = "field") -> str:
+    """Validate input string - compatibility function"""
+    return input_validator.validate_and_sanitize_string(value, field_name)
+
+def sanitize_string(value: str) -> str:
+    """Sanitize string input - compatibility function"""
+    return input_validator.validate_and_sanitize_string(value, "string")
+
+def validate_email(email: str) -> str:
+    """Validate email format - compatibility function"""
+    return input_validator.validate_email(email)

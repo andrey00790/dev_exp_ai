@@ -1,0 +1,23 @@
+name: GitHub Actions CI
+on:
+  push:
+    branches: master
+  pull_request:
+
+jobs:
+  check_links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check links
+        id: lychee
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: README.md README_ZH-CN.md --verbose --no-progress --exclude www.passwordstore.org/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check lychee exit code
+        run: exit ${lychee_exit_code}

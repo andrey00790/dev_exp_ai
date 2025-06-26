@@ -1,6 +1,8 @@
 """
 Vector search service for semantic document search.
 Implements hybrid search with relevance scoring.
+
+Enhanced with standardized async patterns for enterprise reliability.
 """
 import logging
 from typing import List, Dict, Any, Optional
@@ -8,6 +10,16 @@ from dataclasses import dataclass
 import asyncio
 from vectorstore.collections import get_collection_manager, CollectionType, DocumentMetadata
 from vectorstore.embeddings import get_embeddings_service
+
+# Import standardized async patterns
+from app.core.async_utils import (
+    AsyncTimeouts, 
+    with_timeout, 
+    async_retry,
+    safe_gather,
+    create_background_task
+)
+from app.core.exceptions import AsyncTimeoutError, AsyncRetryError
 
 logger = logging.getLogger(__name__)
 
@@ -46,49 +58,106 @@ class VectorSearchService:
         self.collection_manager = get_collection_manager()
         self.embeddings = get_embeddings_service()
     
+    @async_retry(max_attempts=2, delay=1.0, exceptions=(Exception,))
     async def search(self, request: SearchRequest) -> List[SearchResult]:
         """
         Perform semantic search across document collections.
+        Enhanced with timeout protection and retry logic.
         
         Args:
             request: Search request parameters
             
         Returns:
             List of search results ordered by relevance
+            
+        Raises:
+            AsyncTimeoutError: If search times out
+            AsyncRetryError: If search fails after retries
         """
         try:
-            # Determine collections to search
-            collection_types = self._parse_collections(request.collections)
+            # Calculate timeout based on search complexity
+            timeout = self._calculate_search_timeout(request)
             
-            # Perform vector search
-            raw_results = await self.collection_manager.search_documents(
-                query=request.query,
-                collection_types=collection_types,
-                limit=request.limit,
-                filters=request.filters
+            return await with_timeout(
+                self._search_internal(request),
+                timeout,
+                f"Vector search timed out (query: '{request.query[:50]}...', collections: {request.collections}, limit: {request.limit})",
+                {
+                    "query_length": len(request.query),
+                    "collections_count": len(request.collections) if request.collections else "all",
+                    "limit": request.limit,
+                    "hybrid_search": request.hybrid_search
+                }
             )
             
-            # Process and enhance results
-            search_results = self._process_search_results(
-                raw_results=raw_results,
-                query=request.query,
-                include_snippets=request.include_snippets
-            )
-            
-            # Apply hybrid search if enabled
-            if request.hybrid_search:
-                search_results = self._apply_hybrid_scoring(
-                    results=search_results,
-                    query=request.query
-                )
-            
-            # Sort by final score and limit
-            search_results.sort(key=lambda x: x.score, reverse=True)
-            return search_results[:request.limit]
-            
+        except AsyncTimeoutError as e:
+            logger.error(f"❌ Vector search timed out: {e}")
+            raise
+        except AsyncRetryError as e:
+            logger.error(f"❌ Vector search failed after retries: {e}")
+            raise
         except Exception as e:
-            logger.error(f"Search failed: {e}")
+            logger.error(f"❌ Vector search failed: {e}")
             return []
+    
+    async def _search_internal(self, request: SearchRequest) -> List[SearchResult]:
+        """Internal search method without timeout wrapper"""
+        # Determine collections to search
+        collection_types = self._parse_collections(request.collections)
+        
+        logger.info(f"🔍 Searching {len(collection_types)} collections for: '{request.query[:100]}...'")
+        
+        # Perform vector search with enhanced error handling
+        raw_results = await self.collection_manager.search_documents(
+            query=request.query,
+            collection_types=collection_types,
+            limit=request.limit,
+            filters=request.filters
+        )
+        
+        # Process and enhance results
+        search_results = self._process_search_results(
+            raw_results=raw_results,
+            query=request.query,
+            include_snippets=request.include_snippets
+        )
+        
+        # Apply hybrid search if enabled
+        if request.hybrid_search:
+            search_results = self._apply_hybrid_scoring(
+                results=search_results,
+                query=request.query
+            )
+        
+        # Sort by final score and limit
+        search_results.sort(key=lambda x: x.score, reverse=True)
+        final_results = search_results[:request.limit]
+        
+        logger.info(f"✅ Search completed: {len(final_results)} results found")
+        return final_results
+    
+    def _calculate_search_timeout(self, request: SearchRequest) -> float:
+        """Calculate appropriate timeout based on search complexity"""
+        base_timeout = AsyncTimeouts.VECTOR_SEARCH  # 15 seconds
+        
+        # Add extra time for complex searches
+        extra_time = 0
+        
+        # More collections = more time
+        if request.collections:
+            extra_time += len(request.collections) * 2  # 2s per collection
+        else:
+            extra_time += 10  # 10s for all collections
+        
+        # Large result sets need more time
+        if request.limit > 50:
+            extra_time += (request.limit - 50) / 10  # 1s per extra 10 results
+        
+        # Hybrid search adds processing time
+        if request.hybrid_search:
+            extra_time += 5  # 5s for hybrid processing
+        
+        return min(base_timeout + extra_time, 60.0)  # Cap at 1 minute
     
     def _parse_collections(self, collections: Optional[List[str]]) -> List[CollectionType]:
         """Parse collection names to CollectionType enum."""
@@ -226,6 +295,7 @@ class VectorSearchService:
         
         return results
     
+    @async_retry(max_attempts=2, delay=2.0, exceptions=(Exception,))
     async def index_document(
         self,
         text: str,
@@ -237,6 +307,7 @@ class VectorSearchService:
     ) -> bool:
         """
         Index a single document.
+        Enhanced with timeout protection and retry logic.
         
         Args:
             text: Document text content
@@ -248,43 +319,88 @@ class VectorSearchService:
             
         Returns:
             True if successful
+            
+        Raises:
+            AsyncTimeoutError: If indexing times out
         """
         try:
-            # Parse collection type
-            collection_type = CollectionType(source_type)
+            # Validate input
+            if not text.strip():
+                raise ValueError(f"Document text cannot be empty for doc_id: {doc_id}")
             
-            # Create metadata object
-            doc_metadata = DocumentMetadata(
-                doc_id=doc_id,
-                title=title,
-                source=source,
-                source_type=collection_type,
-                author=metadata.get("author"),
-                created_at=metadata.get("created_at"),
-                updated_at=metadata.get("updated_at"),
-                url=metadata.get("url"),
-                tags=metadata.get("tags"),
-                content_type=metadata.get("content_type"),
-                file_path=metadata.get("file_path")
+            if len(text) > 1000000:  # 1MB limit
+                raise ValueError(f"Document too large ({len(text)} chars). Maximum 1,000,000 characters.")
+            
+            # Calculate timeout based on document size
+            timeout = self._calculate_indexing_timeout(text)
+            
+            return await with_timeout(
+                self._index_document_internal(text, doc_id, title, source, source_type, **metadata),
+                timeout,
+                f"Document indexing timed out (doc_id: {doc_id}, size: {len(text)} chars)",
+                {
+                    "doc_id": doc_id,
+                    "text_length": len(text),
+                    "source_type": source_type,
+                    "has_metadata": bool(metadata)
+                }
             )
             
-            # Index document
-            success = await self.collection_manager.index_document(
-                text=text,
-                metadata=doc_metadata,
-                collection_type=collection_type
-            )
-            
-            if success:
-                logger.info(f"Successfully indexed document: {doc_id}")
-            else:
-                logger.error(f"Failed to index document: {doc_id}")
-            
-            return success
-            
-        except Exception as e:
-            logger.error(f"Document indexing failed for {doc_id}: {e}")
+        except (AsyncTimeoutError, ValueError) as e:
+            logger.error(f"❌ Document indexing failed for {doc_id}: {e}")
             return False
+        except Exception as e:
+            logger.error(f"❌ Document indexing failed for {doc_id}: {e}")
+            return False
+    
+    async def _index_document_internal(
+        self, text: str, doc_id: str, title: str, source: str, source_type: str, **metadata
+    ) -> bool:
+        """Internal indexing method without timeout wrapper"""
+        # Parse collection type
+        collection_type = CollectionType(source_type)
+        
+        # Create metadata object
+        doc_metadata = DocumentMetadata(
+            doc_id=doc_id,
+            title=title,
+            source=source,
+            source_type=collection_type,
+            author=metadata.get("author"),
+            created_at=metadata.get("created_at"),
+            updated_at=metadata.get("updated_at"),
+            url=metadata.get("url"),
+            tags=metadata.get("tags"),
+            content_type=metadata.get("content_type"),
+            file_path=metadata.get("file_path")
+        )
+        
+        logger.info(f"🔄 Indexing document: {doc_id} ({len(text)} chars)")
+        
+        # Index document
+        success = await self.collection_manager.index_document(
+            text=text,
+            metadata=doc_metadata,
+            collection_type=collection_type
+        )
+        
+        if success:
+            logger.info(f"✅ Successfully indexed document: {doc_id}")
+        else:
+            logger.error(f"❌ Failed to index document: {doc_id}")
+        
+        return success
+    
+    def _calculate_indexing_timeout(self, text: str) -> float:
+        """Calculate appropriate timeout based on document size"""
+        base_timeout = AsyncTimeouts.EMBEDDING_GENERATION  # 30 seconds
+        
+        # Add extra time for large documents (rough estimate: 1000 chars/second processing)
+        if len(text) > 10000:
+            extra_time = (len(text) - 10000) / 1000  # 1 second per extra 1000 chars
+            return min(base_timeout + extra_time, 300.0)  # Cap at 5 minutes
+        
+        return base_timeout
     
     async def delete_document(self, doc_id: str, source_type: str = "documents") -> bool:
         """
@@ -315,6 +431,7 @@ class VectorSearchService:
             logger.error(f"Document deletion failed for {doc_id}: {e}")
             return False
     
+    @async_retry(max_attempts=2, delay=1.5, exceptions=(Exception,))
     async def get_similar_documents(
         self,
         doc_id: str,
@@ -323,6 +440,7 @@ class VectorSearchService:
     ) -> List[SearchResult]:
         """
         Find documents similar to the given document.
+        Enhanced with timeout protection and better error handling.
         
         Args:
             doc_id: Reference document ID
@@ -331,81 +449,151 @@ class VectorSearchService:
             
         Returns:
             List of similar documents
+            
+        Raises:
+            AsyncTimeoutError: If similarity search times out
         """
         try:
-            # First, find the document content
-            collection_type = CollectionType(source_type)
-            collection_name = self.collection_manager.get_collection_name(collection_type)
+            return await with_timeout(
+                self._get_similar_documents_internal(doc_id, source_type, limit),
+                AsyncTimeouts.VECTOR_SEARCH * 1.5,  # 22.5 seconds for similarity search
+                f"Similar documents search timed out (doc_id: {doc_id}, source_type: {source_type}, limit: {limit})",
+                {"doc_id": doc_id, "source_type": source_type, "limit": limit}
+            )
             
-            # Search for the document chunks
-            dummy_vector = [0.0] * 1536
-            results = self.collection_manager.qdrant.search_vectors(
+        except AsyncTimeoutError as e:
+            logger.error(f"❌ Similar documents search timed out: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"❌ Similar documents search failed for {doc_id}: {e}")
+            return []
+    
+    async def _get_similar_documents_internal(
+        self, doc_id: str, source_type: str, limit: int
+    ) -> List[SearchResult]:
+        """Internal similar documents search method"""
+        logger.info(f"🔍 Finding similar documents for: {doc_id}")
+        
+        # First, find the document content
+        collection_type = CollectionType(source_type)
+        collection_name = self.collection_manager.get_collection_name(collection_type)
+        
+        # Search for the document chunks with timeout
+        dummy_vector = [0.0] * 1536
+        
+        # Use timeout for the vector search operation
+        results = await with_timeout(
+            asyncio.to_thread(
+                self.collection_manager.qdrant.search_vectors,
                 collection_name=collection_name,
                 query_vector=dummy_vector,
                 limit=1,
                 filter_conditions={"doc_id": doc_id}
-            )
-            
-            if not results:
-                logger.warning(f"Document not found: {doc_id}")
-                return []
-            
-            # Use the document content as query
-            doc_content = results[0]["payload"].get("text", "")
-            if not doc_content:
-                return []
-            
-            # Search for similar documents
-            search_request = SearchRequest(
-                query=doc_content[:500],  # Use first 500 chars as query
-                collections=[source_type],
-                limit=limit + 1,  # +1 to account for self-match
-                include_snippets=False
-            )
-            
-            similar_results = await self.search(search_request)
-            
-            # Filter out the original document
-            filtered_results = [
-                result for result in similar_results 
-                if result.doc_id != doc_id
-            ]
-            
-            return filtered_results[:limit]
-            
-        except Exception as e:
-            logger.error(f"Similar documents search failed for {doc_id}: {e}")
+            ),
+            AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for document lookup
+            f"Document lookup timed out for doc_id: {doc_id}"
+        )
+        
+        if not results:
+            logger.warning(f"⚠️ Document not found: {doc_id}")
             return []
+        
+        # Use the document content as query
+        doc_content = results[0]["payload"].get("text", "")
+        if not doc_content:
+            logger.warning(f"⚠️ Document has no content: {doc_id}")
+            return []
+        
+        # Search for similar documents using enhanced search
+        search_request = SearchRequest(
+            query=doc_content[:500],  # Use first 500 chars as query
+            collections=[source_type],
+            limit=limit + 1,  # +1 to account for self-match
+            include_snippets=False,
+            hybrid_search=True  # Use hybrid search for better results
+        )
+        
+        similar_results = await self.search(search_request)
+        
+        # Filter out the original document
+        filtered_results = [
+            result for result in similar_results 
+            if result.doc_id != doc_id
+        ]
+        
+        final_results = filtered_results[:limit]
+        logger.info(f"✅ Found {len(final_results)} similar documents for: {doc_id}")
+        
+        return final_results
     
-    def get_search_stats(self) -> Dict[str, Any]:
-        """Get search service statistics."""
+    async def get_search_stats(self) -> Dict[str, Any]:
+        """
+        Get search service statistics.
+        Enhanced with timeout protection and async operations.
+        """
         try:
-            collection_stats = self.collection_manager.get_collection_stats()
+            logger.info("🔄 Collecting vector search service statistics...")
             
-            # Count active collections
-            active_collections = sum(
-                1 for stats in collection_stats.values() 
-                if stats.get("exists", False)
+            # Collect stats with timeout protection
+            stats_data = await with_timeout(
+                self._collect_stats_internal(),
+                AsyncTimeouts.DATABASE_QUERY * 2,  # 20 seconds for stats collection
+                "Search stats collection timed out"
             )
             
-            return {
-                "status": "healthy",
-                "active_collections": active_collections,
-                "total_collections": len(collection_stats),
-                "collections": collection_stats,
-                "embeddings_service": {
-                    "model": self.embeddings.model,
-                    "max_tokens": self.embeddings.max_tokens
-                },
-                "qdrant_status": self.collection_manager.qdrant.health_check()
-            }
+            logger.info("✅ Search stats collected successfully")
+            return stats_data
             
+        except AsyncTimeoutError as e:
+            logger.warning(f"⚠️ Search stats collection timed out: {e}")
+            return {
+                "status": "timeout",
+                "error": f"Stats collection timed out: {e}",
+                "partial_data": True
+            }
         except Exception as e:
-            logger.error(f"Failed to get search stats: {e}")
+            logger.error(f"❌ Failed to get search stats: {e}")
             return {
                 "status": "error",
                 "error": str(e)
             }
+    
+    async def _collect_stats_internal(self) -> Dict[str, Any]:
+        """Internal stats collection method"""
+        # Get collection stats with timeout
+        collection_stats = await with_timeout(
+            asyncio.to_thread(self.collection_manager.get_collection_stats),
+            AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for collection stats
+            "Collection stats collection timed out"
+        )
+        
+        # Get Qdrant health check with timeout
+        qdrant_status = await with_timeout(
+            asyncio.to_thread(self.collection_manager.qdrant.health_check),
+            AsyncTimeouts.HTTP_REQUEST,  # 30 seconds for health check
+            "Qdrant health check timed out"
+        )
+        
+        # Count active collections
+        active_collections = sum(
+            1 for stats in collection_stats.values() 
+            if stats.get("exists", False)
+        )
+        
+        return {
+            "status": "healthy",
+            "active_collections": active_collections,
+            "total_collections": len(collection_stats),
+            "collections": collection_stats,
+            "embeddings_service": {
+                "model": self.embeddings.model,
+                "max_tokens": self.embeddings.max_tokens,
+                "status": "healthy"
+            },
+            "qdrant_status": qdrant_status,
+            "async_patterns_enabled": True,
+            "timeout_protection": "enabled"
+        }
 
 # Global search service instance
 _search_service = None

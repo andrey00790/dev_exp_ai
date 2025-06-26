@@ -1,0 +1,89 @@
+{
+  "timestamp": 1750796436.070652,
+  "results": [
+    {
+      "endpoint": "/health",
+      "total_requests": 2000,
+      "successful_requests": 2000,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.041715571522712706,
+      "p95_response_time": 0.04632546901702881,
+      "requests_per_second": 1159.0589477203926,
+      "test_duration": 1.7255377769470215
+    },
+    {
+      "endpoint": "/api/health",
+      "total_requests": 1125,
+      "successful_requests": 1125,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.037619454701741536,
+      "p95_response_time": 0.2619739294052124,
+      "requests_per_second": 935.1627827333293,
+      "test_duration": 1.2029991149902344
+    },
+    {
+      "endpoint": "/api/v1/health",
+      "total_requests": 500,
+      "successful_requests": 500,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.034009571075439456,
+      "p95_response_time": 0.3157253384590149,
+      "requests_per_second": 660.3429062995044,
+      "test_duration": 0.7571823596954346
+    },
+    {
+      "endpoint": "/api/v1/auth/budget/status",
+      "total_requests": 320,
+      "successful_requests": 320,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.03852854147553444,
+      "p95_response_time": 0.3005128502845764,
+      "requests_per_second": 424.1179637948425,
+      "test_duration": 0.7545070648193359
+    },
+    {
+      "endpoint": "/api/v1/monitoring/metrics/current",
+      "total_requests": 180,
+      "successful_requests": 180,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.043542974525027804,
+      "p95_response_time": 0.34439811706542967,
+      "requests_per_second": 340.3005111890498,
+      "test_duration": 0.5289442539215088
+    },
+    {
+      "endpoint": "/api/v1/ws/stats",
+      "total_requests": 125,
+      "successful_requests": 125,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.034642419815063476,
+      "p95_response_time": 0.2501738786697388,
+      "requests_per_second": 316.7252649002622,
+      "test_duration": 0.39466381072998047
+    },
+    {
+      "endpoint": "/api/v1/async-tasks/submit",
+      "total_requests": 80,
+      "successful_requests": 80,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.03681395947933197,
+      "p95_response_time": 0.20764154195785522,
+      "requests_per_second": 248.0303007903397,
+      "test_duration": 0.3225412368774414
+    }
+  ],
+  "summary": {
+    "total_requests": 4330,
+    "total_successful": 4330,
+    "overall_success_rate": 100.0,
+    "avg_rps": 583.3912396325316,
+    "avg_response_time": 0.03812464179926448
+  }
+}

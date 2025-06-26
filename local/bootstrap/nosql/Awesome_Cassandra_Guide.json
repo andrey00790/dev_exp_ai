@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Cassandra Guide",
+  "role": "Database Engineer",
+  "category": "nosql",
+  "url": "https://github.com/mikeroyal/Apache-Cassandra-Guide",
+  "downloaded_at": "2025-06-24T01:09:03.241063",
+  "file_path": "bootstrap/nosql/Awesome_Cassandra_Guide",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 96
+}

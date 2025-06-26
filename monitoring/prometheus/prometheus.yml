@@ -216,4 +216,6 @@ recording_rules:
       - record: ai_assistant:cache_hit_ratio_5m
         expr: rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))
         labels:
-          job: redis 
+          job: redis
+
+# Recording rules are defined in separate files loaded by rule_files section above 

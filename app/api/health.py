@@ -20,6 +20,12 @@ class HealthResponse(BaseModel):
     checks: Dict[str, Any] = {}
 
 
+class SmokeHealthResponse(BaseModel):
+    """Smoke test health response model."""
+    status: str
+    timestamp: float
+
+
 # Track application start time for uptime calculation
 _start_time = time.time()
 
@@ -55,4 +61,24 @@ async def health() -> HealthResponse:
         uptime=uptime,
         environment=settings.environment,
         checks=checks
+    )
+
+
+@router.get(
+    '/health_smoke', 
+    status_code=status.HTTP_200_OK,
+    response_model=SmokeHealthResponse,
+    summary="Smoke Health Check",
+    description="Simple health check for smoke testing and monitoring"
+)
+async def health_smoke() -> SmokeHealthResponse:
+    """
+    Simple smoke test health check.
+    
+    Returns:
+        SmokeHealthResponse: Basic health status
+    """
+    return SmokeHealthResponse(
+        status="healthy",
+        timestamp=time.time()
     )

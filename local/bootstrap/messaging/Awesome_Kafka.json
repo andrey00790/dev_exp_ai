@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Kafka",
+  "role": "Database Engineer",
+  "category": "messaging",
+  "url": "https://github.com/semantalytics/awesome-kafka",
+  "downloaded_at": "2025-06-24T01:09:06.132982",
+  "file_path": "bootstrap/messaging/Awesome_Kafka",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 192
+}

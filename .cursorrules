@@ -1,0 +1,11 @@
+Мы создаем ai ассистента
+
+что соответствует функциональным 
+docs/requirements/FUNCTIONAL_NON_FUNCTIONAL_REQUIREMENTS.md
+docs/requirements/REQUIREMENTS_ANALYSIS.md
+
+и полностью тестируем его согласно тест плану docs/requirements/TESTING_REQUIREMENTS.md
+
+Когда ты пишешь код, ты должен быть на 100% уверен, что не ломаешь ничего, что уже работает.
+
+Ты должен быть на 100% уверен, что ты не создаешь новых багов, которые могут сломать уже работающий код.

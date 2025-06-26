@@ -1,0 +1,362 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "AI Assistant MVP - Test Server",
+        "description": "Minimal test server for E2E testing",
+        "version": "2.1.0"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Basic health check",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "summary": "Api Health Check",
+                "description": "API health check",
+                "operationId": "api_health_check_api_v1_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/test/health": {
+            "get": {
+                "summary": "Test Health",
+                "description": "Test endpoints health",
+                "operationId": "test_health_api_v1_test_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/test/vector-search": {
+            "post": {
+                "summary": "Test Vector Search",
+                "description": "Test vector search",
+                "operationId": "test_vector_search_api_v1_test_vector_search_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TestSearchRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/test/feedback": {
+            "post": {
+                "summary": "Test Feedback",
+                "description": "Test feedback submission",
+                "operationId": "test_feedback_api_v1_test_feedback_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TestFeedbackRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestFeedbackResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/search": {
+            "post": {
+                "summary": "Search",
+                "description": "Basic search endpoint",
+                "operationId": "search_api_v1_search_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/generate/rfc": {
+            "post": {
+                "summary": "Generate Rfc",
+                "description": "RFC generation endpoint",
+                "operationId": "generate_rfc_api_v1_generate_rfc_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "TestFeedbackRequest": {
+                "properties": {
+                    "target_id": {
+                        "type": "string",
+                        "title": "Target Id"
+                    },
+                    "feedback_type": {
+                        "type": "string",
+                        "title": "Feedback Type",
+                        "description": "like, dislike, or report"
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "target_id",
+                    "feedback_type"
+                ],
+                "title": "TestFeedbackRequest"
+            },
+            "TestFeedbackResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "feedback_id": {
+                        "type": "string",
+                        "title": "Feedback Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "message",
+                    "feedback_id"
+                ],
+                "title": "TestFeedbackResponse"
+            },
+            "TestSearchRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query",
+                        "description": "Search query text"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "maximum": 100.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "description": "Maximum number of results",
+                        "default": 10
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "TestSearchRequest"
+            },
+            "TestSearchResponse": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/TestSearchResult"
+                        },
+                        "type": "array",
+                        "title": "Results"
+                    },
+                    "total_results": {
+                        "type": "integer",
+                        "title": "Total Results"
+                    },
+                    "search_time_ms": {
+                        "type": "number",
+                        "title": "Search Time Ms"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query",
+                    "results",
+                    "total_results",
+                    "search_time_ms"
+                ],
+                "title": "TestSearchResponse"
+            },
+            "TestSearchResult": {
+                "properties": {
+                    "doc_id": {
+                        "type": "string",
+                        "title": "Doc Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "score": {
+                        "type": "number",
+                        "title": "Score"
+                    },
+                    "source": {
+                        "type": "string",
+                        "title": "Source"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "doc_id",
+                    "title",
+                    "content",
+                    "score",
+                    "source"
+                ],
+                "title": "TestSearchResult"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

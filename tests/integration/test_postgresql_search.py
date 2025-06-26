@@ -110,10 +110,10 @@ class TestPostgreSQLSearch:
         """Клиент для работы с поиском"""
         connection_params = {
             'host': os.getenv('POSTGRES_HOST', 'localhost'),
-            'port': int(os.getenv('POSTGRES_PORT', '5433')),
-            'database': os.getenv('POSTGRES_DB', 'testdb'),
-            'user': os.getenv('POSTGRES_USER', 'testuser'),
-            'password': os.getenv('POSTGRES_PASSWORD', 'testpass')
+            'port': int(os.getenv('POSTGRES_PORT', '5432')),
+            'database': os.getenv('POSTGRES_DB', 'ai_assistant'),
+            'user': os.getenv('POSTGRES_USER', 'ai_user'),
+            'password': os.getenv('POSTGRES_PASSWORD', 'ai_password_dev')
         }
         
         search = PostgreSQLSearch(connection_params)

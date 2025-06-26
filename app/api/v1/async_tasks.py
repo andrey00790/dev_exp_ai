@@ -1,12 +1,13 @@
 """
 Async Task Management API for AI Assistant MVP
-Task 2.2: Scalability & Load Handling - Background Task API
+Enhanced with standardized async patterns for enterprise reliability
+Version: 2.1 Async Optimized
 
 Endpoints:
 - POST /async-tasks/submit - Submit background task
 - GET /async-tasks/{task_id} - Get task status
 - DELETE /async-tasks/{task_id} - Cancel task
-- GET /async-tasks/user/{user_id} - Get user tasks
+- GET /async-tasks/user/tasks - Get user tasks
 - GET /async-tasks/queue/stats - Get queue statistics
 """
 
@@ -16,10 +17,21 @@ from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field
 from enum import Enum
 import logging
+import time
+
+# Import standardized async patterns
+from app.core.async_utils import (
+    AsyncTimeouts, 
+    with_timeout, 
+    async_retry,
+    safe_gather,
+    create_background_task
+)
+from app.core.exceptions import AsyncTimeoutError, AsyncRetryError
 
 from app.performance.async_processor import async_processor, TaskStatus, TaskPriority
 from app.security.auth import get_current_user, require_admin
-from models.base import User
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/async-tasks", tags=["Async Tasks"])
@@ -54,12 +66,14 @@ class QueueStatsResponse(BaseModel):
     failed_tasks: Optional[int] = None
 
 @router.post("/submit")
+@async_retry(max_attempts=2, delay=1.0, exceptions=(HTTPException,))
 async def submit_async_task(
     task_request: TaskSubmissionRequest,
     current_user: User = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """
     Submit a task for background processing
+    Enhanced with timeout protection and retry logic
     
     Supported task functions:
     - llm_generate_rfc: Generate RFC document using LLM
@@ -69,72 +83,64 @@ async def submit_async_task(
     - generate_analytics_report: Generate analytics report
     """
     try:
-        # Initialize async processor if needed
-        if not hasattr(async_processor, 'redis_client'):
-            await async_processor.initialize()
+        # Calculate timeout based on task complexity
+        timeout = _calculate_task_submission_timeout(task_request.task_func)
         
-        # Validate task function
-        valid_functions = [
-            "llm_generate_rfc",
-            "llm_enhance_document", 
-            "process_data_sync",
-            "send_budget_alert",
-            "generate_analytics_report"
-        ]
-        
-        if task_request.task_func not in valid_functions:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid task function. Supported: {valid_functions}"
-            )
-        
-        # Parse priority
-        try:
-            priority = TaskPriority[task_request.priority.upper()]
-        except KeyError:
-            priority = TaskPriority.NORMAL
-        
-        # Submit task
-        task_id = await async_processor.submit_task(
-            task_func=task_request.task_func,
-            task_args=task_request.task_args,
-            priority=priority,
-            user_id=current_user.user_id,
-            notification_callback=task_request.notification_callback
+        # Execute task submission with timeout protection
+        result = await with_timeout(
+            _submit_task_internal(task_request, current_user),
+            timeout,
+            f"Task submission timed out (func: {task_request.task_func}, priority: {task_request.priority})",
+            {
+                "task_func": task_request.task_func,
+                "priority": task_request.priority,
+                "user_id": current_user.user_id,
+                "has_args": bool(task_request.task_args)
+            }
         )
         
-        logger.info(f"Task submitted by {current_user.email}: {task_id} ({task_request.task_func})")
+        logger.info(f"✅ Task submitted by {current_user.email}: {result['task_id']} ({task_request.task_func})")
         
-        return {
-            "status": "success",
-            "message": "Task submitted successfully",
-            "task_id": task_id,
-            "task_func": task_request.task_func,
-            "priority": task_request.priority,
-            "estimated_processing_time": _get_estimated_time(task_request.task_func)
-        }
+        return result
         
+    except AsyncTimeoutError as e:
+        logger.error(f"❌ Task submission timed out: {e}")
+        raise HTTPException(
+            status_code=504,
+            detail="Task submission timed out: System overloaded. Please try again in a few moments."
+        )
+    except AsyncRetryError as e:
+        logger.error(f"❌ Task submission failed after retries: {e}")
+        raise HTTPException(status_code=500, detail=f"Task submission failed after retries: {str(e)}")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error submitting task: {e}")
+        logger.error(f"❌ Error submitting task: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to submit task: {str(e)}"
         )
 
 @router.get("/{task_id}")
+@async_retry(max_attempts=2, delay=0.5, exceptions=(HTTPException,))
 async def get_task_status(
     task_id: str,
     current_user: User = Depends(get_current_user)
 ) -> TaskStatusResponse:
     """
     Get status of a specific task
+    Enhanced with timeout protection and concurrent permission checking
     
     Users can only view their own tasks unless they have admin access.
     """
     try:
-        task_data = await async_processor.get_task_status(task_id)
+        # Get task status with timeout protection
+        task_data = await with_timeout(
+            async_processor.get_task_status(task_id),
+            AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for status lookup
+            f"Task status lookup timed out (task_id: {task_id})",
+            {"task_id": task_id, "user_id": current_user.user_id}
+        )
         
         if not task_data or "error" in task_data:
             raise HTTPException(
@@ -142,20 +148,32 @@ async def get_task_status(
                 detail="Task not found"
             )
         
-        # Check permissions - users can only see their own tasks
-        if (task_data.get("user_id") != current_user.user_id and 
-            not (hasattr(current_user, 'scopes') and 'admin' in current_user.scopes)):
+        # Concurrent permission check
+        has_permission = await _check_task_permission(task_data, current_user)
+        
+        if not has_permission:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access denied - you can only view your own tasks"
             )
         
+        logger.info(f"✅ Task status retrieved: {task_id} for user {current_user.user_id}")
+        
         return TaskStatusResponse(**task_data)
         
+    except AsyncTimeoutError as e:
+        logger.error(f"❌ Task status lookup timed out: {e}")
+        raise HTTPException(
+            status_code=504,
+            detail="Task status lookup timed out: System overloaded"
+        )
+    except AsyncRetryError as e:
+        logger.error(f"❌ Task status lookup failed after retries: {e}")
+        raise HTTPException(status_code=500, detail=f"Status lookup failed after retries: {str(e)}")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error getting task status {task_id}: {e}")
+        logger.error(f"❌ Error getting task status {task_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get task status: {str(e)}"
@@ -290,11 +308,18 @@ async def get_queue_stats(
 ) -> QueueStatsResponse:
     """
     Get queue statistics
+    Enhanced with timeout protection and concurrent stats collection
     
     Admin users get detailed statistics.
     """
     try:
-        stats = await async_processor.get_queue_stats()
+        # Get queue stats with timeout protection
+        stats = await with_timeout(
+            async_processor.get_queue_stats(),
+            AsyncTimeouts.DATABASE_QUERY * 1.5,  # 15 seconds for queue stats
+            "Queue stats collection timed out",
+            {"user_id": current_user.user_id}
+        )
         
         # Basic stats for all users
         response_data = {
@@ -302,7 +327,8 @@ async def get_queue_stats(
             "total_tasks": stats.get("total_tasks", 0),
             "pending_tasks": stats.get("pending_tasks", 0),
             "running_tasks": stats.get("running_tasks", 0),
-            "completed_tasks": stats.get("completed_tasks", 0)
+            "completed_tasks": stats.get("completed_tasks", 0),
+            "async_optimized": True
         }
         
         # Detailed stats for admin users
@@ -320,10 +346,22 @@ async def get_queue_stats(
                 }
             })
         
+        logger.info(f"✅ Queue stats retrieved for user {current_user.user_id}")
+        
         return QueueStatsResponse(**response_data)
         
+    except AsyncTimeoutError as e:
+        logger.warning(f"⚠️ Queue stats collection timed out: {e}")
+        # Return basic stats on timeout
+        return QueueStatsResponse(
+            processor_type="timeout",
+            total_tasks=0,
+            pending_tasks=0,
+            running_tasks=0,
+            completed_tasks=0
+        )
     except Exception as e:
-        logger.error(f"Error getting queue stats: {e}")
+        logger.error(f"❌ Error getting queue stats: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get queue statistics: {str(e)}"
@@ -447,4 +485,113 @@ def _get_estimated_time(task_func: str) -> str:
         "generate_analytics_report": "2-5 minutes"
     }
     
-    return time_estimates.get(task_func, "1-2 minutes") 
+    return time_estimates.get(task_func, "1-2 minutes")
+
+# Enhanced helper functions with async patterns
+
+async def _submit_task_internal(
+    task_request: TaskSubmissionRequest, 
+    current_user: User
+) -> Dict[str, Any]:
+    """Internal task submission with concurrent validation"""
+    
+    # Concurrent validation and initialization
+    validation_tasks = [
+        _validate_task_function(task_request.task_func),
+        _initialize_async_processor(),
+        _parse_task_priority(task_request.priority)
+    ]
+    
+    # Execute validations concurrently
+    is_valid, processor_ready, priority = await safe_gather(
+        *validation_tasks,
+        return_exceptions=True,
+        timeout=AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for validation
+        max_concurrency=3
+    )
+    
+    # Handle validation results
+    if isinstance(is_valid, Exception) or not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid task function: {task_request.task_func}"
+        )
+    
+    if isinstance(processor_ready, Exception) or not processor_ready:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Task processor temporarily unavailable"
+        )
+    
+    if isinstance(priority, Exception):
+        priority = TaskPriority.NORMAL
+    
+    # Submit task with enhanced error handling
+    task_id = await async_processor.submit_task(
+        task_func=task_request.task_func,
+        task_args=task_request.task_args,
+        priority=priority,
+        user_id=current_user.user_id,
+        notification_callback=task_request.notification_callback
+    )
+    
+    return {
+        "status": "success",
+        "message": "Task submitted successfully",
+        "task_id": task_id,
+        "task_func": task_request.task_func,
+        "priority": task_request.priority,
+        "estimated_processing_time": _get_estimated_time(task_request.task_func),
+        "timeout_used": _calculate_task_submission_timeout(task_request.task_func),
+        "async_optimized": True
+    }
+
+def _calculate_task_submission_timeout(task_func: str) -> float:
+    """Calculate appropriate timeout for task submission"""
+    base_timeout = AsyncTimeouts.BACKGROUND_TASK / 10  # 30 seconds for submission
+    
+    # Different task types have different submission complexity
+    task_complexity = {
+        "llm_generate_rfc": 1.5,  # More complex validation
+        "llm_enhance_document": 1.2,
+        "process_data_sync": 1.0,
+        "send_budget_alert": 0.8,  # Simple task
+        "generate_analytics_report": 1.3
+    }
+    
+    multiplier = task_complexity.get(task_func, 1.0)
+    return min(base_timeout * multiplier, 60.0)  # Cap at 1 minute
+
+async def _validate_task_function(task_func: str) -> bool:
+    """Validate task function concurrently"""
+    valid_functions = [
+        "llm_generate_rfc",
+        "llm_enhance_document", 
+        "process_data_sync",
+        "send_budget_alert",
+        "generate_analytics_report"
+    ]
+    return task_func in valid_functions
+
+async def _initialize_async_processor() -> bool:
+    """Initialize async processor if needed"""
+    try:
+        if not hasattr(async_processor, 'redis_client'):
+            await async_processor.initialize()
+        return True
+    except Exception as e:
+        logger.error(f"Failed to initialize async processor: {e}")
+        return False
+
+async def _parse_task_priority(priority_str: str) -> TaskPriority:
+    """Parse task priority with fallback"""
+    try:
+        return TaskPriority[priority_str.upper()]
+    except KeyError:
+        return TaskPriority.NORMAL
+
+async def _check_task_permission(task_data: Dict[str, Any], current_user: User) -> bool:
+    """Check if user has permission to view task"""
+    is_owner = task_data.get("user_id") == current_user.user_id
+    is_admin = hasattr(current_user, 'scopes') and 'admin' in current_user.scopes
+    return is_owner or is_admin 

@@ -1,0 +1,295 @@
+PODS:
+  - GCDWebServer (3.5.4):
+    - GCDWebServer/Core (= 3.5.4)
+  - GCDWebServer/Core (3.5.4)
+  - Mixbox (0.0.1):
+    - Mixbox/Foundation (= 0.0.1)
+  - Mixbox/Foundation (0.0.1):
+    - MixboxFoundation
+  - MixboxAnyCodable (0.0.1)
+  - MixboxBlack (0.0.1):
+    - MixboxDi
+    - MixboxFoundation
+    - MixboxIpc
+    - MixboxIpcCommon
+    - MixboxIpcSbtuiClient
+    - MixboxLinkXCTAutomationSupport
+    - MixboxSBTUITestTunnelClient
+    - MixboxSBTUITestTunnelCommon
+    - MixboxTestsFoundation
+    - MixboxUiTestsFoundation
+  - MixboxBuiltinDi (0.0.1):
+    - MixboxDi
+  - MixboxBuiltinIpc (0.0.1):
+    - GCDWebServer
+    - MixboxIpc
+  - MixboxCocoaImageHashing (0.0.1)
+  - MixboxDi (0.0.1)
+  - MixboxFakeSettingsAppMain (0.0.1)
+  - MixboxFoundation (0.0.1)
+  - MixboxGenerators (0.0.1):
+    - MixboxDi
+  - MixboxGray (0.0.1):
+    - MixboxDi
+    - MixboxInAppServices
+    - MixboxUiKit
+    - MixboxUiTestsFoundation
+  - MixboxInAppServices (0.0.1):
+    - MixboxBuiltinDi
+    - MixboxBuiltinIpc
+    - MixboxIoKit
+    - MixboxIpcCommon
+    - MixboxIpcSbtuiHost
+    - MixboxSBTUITestTunnelServer
+    - MixboxTestability
+    - MixboxUiKit
+  - MixboxIoKit (0.0.1):
+    - MixboxFoundation
+  - MixboxIpc (0.0.1):
+    - MixboxFoundation
+  - MixboxIpcCommon (0.0.1):
+    - MixboxAnyCodable
+    - MixboxIpc
+  - MixboxIpcSbtuiClient (0.0.1):
+    - MixboxIpc
+    - MixboxSBTUITestTunnelClient
+    - MixboxTestsFoundation
+    - MixboxUiTestsFoundation
+  - MixboxIpcSbtuiHost (0.0.1):
+    - MixboxIpc
+    - MixboxSBTUITestTunnelServer
+  - MixboxLinkXCTAutomationSupport (0.0.1)
+  - MixboxMocksGeneration (0.0.1):
+    - SourceryFramework
+    - SourceryRuntime
+  - MixboxMocksRuntime (0.0.1):
+    - MixboxGenerators
+    - MixboxTestsFoundation
+  - MixboxReflection (0.0.1)
+  - MixboxSBTUITestTunnelClient (0.0.1):
+    - MixboxSBTUITestTunnelCommon
+  - MixboxSBTUITestTunnelCommon (0.0.1)
+  - MixboxSBTUITestTunnelServer (0.0.1):
+    - GCDWebServer (~> 3.0)
+    - MixboxSBTUITestTunnelCommon
+  - MixboxStubbing (0.0.1):
+    - MixboxGenerators
+    - MixboxTestsFoundation
+  - MixboxTestability (0.0.1)
+  - MixboxTestsFoundation (0.0.1):
+    - MixboxBuiltinDi
+    - MixboxFoundation
+    - MixboxIpc
+    - MixboxIpcCommon
+    - MixboxLinkXCTAutomationSupport
+    - MixboxUiKit
+    - SQLite.swift
+  - MixboxUiKit (0.0.1):
+    - MixboxFoundation
+  - MixboxUiTestsFoundation (0.0.1):
+    - MixboxAnyCodable
+    - MixboxCocoaImageHashing
+    - MixboxDi
+    - MixboxIpcCommon
+    - MixboxTestsFoundation
+    - MixboxUiKit
+  - PathKit (1.0.0)
+  - SourceKittenFramework (0.30.1):
+    - SWXMLHash (~> 5.0.1)
+    - Yams (~> 4.0)
+  - SourceryFramework (1.0.0):
+    - SourceKittenFramework (~> 0.30.1)
+    - SourceryRuntime
+    - SourceryUtils
+  - SourceryRuntime (1.0.0):
+    - SourceryUtils
+  - SourceryUtils (1.0.0):
+    - PathKit
+  - SQLite.swift (0.12.2):
+    - SQLite.swift/standard (= 0.12.2)
+  - SQLite.swift/standard (0.12.2)
+  - SwiftLint (0.50.3)
+  - SWXMLHash (5.0.1)
+  - TestsIpc (0.0.1):
+    - MixboxBuiltinIpc
+    - MixboxGenerators
+    - MixboxIpc
+    - MixboxIpcCommon
+    - MixboxReflection
+    - MixboxUiKit
+  - Yams (4.0.6)
+
+DEPENDENCIES:
+  - Mixbox (from `..`)
+  - MixboxAnyCodable (from `..`)
+  - MixboxBlack (from `..`)
+  - MixboxBuiltinDi (from `..`)
+  - MixboxBuiltinIpc (from `..`)
+  - MixboxCocoaImageHashing (from `..`)
+  - MixboxDi (from `..`)
+  - MixboxFakeSettingsAppMain (from `..`)
+  - MixboxFoundation (from `..`)
+  - MixboxGenerators (from `..`)
+  - MixboxGray (from `..`)
+  - MixboxInAppServices (from `..`)
+  - MixboxIoKit (from `..`)
+  - MixboxIpc (from `..`)
+  - MixboxIpcCommon (from `..`)
+  - MixboxIpcSbtuiClient (from `..`)
+  - MixboxIpcSbtuiHost (from `..`)
+  - MixboxLinkXCTAutomationSupport (from `..`)
+  - MixboxMocksGeneration (from `..`)
+  - MixboxMocksRuntime (from `..`)
+  - MixboxReflection (from `..`)
+  - MixboxSBTUITestTunnelClient (from `..`)
+  - MixboxSBTUITestTunnelCommon (from `..`)
+  - MixboxSBTUITestTunnelServer (from `..`)
+  - MixboxStubbing (from `..`)
+  - MixboxTestability (from `..`)
+  - MixboxTestsFoundation (from `..`)
+  - MixboxUiKit (from `..`)
+  - MixboxUiTestsFoundation (from `..`)
+  - SourceryFramework (from `https://github.com/avito-tech/Sourcery.git`, commit `0564feccdc8fade6c68376bdf7f8dab9b79863fe`)
+  - SourceryRuntime (from `https://github.com/avito-tech/Sourcery.git`, commit `0564feccdc8fade6c68376bdf7f8dab9b79863fe`)
+  - SourceryUtils (from `https://github.com/avito-tech/Sourcery.git`, commit `0564feccdc8fade6c68376bdf7f8dab9b79863fe`)
+  - SQLite.swift
+  - SwiftLint (= 0.50.3)
+  - TestsIpc (from `Frameworks/TestsIpc`)
+
+SPEC REPOS:
+  trunk:
+    - GCDWebServer
+    - PathKit
+    - SourceKittenFramework
+    - SQLite.swift
+    - SwiftLint
+    - SWXMLHash
+    - Yams
+
+EXTERNAL SOURCES:
+  Mixbox:
+    :path: ".."
+  MixboxAnyCodable:
+    :path: ".."
+  MixboxBlack:
+    :path: ".."
+  MixboxBuiltinDi:
+    :path: ".."
+  MixboxBuiltinIpc:
+    :path: ".."
+  MixboxCocoaImageHashing:
+    :path: ".."
+  MixboxDi:
+    :path: ".."
+  MixboxFakeSettingsAppMain:
+    :path: ".."
+  MixboxFoundation:
+    :path: ".."
+  MixboxGenerators:
+    :path: ".."
+  MixboxGray:
+    :path: ".."
+  MixboxInAppServices:
+    :path: ".."
+  MixboxIoKit:
+    :path: ".."
+  MixboxIpc:
+    :path: ".."
+  MixboxIpcCommon:
+    :path: ".."
+  MixboxIpcSbtuiClient:
+    :path: ".."
+  MixboxIpcSbtuiHost:
+    :path: ".."
+  MixboxLinkXCTAutomationSupport:
+    :path: ".."
+  MixboxMocksGeneration:
+    :path: ".."
+  MixboxMocksRuntime:
+    :path: ".."
+  MixboxReflection:
+    :path: ".."
+  MixboxSBTUITestTunnelClient:
+    :path: ".."
+  MixboxSBTUITestTunnelCommon:
+    :path: ".."
+  MixboxSBTUITestTunnelServer:
+    :path: ".."
+  MixboxStubbing:
+    :path: ".."
+  MixboxTestability:
+    :path: ".."
+  MixboxTestsFoundation:
+    :path: ".."
+  MixboxUiKit:
+    :path: ".."
+  MixboxUiTestsFoundation:
+    :path: ".."
+  SourceryFramework:
+    :commit: 0564feccdc8fade6c68376bdf7f8dab9b79863fe
+    :git: https://github.com/avito-tech/Sourcery.git
+  SourceryRuntime:
+    :commit: 0564feccdc8fade6c68376bdf7f8dab9b79863fe
+    :git: https://github.com/avito-tech/Sourcery.git
+  SourceryUtils:
+    :commit: 0564feccdc8fade6c68376bdf7f8dab9b79863fe
+    :git: https://github.com/avito-tech/Sourcery.git
+  TestsIpc:
+    :path: "Frameworks/TestsIpc"
+
+CHECKOUT OPTIONS:
+  SourceryFramework:
+    :commit: 0564feccdc8fade6c68376bdf7f8dab9b79863fe
+    :git: https://github.com/avito-tech/Sourcery.git
+  SourceryRuntime:
+    :commit: 0564feccdc8fade6c68376bdf7f8dab9b79863fe
+    :git: https://github.com/avito-tech/Sourcery.git
+  SourceryUtils:
+    :commit: 0564feccdc8fade6c68376bdf7f8dab9b79863fe
+    :git: https://github.com/avito-tech/Sourcery.git
+
+SPEC CHECKSUMS:
+  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
+  Mixbox: 7962fd7d7d2a849a78c460a22a6730a6d77e85b1
+  MixboxAnyCodable: d068cc03457477ac812d79f293ee55458d15437f
+  MixboxBlack: 67d60d8641bf7dbe9f4600e6353a02561156f663
+  MixboxBuiltinDi: bc2d5868a60b900369d3610a855b76622506eed3
+  MixboxBuiltinIpc: 4a4ec5fa12492055d1a09cf125c2855920ef9b6e
+  MixboxCocoaImageHashing: 2baf63c8d6d7c3907ab96eaf54d6c951d49ef2a4
+  MixboxDi: 215a31f0001c0fe2008af3472902826e2dca6eb3
+  MixboxFakeSettingsAppMain: c48ba4ef5a22f8a21ca108549526c3c49a22732d
+  MixboxFoundation: b8ff60b6610a5014d2b14b1b9eb4dfcaebd8afac
+  MixboxGenerators: 23caf7f0d69cc58072cfe363947d908d9529ddaf
+  MixboxGray: 6fe1533d54067862d65d6844befdd412d8070eb2
+  MixboxInAppServices: 0f261cb0130372b6d7b29fe60e93e18c10ad734c
+  MixboxIoKit: 7d6ccb3e7953980b3fee146c0a569fc78381b85f
+  MixboxIpc: 96d482347edbbfa6a5f995a46ba9a93de4b03a6e
+  MixboxIpcCommon: 63b5517328affd67ff6699ed44616675742d01bb
+  MixboxIpcSbtuiClient: 0ce5a6153ef260362141744adcde0d9dc9b860e4
+  MixboxIpcSbtuiHost: 5017a97366866216a1f47d8b458311aa678454f0
+  MixboxLinkXCTAutomationSupport: 11e4e0277d3e3c147a0be65b5993bc8f74a89498
+  MixboxMocksGeneration: 093ae070f1ad75118f0144ca48f2405bbb18fdc4
+  MixboxMocksRuntime: 5ada368be8f5fe148e81a5fe05b6c030532c8c93
+  MixboxReflection: e153e43e14064d9114cb8d2d416413372038fd2a
+  MixboxSBTUITestTunnelClient: 451b3b59f7a623f0b8bb62efbb009ba1b4913951
+  MixboxSBTUITestTunnelCommon: 102e5346fc80c7a548c22a4edbd437abc178f9cd
+  MixboxSBTUITestTunnelServer: cbc32956fadc0af04953f562cde579cd532927a2
+  MixboxStubbing: 0daf9050e92f6cbe16d308018ec0af0c6e387c48
+  MixboxTestability: 3d46a2d1343d6c9c3291606953f165495fbb8443
+  MixboxTestsFoundation: c33f099370f34facde8d95cb798e8342788bb278
+  MixboxUiKit: d106c8493a34b397a7bf76cd399316d63fda8232
+  MixboxUiTestsFoundation: 058b4437f1196d51b1589de957e19bc659d91c7e
+  PathKit: 364e0de7fb5adb142aecab4e112187e5548fc4b6
+  SourceKittenFramework: 540d9d048c0bab3c0faa4668425364fabff12cb0
+  SourceryFramework: 52f80f61c513f49ec96e83496c16dd24dd668734
+  SourceryRuntime: 5a4dbc3f00116ad28ecb0d79655183540e415ed5
+  SourceryUtils: ed18f31b5a6d600d06bd59359f457e6e81f92d10
+  SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
+  SwiftLint: 77f7cb2b9bb81ab4a12fcc86448ba3f11afa50c6
+  SWXMLHash: 9cc0c2e4807926c74377724aa8722ee5707a0485
+  TestsIpc: fa824f1dc258b39d17dac385d25ad46328703fd1
+  Yams: ed1c49f0d6be84f305ad3f93f997b1df039afd9e
+
+PODFILE CHECKSUM: f000000000000000000000000000000000000000
+
+COCOAPODS: 1.15.2

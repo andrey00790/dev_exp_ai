@@ -1,0 +1,11 @@
+{
+  "name": "Uptime Kuma",
+  "role": "DevOps / SRE",
+  "category": "monitoring",
+  "url": "https://github.com/louislam/uptime-kuma",
+  "downloaded_at": "2025-06-24T01:09:18.838385",
+  "file_path": "bootstrap/monitoring/Uptime_Kuma",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 960
+}

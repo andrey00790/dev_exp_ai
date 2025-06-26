@@ -1,0 +1,263 @@
+# Load Testing Configuration for AI Assistant
+# Defines different test scenarios and their parameters
+
+test_profiles:
+  # Development/CI testing - quick validation
+  development:
+    health_check:
+      concurrent_users: 10
+      requests_per_user: 5
+      timeout: 10
+    authentication:
+      concurrent_users: 5
+      requests_per_user: 3
+      timeout: 15
+    websocket:
+      concurrent_connections: 5
+      messages_per_connection: 3
+      timeout: 10
+    monitoring:
+      concurrent_users: 3
+      requests_per_user: 5
+      timeout: 10
+    optimization:
+      concurrent_users: 3
+      requests_per_user: 3
+      timeout: 15
+  
+  # Staging testing - moderate load simulation
+  staging:
+    health_check:
+      concurrent_users: 50
+      requests_per_user: 20
+      timeout: 30
+    authentication:
+      concurrent_users: 25
+      requests_per_user: 8
+      timeout: 45
+    websocket:
+      concurrent_connections: 20
+      messages_per_connection: 10
+      timeout: 60
+    monitoring:
+      concurrent_users: 15
+      requests_per_user: 12
+      timeout: 30
+    optimization:
+      concurrent_users: 10
+      requests_per_user: 6
+      timeout: 60
+  
+  # Production testing - high load simulation
+  production:
+    health_check:
+      concurrent_users: 200
+      requests_per_user: 50
+      timeout: 120
+    authentication:
+      concurrent_users: 100
+      requests_per_user: 20
+      timeout: 180
+    websocket:
+      concurrent_connections: 75
+      messages_per_connection: 25
+      timeout: 300
+    monitoring:
+      concurrent_users: 50
+      requests_per_user: 30
+      timeout: 120
+    optimization:
+      concurrent_users: 25
+      requests_per_user: 15
+      timeout: 240
+
+# Stress testing scenarios
+stress_scenarios:
+  # Escalating load testing
+  escalating_load:
+    light:
+      max_users: 50
+      escalation_steps: 5
+      step_duration: 20
+    moderate:
+      max_users: 150
+      escalation_steps: 10
+      step_duration: 30
+    heavy:
+      max_users: 500
+      escalation_steps: 15
+      step_duration: 45
+  
+  # Sustained load testing
+  sustained_load:
+    short:
+      concurrent_users: 30
+      duration_minutes: 5
+    medium:
+      concurrent_users: 75
+      duration_minutes: 15
+    long:
+      concurrent_users: 50
+      duration_minutes: 60
+  
+  # Spike load testing
+  spike_load:
+    small:
+      baseline_users: 10
+      spike_users: 50
+      spike_duration: 30
+    medium:
+      baseline_users: 25
+      spike_users: 150
+      spike_duration: 60
+    large:
+      baseline_users: 50
+      spike_users: 300
+      spike_duration: 90
+
+# Performance thresholds and expectations
+performance_thresholds:
+  response_time:
+    health_check:
+      max_avg: 0.1      # 100ms average
+      max_p95: 0.2      # 200ms P95
+      max_p99: 0.5      # 500ms P99
+    authentication:
+      max_avg: 0.5      # 500ms average
+      max_p95: 1.0      # 1s P95
+      max_p99: 2.0      # 2s P99
+    websocket:
+      max_avg: 0.3      # 300ms average
+      max_p95: 0.8      # 800ms P95
+      max_p99: 1.5      # 1.5s P99
+    monitoring:
+      max_avg: 0.8      # 800ms average
+      max_p95: 2.0      # 2s P95
+      max_p99: 5.0      # 5s P99
+    optimization:
+      max_avg: 2.0      # 2s average
+      max_p95: 5.0      # 5s P95
+      max_p99: 10.0     # 10s P99
+  
+  success_rate:
+    minimum: 95.0       # 95% minimum success rate
+    warning: 90.0       # Warning threshold
+    critical: 80.0      # Critical threshold
+  
+  throughput:
+    health_check:
+      min_rps: 100      # Minimum requests per second
+    authentication:
+      min_rps: 50
+    websocket:
+      min_rps: 25
+    monitoring:
+      min_rps: 20
+    optimization:
+      min_rps: 10
+  
+  resource_usage:
+    memory:
+      max_growth_mb: 100    # Max memory growth during test
+      leak_threshold_mb: 50 # Memory leak detection threshold
+    cpu:
+      max_usage_percent: 80 # Maximum CPU usage
+      avg_usage_percent: 50 # Average CPU usage target
+
+# Test execution settings
+execution:
+  # Timeout settings
+  default_timeout: 30
+  long_running_timeout: 300
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay: 5
+  
+  # Cleanup settings
+  cleanup_delay: 10
+  recovery_wait: 15
+  
+  # Reporting settings
+  detailed_logging: true
+  save_metrics: true
+  generate_charts: false
+  
+  # Environment settings
+  base_url: "http://localhost:8000"
+  test_environment: "development"
+  
+# Test data configuration
+test_data:
+  # User accounts for testing
+  test_users:
+    - email: "load_test_user_1@test.com"
+      password: "test_password_123"
+      role: "user"
+    - email: "load_test_user_2@test.com"
+      password: "test_password_123"
+      role: "user"
+    - email: "load_test_admin@test.com"
+      password: "admin_password_123"
+      role: "admin"
+  
+  # Sample queries for search load testing
+  search_queries:
+    - "API documentation"
+    - "authentication implementation"
+    - "database optimization"
+    - "monitoring setup"
+    - "security best practices"
+    - "performance tuning"
+    - "error handling"
+    - "user management"
+    - "system architecture"
+    - "deployment guide"
+  
+  # Sample optimization requests
+  optimization_requests:
+    - component: "search"
+      type: "cache_tuning"
+    - component: "analytics"
+      type: "query_optimization"
+    - component: "auth"
+      type: "token_caching"
+    - component: "monitoring"
+      type: "metric_aggregation"
+  
+  # WebSocket message types
+  websocket_messages:
+    - type: "ping"
+      payload: {"timestamp": "auto"}
+    - type: "user_message"
+      payload: {"message": "Hello from load test"}
+    - type: "status_check"
+      payload: {"component": "system"}
+
+# Reporting configuration
+reporting:
+  formats:
+    - console
+    - json
+    - html
+  
+  metrics_to_track:
+    - response_time_percentiles
+    - throughput_over_time
+    - error_rate_over_time
+    - resource_usage_over_time
+    - concurrent_users_over_time
+  
+  alert_conditions:
+    - condition: "error_rate > 10"
+      severity: "warning"
+      message: "High error rate detected"
+    - condition: "avg_response_time > 2.0"
+      severity: "warning"
+      message: "Slow response times detected"
+    - condition: "success_rate < 90"
+      severity: "critical"
+      message: "Low success rate - system may be failing"
+    - condition: "memory_growth > 100"
+      severity: "warning"
+      message: "Potential memory leak detected" 

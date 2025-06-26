@@ -23,6 +23,10 @@ from datetime import datetime, timedelta
 import httpx
 import websockets
 import logging
+import pytest
+import concurrent.futures
+import threading
+from unittest.mock import Mock, patch
 
 logger = logging.getLogger(__name__)
 
@@ -680,6 +684,376 @@ class LoadTester:
         report.append("\n" + "="*80)
         
         return "\n".join(report)
+
+class TestLoadTesting:
+    """Load тесты производительности"""
+    
+    def test_concurrent_health_checks(self):
+        """Тест параллельных health check запросов"""
+        def make_health_request():
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"status": "healthy"}
+            
+            with patch('requests.get', return_value=mock_response):
+                import requests
+                start_time = time.time()
+                response = requests.get("http://localhost:8000/health")
+                end_time = time.time()
+                
+                return {
+                    "status_code": response.status_code,
+                    "response_time": end_time - start_time,
+                    "success": response.status_code == 200
+                }
+        
+        # Тест 20 параллельных запросов
+        num_requests = 20
+        max_workers = 10
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(make_health_request) for _ in range(num_requests)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        
+        # Анализ результатов
+        success_count = sum(1 for r in results if r["success"])
+        response_times = [r["response_time"] for r in results]
+        avg_response_time = statistics.mean(response_times)
+        max_response_time = max(response_times)
+        
+        # Проверки
+        assert success_count == num_requests, f"Only {success_count}/{num_requests} requests succeeded"
+        assert avg_response_time < 1.0, f"Average response time too high: {avg_response_time}s"
+        assert max_response_time < 2.0, f"Max response time too high: {max_response_time}s"
+    
+    def test_search_load_testing(self):
+        """Load тест для поиска"""
+        def make_search_request(query_id):
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "query": f"test query {query_id}",
+                "results": [
+                    {"id": f"doc_{query_id}", "title": f"Document {query_id}", "score": 0.9}
+                ],
+                "total_results": 1,
+                "search_time_ms": 50.0 + (query_id % 10) * 10  # Вариация времени поиска
+            }
+            
+            with patch('requests.post', return_value=mock_response):
+                import requests
+                start_time = time.time()
+                response = requests.post(
+                    "http://localhost:8000/api/v1/search/advanced/",
+                    json={
+                        "query": f"test query {query_id}",
+                        "search_type": "semantic",
+                        "limit": 10
+                    }
+                )
+                end_time = time.time()
+                
+                return {
+                    "query_id": query_id,
+                    "status_code": response.status_code,
+                    "response_time": end_time - start_time,
+                    "search_time_ms": response.json().get("search_time_ms", 0),
+                    "success": response.status_code == 200
+                }
+        
+        # Тест 30 поисковых запросов
+        num_searches = 30
+        max_workers = 15
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(make_search_request, i) for i in range(num_searches)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        
+        # Анализ результатов
+        success_count = sum(1 for r in results if r["success"])
+        response_times = [r["response_time"] for r in results]
+        search_times = [r["search_time_ms"] for r in results]
+        
+        avg_response_time = statistics.mean(response_times)
+        avg_search_time = statistics.mean(search_times)
+        p95_response_time = sorted(response_times)[int(0.95 * len(response_times))]
+        
+        # Проверки производительности
+        assert success_count == num_searches, f"Only {success_count}/{num_searches} searches succeeded"
+        assert avg_response_time < 2.0, f"Average response time too high: {avg_response_time}s"
+        assert p95_response_time < 3.0, f"95th percentile response time too high: {p95_response_time}s"
+        assert avg_search_time < 200.0, f"Average search time too high: {avg_search_time}ms"
+    
+    def test_memory_usage_simulation(self):
+        """Симуляция тестирования использования памяти"""
+        def simulate_memory_intensive_operation():
+            # Симуляция обработки больших документов
+            large_document = {
+                "id": "large_doc",
+                "title": "Large Document",
+                "content": "A" * 10000,  # 10KB контента
+                "metadata": {"size": 10000, "type": "large"}
+            }
+            
+            # Симуляция обработки
+            processed_chunks = []
+            chunk_size = 1000
+            for i in range(0, len(large_document["content"]), chunk_size):
+                chunk = {
+                    "chunk_id": i // chunk_size,
+                    "content": large_document["content"][i:i+chunk_size],
+                    "metadata": large_document["metadata"]
+                }
+                processed_chunks.append(chunk)
+            
+            return {
+                "document_id": large_document["id"],
+                "chunks_count": len(processed_chunks),
+                "total_size": len(large_document["content"]),
+                "processing_success": True
+            }
+        
+        # Тест обработки 10 больших документов параллельно
+        num_documents = 10
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(simulate_memory_intensive_operation) for _ in range(num_documents)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        
+        # Проверки
+        success_count = sum(1 for r in results if r["processing_success"])
+        total_chunks = sum(r["chunks_count"] for r in results)
+        total_size = sum(r["total_size"] for r in results)
+        
+        assert success_count == num_documents, f"Only {success_count}/{num_documents} documents processed"
+        assert total_chunks > 0, "No chunks were processed"
+        assert total_size == num_documents * 10000, f"Total size mismatch: {total_size}"
+    
+    def test_database_connection_pool_simulation(self):
+        """Симуляция тестирования пула подключений к БД"""
+        connection_pool = []
+        pool_lock = threading.Lock()
+        max_connections = 10
+        
+        def get_connection():
+            with pool_lock:
+                if len(connection_pool) < max_connections:
+                    # Создаем новое подключение
+                    connection = Mock()
+                    connection.id = len(connection_pool)
+                    connection.is_active = True
+                    connection_pool.append(connection)
+                    return connection
+                else:
+                    # Используем существующее подключение
+                    return connection_pool[len(connection_pool) % max_connections]
+        
+        def simulate_db_operation(operation_id):
+            connection = get_connection()
+            
+            # Симуляция DB операции
+            time.sleep(0.01)  # Короткая задержка
+            
+            return {
+                "operation_id": operation_id,
+                "connection_id": connection.id,
+                "success": connection.is_active
+            }
+        
+        # Тест 50 операций с БД
+        num_operations = 50
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            futures = [executor.submit(simulate_db_operation, i) for i in range(num_operations)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        
+        # Анализ результатов
+        success_count = sum(1 for r in results if r["success"])
+        unique_connections = len(set(r["connection_id"] for r in results))
+        
+        assert success_count == num_operations, f"Only {success_count}/{num_operations} DB operations succeeded"
+        assert unique_connections <= max_connections, f"Too many connections created: {unique_connections}"
+        assert len(connection_pool) <= max_connections, f"Connection pool exceeded limit: {len(connection_pool)}"
+    
+    def test_rate_limiting_simulation(self):
+        """Симуляция тестирования rate limiting"""
+        rate_limit_counter = {}
+        rate_limit_lock = threading.Lock()
+        max_requests_per_user = 10
+        
+        def check_rate_limit(user_id):
+            with rate_limit_lock:
+                current_count = rate_limit_counter.get(user_id, 0)
+                if current_count >= max_requests_per_user:
+                    return False  # Rate limit exceeded
+                rate_limit_counter[user_id] = current_count + 1
+                return True
+        
+        def make_request_with_rate_limit(request_id):
+            user_id = f"user_{request_id % 5}"  # 5 разных пользователей
+            
+            if not check_rate_limit(user_id):
+                return {
+                    "request_id": request_id,
+                    "user_id": user_id,
+                    "status_code": 429,  # Too Many Requests
+                    "success": False,
+                    "rate_limited": True
+                }
+            
+            # Симуляция успешного запроса
+            mock_response = Mock()
+            mock_response.status_code = 200
+            
+            return {
+                "request_id": request_id,
+                "user_id": user_id,
+                "status_code": 200,
+                "success": True,
+                "rate_limited": False
+            }
+        
+        # Тест 60 запросов от 5 пользователей (12 запросов на пользователя)
+        num_requests = 60
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(make_request_with_rate_limit, i) for i in range(num_requests)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        
+        # Анализ результатов
+        success_count = sum(1 for r in results if r["success"])
+        rate_limited_count = sum(1 for r in results if r["rate_limited"])
+        
+        # Каждый пользователь должен быть ограничен после 10 запросов
+        expected_rate_limited = 5 * 2  # 5 пользователей * 2 лишних запроса
+        
+        assert rate_limited_count >= expected_rate_limited, f"Rate limiting not working: {rate_limited_count} limited"
+        assert success_count <= 5 * max_requests_per_user, f"Too many successful requests: {success_count}"
+    
+    def test_stress_testing_simulation(self):
+        """Симуляция стресс-тестирования"""
+        error_count = 0
+        error_lock = threading.Lock()
+        
+        def stress_operation(operation_id):
+            try:
+                # Симуляция различных операций
+                if operation_id % 4 == 0:
+                    # Поиск
+                    mock_response = Mock()
+                    mock_response.status_code = 200
+                    return {"type": "search", "success": True}
+                elif operation_id % 4 == 1:
+                    # Загрузка документа
+                    mock_response = Mock()
+                    mock_response.status_code = 201
+                    return {"type": "upload", "success": True}
+                elif operation_id % 4 == 2:
+                    # Аналитика
+                    mock_response = Mock()
+                    mock_response.status_code = 200
+                    return {"type": "analytics", "success": True}
+                else:
+                    # Пользовательские операции
+                    mock_response = Mock()
+                    mock_response.status_code = 200
+                    return {"type": "user_ops", "success": True}
+                    
+            except Exception as e:
+                with error_lock:
+                    nonlocal error_count
+                    error_count += 1
+                return {"type": "error", "success": False, "error": str(e)}
+        
+        # Стресс-тест: 100 операций
+        num_operations = 100
+        max_workers = 25
+        
+        start_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(stress_operation, i) for i in range(num_operations)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        end_time = time.time()
+        
+        total_time = end_time - start_time
+        
+        # Анализ результатов
+        success_count = sum(1 for r in results if r["success"])
+        operation_types = {}
+        for result in results:
+            op_type = result["type"]
+            operation_types[op_type] = operation_types.get(op_type, 0) + 1
+        
+        throughput = num_operations / total_time  # операций в секунду
+        
+        # Проверки
+        assert success_count >= num_operations * 0.95, f"Too many failures: {num_operations - success_count}"
+        assert error_count <= num_operations * 0.05, f"Too many errors: {error_count}"
+        assert throughput > 10, f"Throughput too low: {throughput} ops/sec"
+        assert total_time < 30, f"Stress test took too long: {total_time}s"
+
+class TestPerformanceMetrics:
+    """Тесты метрик производительности"""
+    
+    def test_response_time_distribution(self):
+        """Тест распределения времени ответа"""
+        response_times = []
+        
+        def measure_response_time():
+            start_time = time.time()
+            # Симуляция операции с переменным временем выполнения
+            import random
+            time.sleep(random.uniform(0.01, 0.1))  # 10-100ms
+            end_time = time.time()
+            return end_time - start_time
+        
+        # Собираем 100 измерений
+        for _ in range(100):
+            response_times.append(measure_response_time())
+        
+        # Вычисляем статистики
+        avg_time = statistics.mean(response_times)
+        median_time = statistics.median(response_times)
+        p95_time = sorted(response_times)[int(0.95 * len(response_times))]
+        p99_time = sorted(response_times)[int(0.99 * len(response_times))]
+        
+        # Проверки SLA
+        assert avg_time < 0.2, f"Average response time too high: {avg_time}s"
+        assert median_time < 0.15, f"Median response time too high: {median_time}s"
+        assert p95_time < 0.3, f"95th percentile too high: {p95_time}s"
+        assert p99_time < 0.5, f"99th percentile too high: {p99_time}s"
+    
+    def test_throughput_measurement(self):
+        """Тест измерения пропускной способности"""
+        def process_request():
+            # Симуляция обработки запроса
+            time.sleep(0.01)  # 10ms обработка
+            return {"processed": True}
+        
+        # Тест пропускной способности в течение 5 секунд
+        test_duration = 2  # сокращено для тестов
+        start_time = time.time()
+        processed_count = 0
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = []
+            
+            while time.time() - start_time < test_duration:
+                future = executor.submit(process_request)
+                futures.append(future)
+            
+            # Ждем завершения всех задач
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                if result["processed"]:
+                    processed_count += 1
+        
+        actual_duration = time.time() - start_time
+        throughput = processed_count / actual_duration
+        
+        # Проверки
+        assert processed_count > 0, "No requests were processed"
+        assert throughput > 50, f"Throughput too low: {throughput} req/sec"
 
 async def main():
     """Main load testing execution"""

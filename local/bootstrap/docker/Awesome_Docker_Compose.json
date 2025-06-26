@@ -1,0 +1,11 @@
+{
+  "name": "Awesome Docker Compose",
+  "role": "DevOps / SRE",
+  "category": "docker",
+  "url": "https://github.com/docker/awesome-compose",
+  "downloaded_at": "2025-06-24T01:08:37.122116",
+  "file_path": "bootstrap/docker/Awesome_Docker_Compose",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 1632
+}

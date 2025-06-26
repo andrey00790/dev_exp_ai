@@ -1,5 +1,6 @@
 import time
 from typing import Dict, Any
+from datetime import datetime
 
 from fastapi import APIRouter, status
 from pydantic import BaseModel
@@ -55,6 +56,12 @@ async def health() -> HealthResponse:
         checks=checks
     )
 
-@router.get("/health", summary="Health Check V1", description="Проверяет работоспособность API v1")
-def health_check_v1():
-    return {"status": "ok", "api_version": "v1", "app_version": settings.version} 
+@router.get("/health", summary="API Health Check")
+async def health_check_v1():
+    """Health check для API v1"""
+    return {
+        "status": "healthy",
+        "version": "v1",
+        "timestamp": datetime.utcnow().isoformat(),
+        "api": "v1"
+    } 

@@ -1,850 +1,363 @@
-.PHONY: up down test healthcheck run bootstrap smoke-test
-
-docker_available := $(shell command -v docker 2>/dev/null)
-
-# Bootstrap - полное развертывание проекта одной командой
-bootstrap:
-	@echo "🚀 Bootstrapping AI Assistant MVP..."
-	@if [ ! -f .env.local ]; then \
-		echo "📋 Creating .env.local from .env.example..."; \
-		cp .env.example .env.local; \
-	fi
-	@echo "📦 Installing dependencies..."
-	@pip3 install -r requirements.txt
-	@echo "🐳 Starting infrastructure..."
-	@$(MAKE) up
-	@echo "⏳ Waiting for services to be ready..."
-	@sleep 10
-	@echo "🔍 Running health checks..."
-	@$(MAKE) healthcheck
-	@echo "🧪 Running tests..."
-	@$(MAKE) test
-	@echo "💨 Running smoke tests..."
-	@$(MAKE) smoke-test
-	@echo "✅ Bootstrap complete! AI Assistant MVP is ready."
-	@echo "🌐 Application: http://localhost:8000"
-	@echo "📊 API Docs: http://localhost:8000/docs"
-	@echo "🔍 Qdrant: http://localhost:6333/dashboard"
-
-up:
-	@if [ -n "$(docker_available)" ]; then \
-		echo "🐳 Starting Docker services..."; \
-		docker compose up -d --build; \
-		echo "⏳ Waiting for services to start..."; \
-		sleep 5; \
-	else \
-		echo "⚠️  Docker not available, starting locally..."; \
-		PYTHONPATH=. nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > /dev/null 2>&1 & echo $$! > .app.pid; \
-		echo "✅ App started with PID $$(cat .app.pid)"; \
-	fi
-
-down:
-	@if [ -n "$(docker_available)" ]; then \
-		echo "🛑 Stopping Docker services..."; \
-		docker compose down; \
-	else \
-		if [ -f .app.pid ]; then \
-			kill $$(cat .app.pid) && rm .app.pid && echo "✅ App stopped"; \
-		else \
-			echo "⚠️  No running app found"; \
-		fi; \
-	fi
-
-healthcheck:
-	@echo "🔍 Checking service health..."
-	@if ! curl -fs http://localhost:8000/health >/dev/null 2>&1; then \
-		echo "❌ Service not responding, attempting to start..."; \
-		PYTHONPATH=. uvicorn app.main:app --host 0.0.0.0 --port 8000 & \
-		pid=$$!; \
-		sleep 5; \
-		if curl -f http://localhost:8000/health; then \
-			echo "✅ Health check passed"; \
-		else \
-			echo "❌ Health check failed"; \
-			exit 1; \
-		fi; \
-		kill $$pid; \
-	else \
-		curl -f http://localhost:8000/health && echo "✅ Service is healthy"; \
-	fi
-
-test:
-	@echo "🧪 Running tests..."
-	@PYTHONPATH=. python3 -m pytest -v --cov=app --cov-report=term-missing --cov-fail-under=80
-
-smoke-test:
-	@echo "💨 Running smoke tests..."
-	@PYTHONPATH=. python3 -m pytest tests/smoke/ -v --tb=short
-
-run:
-	@echo "🚀 Starting development server..."
-	@PYTHONPATH=. uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Очистка всех данных и контейнеров
-clean:
-	@echo "🧹 Cleaning up..."
-	@if [ -n "$(docker_available)" ]; then \
-		docker compose down -v --remove-orphans; \
-		docker system prune -f; \
-	fi
-	@rm -f .app.pid
-	@echo "✅ Cleanup complete"
-
-# Показать статус всех сервисов
-status:
-	@echo "📊 Service Status:"
-	@echo "Web API: $$(curl -s http://localhost:8000/health > /dev/null && echo '✅ UP' || echo '❌ DOWN')"
-	@echo "Qdrant: $$(curl -s http://localhost:6333/dashboard > /dev/null && echo '✅ UP' || echo '❌ DOWN')"
-	@echo "Ollama: $$(curl -s http://localhost:11434/api/tags > /dev/null && echo '✅ UP' || echo '❌ DOWN')"
-	@if [ -n "$(docker_available)" ]; then \
-		echo "Docker services:"; \
-		docker compose ps; \
-	fi
-
-# =============================================================================
-# ITERATION TESTING COMMANDS
-# =============================================================================
-
-.PHONY: test-iteration test-fix test-performance test-e2e test-all test-watch
-test-iteration: ## Полный прогон тестов для текущей итерации
-	@echo "🧪 Запуск тестов для текущей итерации..."
-	@echo "1️⃣ Unit Tests..."
-	pytest tests/unit/ -v --cov=. --cov-fail-under=80
-	@echo "2️⃣ Integration Tests..."
-	pytest tests/integration/ -v
-	@echo "3️⃣ E2E Tests..."
-	pytest tests/test_e2e_comprehensive.py -v
-	@echo "4️⃣ Frontend Tests..."
-	cd frontend && npm test && npm run build
-	@echo "5️⃣ Performance Tests..."
-	python tests/test_performance.py
-	@echo "✅ Все тесты итерации пройдены!"
-
-test-fix: ## Исправление найденных ошибок
-	@echo "🔧 Запуск тестов с исправлением ошибок..."
-	pytest tests/ -v --tb=short --maxfail=1
-	@echo "✅ Исправления применены"
-
-test-performance: ## Performance тесты
-	@echo "⚡ Performance тесты..."
-	python -m pytest tests/test_performance.py -v
-	python test_ai_enhancement.py
-	@echo "✅ Performance тесты завершены"
-
-test-e2e: ## E2E тесты
-	@echo "🔄 E2E тесты..."
-	pytest tests/test_e2e_comprehensive.py -v
-	@echo "✅ E2E тесты завершены"
-
-test-all: ## Все тесты системы
-	@echo "🚀 Запуск всех тестов системы..."
-	$(MAKE) test-iteration
-	$(MAKE) test-performance
-	npm audit
-	python -m safety check
-	@echo "✅ Все тесты системы пройдены!"
-
-test-watch: ## Автоматический прогон тестов при изменениях
-	@echo "👀 Автоматическое тестирование..."
-	pytest-watch tests/ -- -v --tb=short
-
-# =============================================================================
-# GUI DEVELOPMENT COMMANDS
-# =============================================================================
-
-.PHONY: gui-setup gui-dev gui-build gui-test gui-lint
-gui-setup: ## Настройка GUI среды разработки
-	@echo "🖥️ Настройка GUI среды..."
-	cd frontend && npm install
-	@echo "✅ GUI среда настроена"
-
-gui-dev: ## Запуск GUI в режиме разработки
-	@echo "🚀 Запуск GUI разработки..."
-	cd frontend && npm run dev
-
-gui-build: ## Сборка GUI для production
-	@echo "📦 Сборка GUI..."
-	cd frontend && npm run build
-	@echo "✅ GUI собран"
-
-gui-test: ## Тесты GUI
-	@echo "🧪 Тесты GUI..."
-	cd frontend && npm test
-	@echo "✅ GUI тесты пройдены"
-
-gui-lint: ## Проверка кода GUI
-	@echo "🔍 Проверка кода GUI..."
-	cd frontend && npm run lint
-	@echo "✅ Код GUI проверен"
-
-# =============================================================================
-# HEALTH CHECK COMMANDS
-# =============================================================================
-
-.PHONY: health-check health-backend health-frontend health-services
-health-check: ## Полная проверка здоровья системы
-	@echo "🏥 Проверка здоровья системы..."
-	$(MAKE) health-backend
-	$(MAKE) health-frontend
-	$(MAKE) health-services
-	@echo "✅ Система здорова!"
-
-health-backend: ## Проверка backend
-	@echo "🔧 Проверка backend..."
-	curl -f http://localhost:8000/health || echo "❌ Backend недоступен"
-	curl -f http://localhost:8000/api/v1/health || echo "❌ API v1 недоступен"
-	@echo "✅ Backend проверен"
-
-health-frontend: ## Проверка frontend
-	@echo "🖥️ Проверка frontend..."
-	curl -f http://localhost:3000 || echo "❌ Frontend недоступен"
-	@echo "✅ Frontend проверен"
-
-health-services: ## Проверка внешних сервисов
-	@echo "🔌 Проверка сервисов..."
-	curl -f http://localhost:6333/dashboard || echo "❌ Qdrant недоступен"
-	curl -f http://localhost:5432 || echo "❌ PostgreSQL недоступен"
-	@echo "✅ Сервисы проверены"
-
-# =============================================================================
-# E2E PIPELINE WITH MODEL TRAINING
-# =============================================================================
-
-.PHONY: e2e-full-pipeline
-e2e-full-pipeline: ## Полный E2E пайплайн с обучением модели
-	@echo "🚀 Запуск полного E2E пайплайна с обучением модели..."
-	docker-compose up -d
-	@echo "⏳ Ожидание готовности сервисов (3 минуты)..."
-	sleep 180
-	python -m pytest test_e2e_extended.py::TestE2EExtendedPipeline::test_complete_e2e_pipeline_with_model_training -v -s --tb=short
-	@echo "✅ Полный E2E пайплайн завершён"
-
-.PHONY: train-model
-train-model: ## Обучение модели на основе dataset_config.yml
-	@echo "🧠 Обучение модели..."
-	python model_training.py
-	@echo "✅ Обучение модели завершено"
-
-.PHONY: test-feedback
-test-feedback: ## Тестирование системы обратной связи
-	@echo "🔄 Тестирование системы обратной связи..."
-	python -m pytest test_e2e_extended.py::TestE2EExtendedPipeline::test_feedback_and_retraining -v -s
-	@echo "✅ Тестирование обратной связи завершено"
-
-.PHONY: test-multilingual
-test-multilingual: ## Тестирование мультиязычной функциональности
-	@echo "🌐 Тестирование мультиязычной функциональности..."
-	python -m pytest test_e2e_extended.py::TestE2EExtendedPipeline::test_multilingual_model_performance -v -s
-	@echo "✅ Мультиязычное тестирование завершено"
-
-.PHONY: run-semantic-search-tests
-run-semantic-search-tests: ## Запуск тестов семантического поиска
-	@echo "🔍 Запуск тестов семантического поиска..."
-	python evaluate_semantic_search.py --language all --output results/semantic_search_results.json
-	@echo "✅ Тесты семантического поиска завершены"
-
-.PHONY: run-rfc-tests
-run-rfc-tests: ## Запуск тестов RFC генерации
-	@echo "📝 Запуск тестов RFC генерации..."
-	python validate_rfc.py --language all --output results/rfc_validation_results.json
-	@echo "✅ Тесты RFC генерации завершены"
-
-.PHONY: check-model-quality
-check-model-quality: ## Проверка качества модели в PostgreSQL
-	@echo "📊 Проверка качества модели..."
-	python -c "
-import psycopg2
-import json
-import os
-from datetime import datetime, timedelta
-
-conn = psycopg2.connect(
-    host=os.getenv('POSTGRES_HOST', 'localhost'),
-    port=os.getenv('POSTGRES_PORT', 5432),
-    database=os.getenv('POSTGRES_DB', 'testdb'),
-    user=os.getenv('POSTGRES_USER', 'testuser'),
-    password=os.getenv('POSTGRES_PASSWORD', 'testpass')
-)
-
-with conn.cursor() as cursor:
-    cursor.execute('''
-        SELECT metric_name, AVG(metric_value) as avg_value, COUNT(*) as count
-        FROM model_metrics 
-        WHERE timestamp > %s
-        GROUP BY metric_name
-        ORDER BY metric_name
-    ''', (datetime.now() - timedelta(days=7),))
-    
-    results = cursor.fetchall()
-    
-    print('📈 Метрики модели за последнюю неделю:')
-    for metric_name, avg_value, count in results:
-        print(f'  {metric_name}: {avg_value:.3f} (записей: {count})')
-        
-    cursor.execute('''
-        SELECT COUNT(*) as feedback_count
-        FROM model_feedback 
-        WHERE timestamp > %s
-    ''', (datetime.now() - timedelta(days=7),))
-    
-    feedback_count = cursor.fetchone()[0]
-    print(f'💬 Записей обратной связи: {feedback_count}')
-
-conn.close()
-"
-	@echo "✅ Проверка качества модели завершена"
-
-# =============================================================================
-# ITERATION TESTING COMMANDS
-# =============================================================================
-
-.PHONY: test-iteration test-fix test-performance test-e2e test-all test-watch
-test-iteration: ## Полный прогон тестов для текущей итерации
-	@echo "🧪 Запуск тестов для текущей итерации..."
-	@echo "1️⃣ Unit Tests..."
-	pytest tests/unit/ -v --cov=. --cov-fail-under=80
-	@echo "2️⃣ Integration Tests..."
-	pytest tests/integration/ -v
-	@echo "3️⃣ E2E Tests..."
-	pytest tests/test_e2e_comprehensive.py -v
-	@echo "4️⃣ Frontend Tests..."
-	cd frontend && npm test && npm run build
-	@echo "5️⃣ Performance Tests..."
-	python tests/test_performance.py
-	@echo "✅ Все тесты итерации пройдены!"
-
-test-fix: ## Исправление найденных ошибок
-	@echo "🔧 Запуск тестов с исправлением ошибок..."
-	pytest tests/ -v --tb=short --maxfail=1
-	@echo "✅ Исправления применены"
-
-test-performance: ## Performance тесты
-	@echo "⚡ Performance тесты..."
-	python -m pytest tests/test_performance.py -v
-	python test_ai_enhancement.py
-	@echo "✅ Performance тесты завершены"
-
-test-e2e: ## E2E тесты
-	@echo "🔄 E2E тесты..."
-	pytest tests/test_e2e_comprehensive.py -v
-	@echo "✅ E2E тесты завершены"
-
-test-all: ## Все тесты системы
-	@echo "🚀 Запуск всех тестов системы..."
-	$(MAKE) test-iteration
-	$(MAKE) test-performance
-	npm audit
-	python -m safety check
-	@echo "✅ Все тесты системы пройдены!"
-
-test-watch: ## Автоматический прогон тестов при изменениях
-	@echo "👀 Автоматическое тестирование..."
-	pytest-watch tests/ -- -v --tb=short
-
-# =============================================================================
-# GUI DEVELOPMENT COMMANDS
-# =============================================================================
-
-.PHONY: gui-setup gui-dev gui-build gui-test gui-lint
-gui-setup: ## Настройка GUI среды разработки
-	@echo "🖥️ Настройка GUI среды..."
-	cd frontend && npm install
-	@echo "✅ GUI среда настроена"
-
-gui-dev: ## Запуск GUI в режиме разработки
-	@echo "🚀 Запуск GUI разработки..."
-	cd frontend && npm run dev
-
-gui-build: ## Сборка GUI для production
-	@echo "📦 Сборка GUI..."
-	cd frontend && npm run build
-	@echo "✅ GUI собран"
-
-gui-test: ## Тесты GUI
-	@echo "🧪 Тесты GUI..."
-	cd frontend && npm test
-	@echo "✅ GUI тесты пройдены"
-
-gui-lint: ## Проверка кода GUI
-	@echo "🔍 Проверка кода GUI..."
-	cd frontend && npm run lint
-	@echo "✅ Код GUI проверен"
-
-# =============================================================================
-# HEALTH CHECK COMMANDS
-# =============================================================================
-
-.PHONY: health-check health-backend health-frontend health-services
-health-check: ## Полная проверка здоровья системы
-	@echo "🏥 Проверка здоровья системы..."
-	$(MAKE) health-backend
-	$(MAKE) health-frontend
-	$(MAKE) health-services
-	@echo "✅ Система здорова!"
-
-health-backend: ## Проверка backend
-	@echo "🔧 Проверка backend..."
-	curl -f http://localhost:8000/health || echo "❌ Backend недоступен"
-	curl -f http://localhost:8000/api/v1/health || echo "❌ API v1 недоступен"
-	@echo "✅ Backend проверен"
-
-health-frontend: ## Проверка frontend
-	@echo "🖥️ Проверка frontend..."
-	curl -f http://localhost:3000 || echo "❌ Frontend недоступен"
-	@echo "✅ Frontend проверен"
-
-health-services: ## Проверка внешних сервисов
-	@echo "🔌 Проверка сервисов..."
-	curl -f http://localhost:6333/dashboard || echo "❌ Qdrant недоступен"
-	curl -f http://localhost:5432 || echo "❌ PostgreSQL недоступен"
-	@echo "✅ Сервисы проверены"
-
-.PHONY: simulate-user-feedback
-simulate-user-feedback: ## Симуляция пользовательской обратной связи
-	@echo "👥 Симуляция пользовательской обратной связи..."
-	python -c "
-import psycopg2
-import json
-import os
-import random
-from datetime import datetime
-
-feedback_scenarios = [
-    {'query': 'OAuth 2.0 implementation', 'doc': 'OAuth Guide', 'score': 0.95, 'lang': 'en'},
-    {'query': 'реализация OAuth 2.0', 'doc': 'Руководство OAuth', 'score': 0.93, 'lang': 'ru'},
-    {'query': 'microservices patterns', 'doc': 'Microservices Guide', 'score': 0.88, 'lang': 'en'},
-    {'query': 'паттерны микросервисов', 'doc': 'Руководство по микросервисам', 'score': 0.86, 'lang': 'ru'},
-]
-
-conn = psycopg2.connect(
-    host=os.getenv('POSTGRES_HOST', 'localhost'),
-    port=os.getenv('POSTGRES_PORT', 5432),
-    database=os.getenv('POSTGRES_DB', 'testdb'),
-    user=os.getenv('POSTGRES_USER', 'testuser'),
-    password=os.getenv('POSTGRES_PASSWORD', 'testpass')
-)
-
-with conn.cursor() as cursor:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS model_feedback (
-            id SERIAL PRIMARY KEY,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            query TEXT NOT NULL,
-            document TEXT NOT NULL,
-            relevance_score FLOAT NOT NULL,
-            language VARCHAR(10),
-            user_id VARCHAR(100),
-            processed BOOLEAN DEFAULT FALSE,
-            metadata JSONB
-        )
-    ''')
-    
-    for i in range(20):
-        scenario = random.choice(feedback_scenarios)
-        cursor.execute('''
-            INSERT INTO model_feedback 
-            (query, document, relevance_score, language, user_id, metadata)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        ''', (
-            scenario['query'],
-            scenario['doc'],
-            scenario['score'] + random.uniform(-0.1, 0.1),
-            scenario['lang'],
-            f'sim_user_{i}',
-            json.dumps({'simulated': True, 'batch': datetime.now().isoformat()})
-        ))
-    
-    conn.commit()
-    
-print('✅ Создано 20 записей симулированной обратной связи')
-conn.close()
-"
-	@echo "✅ Симуляция обратной связи завершена"
-
-.PHONY: retrain-model
-retrain-model: ## Переобучение модели на основе обратной связи
-	@echo "🔄 Переобучение модели на основе обратной связи..."
-	python -c "
-from model_training import ModelTrainer
-
-trainer = ModelTrainer()
-feedback_data = trainer.get_feedback_from_postgres()
-
-if len(feedback_data) >= 10:
-    print(f'🔄 Найдено {len(feedback_data)} записей обратной связи')
-    print('📚 Запуск переобучения...')
-    trainer.retrain_with_feedback(feedback_data[:50])  # Ограничиваем для быстрого тестирования
-    print('✅ Переобучение завершено')
-    
-    metrics = trainer.evaluate_model()
-    print(f'📊 Новые метрики: {metrics}')
-else:
-    print(f'⚠️ Недостаточно данных для переобучения: {len(feedback_data)} записей')
-"
-	@echo "✅ Переобучение модели завершено"
-
-.PHONY: e2e-quick
-e2e-quick: ## Быстрый E2E тест (без полного обучения)
-	@echo "⚡ Быстрый E2E тест..."
-	docker-compose up -d postgres elasticsearch redis
-	@echo "⏳ Ожидание готовности базовых сервисов (30 сек)..."
-	sleep 30
-	python -m pytest test_e2e_extended.py::TestSpecificE2EScenarios::test_concurrent_feedback_processing -v -s
-	@echo "✅ Быстрый E2E тест завершён"
-
-.PHONY: e2e-advanced-scenarios
-e2e-advanced-scenarios: ## Запуск дополнительных E2E сценариев
-	@echo "🎯 Запуск дополнительных E2E сценариев..."
-	python -m pytest test_e2e_extended.py::TestE2EExtendedPipeline::_run_advanced_e2e_scenarios -v -s
-	@echo "✅ Дополнительные E2E сценарии завершены"
-
-.PHONY: monitor-model-performance
-monitor-model-performance: ## Мониторинг производительности модели
-	@echo "📈 Мониторинг производительности модели..."
-	python -c "
-import psycopg2
-import json
-import os
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-import pandas as pd
-
-conn = psycopg2.connect(
-    host=os.getenv('POSTGRES_HOST', 'localhost'),
-    port=os.getenv('POSTGRES_PORT', 5432),
-    database=os.getenv('POSTGRES_DB', 'testdb'),
-    user=os.getenv('POSTGRES_USER', 'testuser'),
-    password=os.getenv('POSTGRES_PASSWORD', 'testpass')
-)
-
-# Получаем данные за последние 30 дней
-with conn.cursor() as cursor:
-    cursor.execute('''
-        SELECT 
-            DATE(timestamp) as date,
-            metric_name,
-            AVG(metric_value) as avg_value
-        FROM model_metrics 
-        WHERE timestamp > %s
-        GROUP BY DATE(timestamp), metric_name
-        ORDER BY date DESC, metric_name
-    ''', (datetime.now() - timedelta(days=30),))
-    
-    results = cursor.fetchall()
-    
-    if results:
-        df = pd.DataFrame(results, columns=['date', 'metric', 'value'])
-        print('📊 Тренды метрик за последние 30 дней:')
-        print(df.pivot(index='date', columns='metric', values='value'))
-    else:
-        print('⚠️ Нет данных о метриках за последние 30 дней')
-
-conn.close()
-"
-	@echo "✅ Мониторинг завершён"
-
-# =============================================================================
-# DATASET AND TRAINING MANAGEMENT
-# =============================================================================
-
-.PHONY: validate-dataset
-validate-dataset: ## Валидация конфигурации датасета
-	@echo "✅ Валидация dataset_config.yml..."
-	python -c "
-import yaml
-import json
-
-with open('dataset_config.yml', 'r', encoding='utf-8') as f:
-    config = yaml.safe_load(f)
-
-print('📋 Конфигурация датасета:')
-print(f'  Версия: {config['metadata']['version']}')
-print(f'  Языки: {config['metadata']['languages']}')
-print(f'  Общее количество документов: {config['metadata']['total_documents']}')
-print(f'  Категории: {config['metadata']['categories']}')
-
-# Проверяем источники данных
-sources = config['data_sources']
-enabled_sources = [name for name, conf in sources.items() if conf.get('enabled', False)]
-print(f'  Активные источники: {enabled_sources}')
-
-# Проверяем обучающие пары
-training_pairs = config.get('training_pairs', {}).get('semantic_search', [])
-print(f'  Обучающих пар: {len(training_pairs)}')
-
-# Проверяем конфигурацию модели
-model_config = config['model_config']
-print(f'  Модель: {model_config['embeddings']['model_name']}')
-print(f'  Размерность: {model_config['embeddings']['dimensions']}')
-print(f'  Batch size: {model_config['embeddings']['batch_size']}')
-
-print('✅ Конфигурация датасета валидна')
-"
-	@echo "✅ Валидация датасета завершена"
-
-.PHONY: backup-model
-backup-model: ## Создание резервной копии обученной модели
-	@echo "💾 Создание резервной копии модели..."
-	@if [ -d "./trained_model" ]; then \
-		timestamp=$$(date +"%Y%m%d_%H%M%S"); \
-		cp -r ./trained_model ./backups/model_backup_$$timestamp; \
-		echo "✅ Резервная копия создана: ./backups/model_backup_$$timestamp"; \
-	else \
-		echo "⚠️ Обученная модель не найдена в ./trained_model"; \
-	fi
-
-.PHONY: restore-model
-restore-model: ## Восстановление модели из резервной копии
-	@echo "🔄 Восстановление модели из резервной копии..."
-	@if [ -z "$(BACKUP)" ]; then \
-		echo "❌ Укажите резервную копию: make restore-model BACKUP=model_backup_20231201_120000"; \
-		exit 1; \
-	fi
-	@if [ -d "./backups/$(BACKUP)" ]; then \
-		rm -rf ./trained_model; \
-		cp -r ./backups/$(BACKUP) ./trained_model; \
-		echo "✅ Модель восстановлена из $(BACKUP)"; \
-	else \
-		echo "❌ Резервная копия ./backups/$(BACKUP) не найдена"; \
-		exit 1; \
-	fi
-
-.PHONY: clean-model-data
-clean-model-data: ## Очистка данных модели и метрик
-	@echo "🧹 Очистка данных модели..."
-	@read -p "Вы уверены? Это удалит все данные модели и метрики (y/N): " confirm; \
-	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
-		rm -rf ./trained_model ./model_output; \
-		docker-compose exec postgres psql -U testuser -d testdb -c "TRUNCATE TABLE model_metrics, model_feedback;"; \
-		echo "✅ Данные модели очищены"; \
-	else \
-		echo "❌ Отменено"; \
-	fi
-
-# =============================================================================
-# ПОЛЬЗОВАТЕЛЬСКИЕ НАСТРОЙКИ
-# =============================================================================
-
-.PHONY: create-user-schema
-create-user-schema: ## Создание схемы пользовательских настроек
-	@echo "🗄️ Создание схемы пользовательских настроек..."
-	docker-compose exec -T postgres psql -U testuser -d testdb < user_config_schema.sql
-	@echo "✅ Схема пользовательских настроек создана"
-
-.PHONY: create-test-user
-create-test-user: ## Создание тестового пользователя с настройками
-	@echo "👤 Создание тестового пользователя с настройками..."
-	python user_config_manager.py
-	@echo "✅ Тестовый пользователь создан"
-
-.PHONY: setup-user-system
-setup-user-system: create-user-schema create-test-user ## Настройка полной системы пользователей
-	@echo "🎉 Система пользовательских настроек готова!"
-
-.PHONY: test-user-sync
-test-user-sync: ## Тестирование синхронизации пользователя
-	@echo "🔄 Тестирование пользовательской синхронизации..."
-	python -c "
-import asyncio
-from user_config_manager import UserConfigManager, SyncManager
-
-async def test_sync():
-    config_manager = UserConfigManager()
-    sync_manager = SyncManager(config_manager)
-    
-    # Получаем первого пользователя
-    with config_manager.db_conn.cursor() as cursor:
-        cursor.execute('SELECT id FROM users LIMIT 1')
-        row = cursor.fetchone()
-        if row:
-            user_id = row[0]
-            print(f'🧪 Тестируем синхронизацию для пользователя {user_id}')
-            
-            task_id = await sync_manager.start_sync_task(
-                user_id=user_id,
-                sources=['jira', 'confluence', 'gitlab'],
-                task_type='manual'
-            )
-            
-            print(f'📝 Создана задача синхронизации: {task_id}')
-            
-            # Ждем немного и проверяем статус
-            await asyncio.sleep(2)
-            status = sync_manager.get_sync_status(task_id)
-            if status:
-                print(f'📊 Статус: {status["status"]} ({status["progress_percentage"]}%)')
-                
-            logs = sync_manager.get_sync_logs(task_id)[:5]  # Последние 5 логов
-            print(f'📋 Логов: {len(logs)}')
-            for log in logs:
-                print(f'  {log["log_level"]}: {log["message"]}')
-        else:
-            print('❌ Нет пользователей в системе')
-
-asyncio.run(test_sync())
-"
-	@echo "✅ Тестирование синхронизации завершено"
-
-.PHONY: show-user-stats
-show-user-stats: ## Показать статистику пользователей
-	@echo "📊 Статистика пользователей..."
-	python -c "
-import psycopg2
-import os
-
-conn = psycopg2.connect(
-    host=os.getenv('POSTGRES_HOST', 'localhost'),
-    port=os.getenv('POSTGRES_PORT', 5432),
-    database=os.getenv('POSTGRES_DB', 'testdb'),
-    user=os.getenv('POSTGRES_USER', 'testuser'),
-    password=os.getenv('POSTGRES_PASSWORD', 'testpass')
-)
-
-with conn.cursor() as cursor:
-    # Общая статистика пользователей
-    cursor.execute('SELECT COUNT(*) FROM users')
-    users_count = cursor.fetchone()[0]
-    print(f'👥 Всего пользователей: {users_count}')
-    
-    # Активные источники данных
-    cursor.execute('''
-        SELECT source_type, 
-               COUNT(*) as total,
-               COUNT(CASE WHEN is_enabled_semantic_search THEN 1 END) as enabled_search,
-               COUNT(CASE WHEN is_enabled_architecture_generation THEN 1 END) as enabled_arch
-        FROM user_data_sources 
-        GROUP BY source_type
-    ''')
-    
-    print('🔗 Источники данных:')
-    for source_type, total, enabled_search, enabled_arch in cursor.fetchall():
-        print(f'  {source_type}: {total} всего | поиск: {enabled_search} | архитектура: {enabled_arch}')
-    
-    # Конфигурации подключений
-    cursor.execute('SELECT COUNT(*) FROM user_jira_configs')
-    jira_configs = cursor.fetchone()[0]
-    
-    cursor.execute('SELECT COUNT(*) FROM user_confluence_configs')
-    confluence_configs = cursor.fetchone()[0]
-    
-    cursor.execute('SELECT COUNT(*) FROM user_gitlab_configs')
-    gitlab_configs = cursor.fetchone()[0]
-    
-    print('⚙️ Конфигурации подключений:')
-    print(f'  Jira: {jira_configs}')
-    print(f'  Confluence: {confluence_configs}')
-    print(f'  GitLab: {gitlab_configs}')
-    
-    # Загруженные файлы
-    cursor.execute('SELECT COUNT(*), SUM(file_size) FROM user_files')
-    files_count, total_size = cursor.fetchone()
-    total_size_mb = (total_size or 0) / (1024 * 1024)
-    print(f'📁 Загруженных файлов: {files_count} ({total_size_mb:.1f} MB)')
-    
-    # Задачи синхронизации
-    cursor.execute('''
-        SELECT status, COUNT(*) 
-        FROM sync_tasks 
-        GROUP BY status
-    ''')
-    
-    print('🔄 Задачи синхронизации:')
-    for status, count in cursor.fetchall():
-        print(f'  {status}: {count}')
-
-conn.close()
-"
-	@echo "✅ Статистика пользователей показана"
-    
-    print('🔄 Задачи синхронизации:')
-    for status, count in cursor.fetchall():
-        print(f'  {status}: {count}')
-
-conn.close()
-"
-	@echo "✅ Статистика готова"
-
-# =============================================================================
-# ПОЛНАЯ ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ
-# =============================================================================
-
-.PHONY: init-full-system
-init-full-system: up setup-user-system train-model ## Полная инициализация системы
-	@echo "🚀 Полная система инициализирована и готова к работе!"
+# AI Assistant - Complete Development & Deployment Makefile
+# Команды для разработки, тестирования и развертывания
+
+.PHONY: help install dev test deploy clean
+
+# Переменные
+PYTHON = python3
+PIP = pip3
+VENV = venv
+DOCKER_COMPOSE = docker-compose
+KUBECTL = kubectl
+HELM = helm
+
+# Цвета для вывода
+RED = \033[0;31m
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+BLUE = \033[0;34m
+PURPLE = \033[0;35m
+CYAN = \033[0;36m
+NC = \033[0m # No Color
+
+##@ 📋 Справка
+help: ## Показать справку по командам
+	@echo "$(GREEN)🤖 AI Assistant - Команды разработки и развертывания$(NC)"
 	@echo ""
-	@echo "📋 Доступные команды:"
-	@echo "  make e2e-full-pipeline    - Полный E2E пайплайн"
-	@echo "  make test-feedback        - Тестирование обратной связи"  
-	@echo "  make check-model-quality  - Проверка качества модели"
-	@echo "  make simulate-user-feedback - Симуляция обратной связи"
-	@echo "  make retrain-model        - Переобучение модели"
-	@echo "  make test-user-sync       - Тестирование синхронизации пользователя"
-	@echo "  make show-user-stats      - Статистика пользователей"
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(CYAN)🌐 После запуска доступны:$(NC)"
+	@echo "  • API Docs:      http://localhost:8000/docs"
+	@echo "  • Health:        http://localhost:8000/health"
+	@echo "  • Frontend:      http://localhost:3000"
+	@echo "  • Adminer:       http://localhost:8080"
+	@echo "  • Redis UI:      http://localhost:8081"
+	@echo "  • Qdrant UI:     http://localhost:6333/dashboard"
+	@echo "  • MailHog:       http://localhost:8025"
+	@echo "  • Grafana:       http://localhost:3001"
+	@echo "  • Prometheus:    http://localhost:9090"
 
-.PHONY: docker-up-clean
-docker-up-clean: ## Запуск Docker с очисткой данных
-	@echo "🐳 Запуск Docker с очисткой..."
-	docker-compose down -v
-	docker-compose up -d
-	@echo "⏳ Ожидание готовности сервисов (3 минуты)..."
-	sleep 180
-	@echo "✅ Docker сервисы готовы"
+##@ 🚀 Быстрый старт
+quick-start: ## Быстрый старт для разработки (инфраструктура + локальное приложение)
+	@echo "$(GREEN)🚀 Быстрый старт AI Assistant...$(NC)"
+	$(MAKE) install
+	$(MAKE) dev-infra-up
+	@echo "$(CYAN)💡 Теперь запустите приложение: make dev$(NC)"
 
-# Исправленные тесты
-.PHONY: test-fixed
-test-fixed: ## Запуск исправленных тестов
-	@echo "🚀 Запуск исправленных тестов..."
-	python scripts/run_fixed_tests.py
+setup-dev: install dev-infra-up migrate ## Полная настройка окружения разработки
+	@echo "$(GREEN)✅ Окружение разработки готово!$(NC)"
+	@echo "$(CYAN)Запустите приложение: make dev$(NC)"
 
-.PHONY: test-fixed-with-integration
-test-fixed-with-integration: ## Запуск исправленных тестов с интеграционными
-	@echo "🚀 Запуск исправленных тестов с интеграцией..."
-	python scripts/run_fixed_tests.py --with-integration
+##@ 🛠 Установка и настройка
+install: ## Установка зависимостей Python
+	@echo "$(BLUE)📦 Установка зависимостей...$(NC)"
+	@if [ ! -d "$(VENV)" ]; then python3 -m venv $(VENV); fi
+	./$(VENV)/bin/pip install --upgrade pip
+	./$(VENV)/bin/pip install -r requirements.txt
+	@echo "$(GREEN)✅ Зависимости установлены$(NC)"
 
-.PHONY: test-unit-fixed
-test-unit-fixed: ## Запуск только исправленных unit тестов
-	@echo "🧪 Запуск исправленных unit тестов..."
-	python -m pytest tests/unit/test_user_config_manager_fixed.py -v --tb=short
-	python -m pytest tests/unit/test_api_users_detailed.py -v --tb=short
-	python -m pytest tests/test_documentation_service.py -v --tb=short
+install-dev: install ## Установка dev зависимостей
+	@echo "$(BLUE)🔧 Установка dev зависимостей...$(NC)"
+	./$(VENV)/bin/pip install -r config/environments/requirements-dev.txt || true
+	./$(VENV)/bin/pip install black pylint mypy pytest-cov flake8 || true
+	@echo "$(GREEN)✅ Dev зависимости установлены$(NC)"
 
-.PHONY: test-coverage-improved
-test-coverage-improved: ## Анализ улучшенного покрытия кода
-	@echo "📈 Анализ улучшенного покрытия..."
-	python -m pytest tests/unit/ tests/test_documentation_service.py \
-		--cov=app --cov=user_config_manager --cov=models --cov=services \
-		--cov-report=term-missing --cov-report=html:htmlcov \
-		--disable-warnings
+##@ 🐳 Инфраструктура разработки
+dev-infra-up: ## Запустить инфраструктуру (БД, Redis, Qdrant)
+	@echo "$(GREEN)🔧 Запуск инфраструктуры для разработки...$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d postgres redis qdrant
+	@echo "$(GREEN)✅ Инфраструктура запущена!$(NC)"
+	@echo "$(CYAN)📊 Статус: make dev-infra-status$(NC)"
+	@echo "$(CYAN)🔌 Подключения:$(NC)"
+	@echo "  • PostgreSQL: localhost:5432 (ai_user/ai_password_dev)"
+	@echo "  • Redis:      localhost:6379"
+	@echo "  • Qdrant:     localhost:6333"
 
-.PHONY: setup-e2e-services
-setup-e2e-services: ## Настройка E2E сервисов
-	@echo "🐳 Настройка E2E сервисов..."
-	docker-compose -f docker-compose.e2e.yml up -d --build
-	@echo "⏳ Ожидание запуска сервисов..."
-	sleep 30
+dev-infra-up-full: ## Запустить инфраструктуру + админ панели + LLM
+	@echo "$(GREEN)🔧 Запуск полной инфраструктуры...$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml --profile admin --profile llm up -d
+	@echo "$(GREEN)✅ Полная инфраструктура запущена!$(NC)"
+	@echo "$(CYAN)🌐 Дополнительные сервисы:$(NC)"
+	@echo "  • Adminer:    http://localhost:8080"
+	@echo "  • Redis UI:   http://localhost:8081"
+	@echo "  • Ollama:     http://localhost:11434"
 
-.PHONY: teardown-e2e-services
-teardown-e2e-services: ## Остановка E2E сервисов
-	@echo "🛑 Остановка E2E сервисов..."
-	docker-compose -f docker-compose.e2e.yml down --remove-orphans
+dev-infra-up-monitoring: ## Запустить инфраструктуру + мониторинг
+	@echo "$(GREEN)📊 Запуск инфраструктуры с мониторингом...$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml --profile monitoring up -d
+	@echo "$(GREEN)✅ Инфраструктура с мониторингом запущена!$(NC)"
+	@echo "$(CYAN)📈 Мониторинг:$(NC)"
+	@echo "  • Grafana:    http://localhost:3001 (admin/admin123)"
+	@echo "  • Prometheus: http://localhost:9090"
 
-.PHONY: test-e2e-fixed
-test-e2e-fixed: setup-e2e-services ## Запуск исправленных E2E тестов
-	@echo "🔗 Запуск исправленных E2E тестов..."
-	python -m pytest tests/test_e2e_comprehensive.py -v --tb=short || true
-	$(MAKE) teardown-e2e-services
+dev-infra-down: ## Остановить инфраструктуру
+	@echo "$(YELLOW)🛑 Остановка инфраструктуры...$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml down
+	@echo "$(GREEN)✅ Инфраструктура остановлена$(NC)"
 
-.PHONY: fix-test-issues
-fix-test-issues: ## Исправление проблем с тестами
-	@echo "🔧 Исправление проблем с тестами..."
-	# Создание недостающих директорий
-	mkdir -p test-data/{confluence,jira,gitlab,dataset}
-	mkdir -p logs temp htmlcov
-	# Установка недостающих зависимостей
-	pip install cryptography pytest-asyncio pytest-cov
-	# Создание mock файлов для тестов
-	touch test-data/dataset/training_dataset.json
-	echo '[]' > test-data/jira/issues.json
-	echo '[]' > test-data/confluence/pages.json
-	@echo "✅ Проблемы исправлены"
+dev-infra-status: ## Статус инфраструктуры
+	@echo "$(BLUE)📊 Статус инфраструктуры:$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml ps
 
+dev-infra-logs: ## Логи инфраструктуры
+	@echo "$(GREEN)📋 Логи инфраструктуры:$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml logs -f
+
+dev-infra-clean: ## Очистить данные инфраструктуры
+	@echo "$(RED)🧹 ВНИМАНИЕ: Удаление всех данных инфраструктуры!$(NC)"
+	@read -p "Вы уверены? [y/N] " -n 1 -r; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo ""; \
+		$(DOCKER_COMPOSE) -f docker-compose.dev.yml down -v; \
+		docker volume prune -f; \
+		echo "$(GREEN)✅ Данные очищены$(NC)"; \
+	else \
+		echo ""; \
+		echo "$(YELLOW)Отменено$(NC)"; \
+	fi
+
+##@ 🏃 Локальная разработка
+dev: ## Запуск приложения в режиме разработки
+	@echo "$(GREEN)🏃 Запуск приложения в режиме разработки...$(NC)"
+	@echo "$(YELLOW)💡 Убедитесь что инфраструктура запущена: make dev-infra-up$(NC)"
+	@export PYTHONPATH=$$PWD && \
+	 export ENVIRONMENT=development && \
+	 export DATABASE_URL=postgresql://ai_user:ai_password_dev@localhost:5432/ai_assistant && \
+	 export REDIS_URL=redis://localhost:6379/0 && \
+	 export QDRANT_URL=http://localhost:6333 && \
+	 export DEBUG=true && \
+	 export LOG_LEVEL=DEBUG && \
+	 export SECRET_KEY=dev-secret-key-not-for-production && \
+	 ./$(VENV)/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+dev-debug: ## Запуск с подробной отладкой
+	@echo "$(YELLOW)🐛 Запуск в режиме отладки...$(NC)"
+	@export PYTHONPATH=$$PWD && \
+	 export ENVIRONMENT=development && \
+	 export DATABASE_URL=postgresql://ai_user:ai_password_dev@localhost:5432/ai_assistant && \
+	 export REDIS_URL=redis://localhost:6379/0 && \
+	 export QDRANT_URL=http://localhost:6333 && \
+	 export DEBUG=true && \
+	 export LOG_LEVEL=DEBUG && \
+	 export SECRET_KEY=dev-secret-key-not-for-production && \
+	 ./$(VENV)/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --log-level debug
+
+##@ 🐳 Полная система (Docker)
+system-up: ## Запустить полную систему в Docker
+	@echo "$(GREEN)🚀 Запуск полной системы...$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml up -d
+	@echo "$(GREEN)✅ Полная система запущена!$(NC)"
+	@echo "$(CYAN)🌐 Доступные сервисы:$(NC)"
+	@echo "  • API:        http://localhost:8000"
+	@echo "  • Frontend:   http://localhost:3000"
+	@echo "  • API Docs:   http://localhost:8000/docs"
+
+system-up-full: ## Запустить систему с мониторингом
+	@echo "$(GREEN)🚀 Запуск полной системы с мониторингом...$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.full.yml --profile monitoring up -d
+	@echo "$(GREEN)✅ Полная система с мониторингом запущена!$(NC)"
+
+system-down: ## Остановить полную систему
+	@echo "$(YELLOW)🛑 Остановка полной системы...$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml down
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.full.yml down
+	@echo "$(GREEN)✅ Система остановлена$(NC)"
+
+system-status: ## Статус полной системы
+	@echo "$(BLUE)📊 Статус полной системы:$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml ps || true
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.full.yml ps || true
+
+system-logs: ## Логи полной системы
+	@echo "$(GREEN)📋 Логи системы:$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml logs -f
+
+system-restart: system-down system-up ## Перезапустить полную систему
+
+##@ 🗄 База данных
+migrate: ## Применение миграций
+	@echo "$(BLUE)🗄 Применение миграций...$(NC)"
+	@export PYTHONPATH=$$PWD && \
+	 export DATABASE_URL=postgresql://ai_user:ai_password_dev@localhost:5432/ai_assistant && \
+	 ./$(VENV)/bin/alembic upgrade head
+	@echo "$(GREEN)✅ Миграции применены$(NC)"
+
+migrate-create: ## Создание новой миграции
+	@read -p "Название миграции: " name; \
+	export PYTHONPATH=$$PWD && \
+	export DATABASE_URL=postgresql://ai_user:ai_password_dev@localhost:5432/ai_assistant && \
+	./$(VENV)/bin/alembic revision --autogenerate -m "$$name"
+
+db-reset: ## Сброс базы данных
+	@echo "$(RED)🗄 Сброс базы данных...$(NC)"
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml stop postgres
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml rm -f postgres
+	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d postgres
+	@sleep 10
+	@$(MAKE) migrate
+	@echo "$(GREEN)✅ База данных сброшена$(NC)"
+
+##@ 🧪 Тестирование
+test: ## Запуск всех тестов
+	@echo "$(BLUE)🧪 Запуск всех тестов...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/ -v --tb=short
+
+test-unit: ## Запуск unit тестов
+	@echo "$(BLUE)🔬 Запуск unit тестов...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/unit/ -v
+
+test-integration: ## Запуск integration тестов
+	@echo "$(BLUE)🔗 Запуск integration тестов...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/integration/ -v
+
+test-smoke: ## Запуск smoke тестов
+	@echo "$(BLUE)💨 Запуск smoke тестов...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/smoke/ -v
+
+test-e2e: ## Запуск e2e тестов
+	@echo "$(BLUE)🎭 Запуск e2e тестов...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/e2e/ -v
+
+test-coverage: ## Тестирование с покрытием кода
+	@echo "$(BLUE)📊 Тестирование с покрытием...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest --cov=app --cov-report=html --cov-report=term tests/
+	@echo "$(GREEN)📊 Отчет сохранен в htmlcov/index.html$(NC)"
+
+test-load: ## Запуск нагрузочных тестов
+	@echo "$(BLUE)⚡ Запуск нагрузочных тестов...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/python tests/performance/test_core_functionality_load.py
+
+##@ 🔍 Качество кода
+lint: ## Проверка кода линтерами
+	@echo "$(BLUE)🔍 Проверка кода...$(NC)"
+	./$(VENV)/bin/flake8 app/ tests/ || true
+	./$(VENV)/bin/pylint app/ --disable=C0114,C0116 || true
+
+format: ## Форматирование кода
+	@echo "$(BLUE)✨ Форматирование кода...$(NC)"
+	./$(VENV)/bin/black app/ tests/ || true
+	./$(VENV)/bin/isort app/ tests/ || true
+
+format-check: ## Проверка форматирования
+	@echo "$(BLUE)📏 Проверка форматирования...$(NC)"
+	./$(VENV)/bin/black --check app/ tests/ || true
+	./$(VENV)/bin/isort --check-only app/ tests/ || true
+
+##@ ⎈ Kubernetes & Helm
+helm-install: ## Установка через Helm
+	@echo "$(PURPLE)⎈ Установка через Helm...$(NC)"
+	@$(HELM) install ai-assistant deployment/helm/ai-assistant/ \
+		--namespace ai-assistant \
+		--create-namespace \
+		--values deployment/helm/ai-assistant/values.yaml \
+		--wait
+	@echo "$(GREEN)✅ Helm установка завершена$(NC)"
+
+helm-upgrade: ## Обновление Helm релиза
+	@echo "$(PURPLE)⎈ Обновление Helm релиза...$(NC)"
+	@$(HELM) upgrade ai-assistant deployment/helm/ai-assistant/ \
+		--namespace ai-assistant \
+		--values deployment/helm/ai-assistant/values.yaml \
+		--wait
+	@echo "$(GREEN)✅ Helm обновление завершено$(NC)"
+
+helm-uninstall: ## Удаление Helm релиза
+	@echo "$(RED)⎈ Удаление Helm релиза...$(NC)"
+	@$(HELM) uninstall ai-assistant --namespace ai-assistant
+	@echo "$(GREEN)✅ Helm удаление завершено$(NC)"
+
+helm-status: ## Статус Helm деплоя
+	@echo "$(BLUE)⎈ Статус Helm:$(NC)"
+	@$(HELM) status ai-assistant --namespace ai-assistant
+
+helm-logs: ## Логи Helm деплоя
+	@echo "$(GREEN)⎈ Логи Helm:$(NC)"
+	@$(KUBECTL) logs -l app.kubernetes.io/name=ai-assistant -n ai-assistant -f
+
+##@ 📊 Мониторинг и диагностика
+health: ## Проверка здоровья системы
+	@echo "$(BLUE)🏥 Проверка здоровья системы...$(NC)"
+	@curl -f http://localhost:8000/health 2>/dev/null | jq . || echo "$(RED)❌ API недоступен$(NC)"
+
+health-detailed: ## Детальная проверка здоровья
+	@echo "$(BLUE)🔬 Детальная диагностика...$(NC)"
+	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/python debug_helper.py basic || true
+
+logs: ## Просмотр логов приложения
+	@echo "$(BLUE)📋 Логи приложения...$(NC)"
+	@tail -f logs/app.log 2>/dev/null || echo "$(YELLOW)Файл логов не найден$(NC)"
+
+monitor: ## Запуск мониторинга
+	@echo "$(BLUE)📊 Запуск мониторинга...$(NC)"
+	@$(DOCKER_COMPOSE) -f monitoring/docker-compose.monitoring.yml up -d || true
+	@echo "$(GREEN)Grafana: http://localhost:3001$(NC)"
+	@echo "$(GREEN)Prometheus: http://localhost:9090$(NC)"
+
+##@ 🧹 Очистка
+clean: ## Очистка временных файлов
+	@echo "$(YELLOW)🧹 Очистка временных файлов...$(NC)"
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
+	rm -rf .pytest_cache/ htmlcov/ .coverage 2>/dev/null || true
+	@echo "$(GREEN)✅ Временные файлы удалены$(NC)"
+
+clean-docker: ## Очистка Docker ресурсов
+	@echo "$(RED)🐳 Очистка Docker ресурсов...$(NC)"
+	docker system prune -f
+	docker volume prune -f
+	@echo "$(GREEN)✅ Docker ресурсы очищены$(NC)"
+
+clean-all: clean clean-docker dev-infra-clean ## Полная очистка
+	@echo "$(GREEN)✅ Полная очистка завершена$(NC)"
+
+##@ 📦 Продакшн деплой
+build: ## Сборка Docker образов
+	@echo "$(BLUE)🐳 Сборка Docker образов...$(NC)"
+	docker build -t ai-assistant:latest .
+	docker build -f deployment/docker/Dockerfile.prod -t ai-assistant:prod .
+
+deploy-prod: build ## Продакшн развертывание
+	@echo "$(GREEN)🏭 Продакшн развертывание...$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.prod.yml up -d
+
+deploy-local: build ## Локальное развертывание через Docker
+	@echo "$(GREEN)🚀 Локальное развертывание...$(NC)"
+	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml up -d
+
+##@ ℹ️ Информация
+status: ## Статус всех систем
+	@echo "$(BLUE)📊 Статус всех систем:$(NC)"
+	@echo "$(GREEN)Docker контейнеры:$(NC)"
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+	@echo ""
+	@echo "$(GREEN)Kubernetes pods:$(NC)"
+	@$(KUBECTL) get pods -n ai-assistant 2>/dev/null || echo "Kubernetes недоступен"
+
+info: ## Информация о проекте
+	@echo "$(GREEN)🤖 AI Assistant Platform$(NC)"
+	@echo "$(BLUE)Версия:$(NC) 1.0.0"
+	@echo "$(BLUE)Python:$(NC) $$(python3 --version 2>/dev/null || echo 'Не установлен')"
+	@echo "$(BLUE)Docker:$(NC) $$(docker --version 2>/dev/null | head -1 || echo 'Не установлен')"
+	@echo "$(BLUE)Kubernetes:$(NC) $$(kubectl version --client --short 2>/dev/null || echo 'Недоступен')"
+	@echo ""
+	@echo "$(GREEN)🌐 Доступные сервисы после запуска:$(NC)"
+	@echo "  API:           http://localhost:8000"
+	@echo "  Docs:          http://localhost:8000/docs"
+	@echo "  Health:        http://localhost:8000/health"
+	@echo "  Frontend:      http://localhost:3000"
+	@echo "  Adminer:       http://localhost:8080"
+	@echo "  Redis UI:      http://localhost:8081"
+	@echo "  Qdrant UI:     http://localhost:6333/dashboard"
+	@echo "  MailHog:       http://localhost:8025"
+	@echo "  Grafana:       http://localhost:3001"
+	@echo "  Prometheus:    http://localhost:9090"
+
+# Значение по умолчанию
+.DEFAULT_GOAL := help
+
+# Алиасы для совместимости
+docker-up: system-up
+docker-down: system-down
+docker-logs: system-logs
+docker-status: system-status 

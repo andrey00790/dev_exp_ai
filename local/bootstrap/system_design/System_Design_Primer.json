@@ -1,0 +1,11 @@
+{
+  "name": "System Design Primer",
+  "role": "System Architect",
+  "category": "system_design",
+  "url": "https://github.com/donnemartin/system-design-primer",
+  "downloaded_at": "2025-06-24T01:07:30.253259",
+  "file_path": "bootstrap/system_design/System_Design_Primer",
+  "url_type": "github_repo",
+  "strategy": "clone_or_archive",
+  "file_size": 544
+}

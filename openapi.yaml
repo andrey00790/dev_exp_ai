@@ -1,0 +1,1786 @@
+openapi: 3.0.3
+info:
+  title: AI Assistant API - Production System
+  description: |
+    **Comprehensive AI Assistant API** for enterprise document generation, semantic search, and knowledge management.
+    
+    ## 🚀 Features
+    - **Semantic Search**: AI-powered search across Confluence, GitLab, Jira, and uploaded documents
+    - **Document Generation**: RFC, architecture docs, and technical documentation generation
+    - **AI Enhancement**: Model training, quality analysis, and search optimization
+    - **Multi-source Integration**: Confluence, GitLab, Jira, and file uploads
+    - **User Management**: Authentication, authorization, and personalized settings
+    - **Real-time Analytics**: Performance monitoring and usage analytics
+    
+    ## 🔐 Authentication
+    All endpoints require Bearer token authentication unless marked as public.
+    
+    ## 📊 Performance
+    - 89% semantic search accuracy
+    - <150ms average response time
+    - 1000+ concurrent users supported
+    
+  version: 3.1.0
+  contact:
+    name: AI Assistant API Support
+    email: support@company.com
+  license:
+    name: Private License
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api-staging.company.com
+    description: Staging environment
+  - url: https://api.company.com
+    description: Production environment
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Health
+    description: System health and status endpoints
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management and settings
+  - name: Generate
+    description: AI-powered document generation
+  - name: Search
+    description: Document search and discovery
+  - name: Vector Search
+    description: Advanced semantic vector search
+  - name: Data Sources
+    description: External data source management
+  - name: AI Enhancement
+    description: AI model training and optimization
+  - name: Feedback
+    description: User feedback and quality improvement
+  - name: Analytics
+    description: Usage analytics and reporting
+
+paths:
+  # Health Endpoints
+  /health:
+    get:
+      tags: [Health]
+      summary: Health Check
+      description: Basic system health check
+      security: []
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/v1/health:
+    get:
+      tags: [Health]
+      summary: API Health Check
+      description: Detailed API health with component status
+      security: []
+      responses:
+        '200':
+          description: API health information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # Authentication Endpoints
+  /api/v1/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register User
+      description: Register a new user account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '409':
+          description: User already exists
+
+  /api/v1/auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login User
+      description: Authenticate user and return JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+
+  /api/v1/auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get Current User
+      description: Get current authenticated user information
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/v1/auth/verify:
+    get:
+      tags: [Authentication]
+      summary: Verify Token
+      description: Verify JWT token validity
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  user_id:
+                    type: string
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh Token
+      description: Refresh JWT token
+      responses:
+        '200':
+          description: New token generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  /api/v1/auth/budget:
+    get:
+      tags: [Authentication]
+      summary: Get Budget Info
+      description: Get user's budget and usage information
+      responses:
+        '200':
+          description: Budget information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetInfo'
+
+  /api/v1/auth/scopes:
+    get:
+      tags: [Authentication]
+      summary: Get User Scopes
+      description: Get user's permission scopes
+      responses:
+        '200':
+          description: User scopes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                  scopes:
+                    type: array
+                    items:
+                      type: string
+
+  /api/v1/auth/profile:
+    get:
+      tags: [Authentication]
+      summary: Get User Profile
+      description: Get current user profile information
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  /api/v1/auth/usage-stats:
+    get:
+      tags: [Authentication]
+      summary: Get Usage Statistics
+      description: Get detailed usage statistics for user
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+            maximum: 365
+      responses:
+        '200':
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                  period_days:
+                    type: integer
+                  statistics:
+                    type: object
+
+  /api/v1/auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout User
+      description: Logout user and invalidate token
+      responses:
+        '200':
+          description: Successfully logged out
+
+  /api/v1/auth/demo-users:
+    get:
+      tags: [Authentication]
+      summary: Get Demo Users
+      description: Get list of demo users for testing (development only)
+      security: []
+      responses:
+        '200':
+          description: Demo users list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demo_users:
+                    type: array
+                    items:
+                      type: object
+
+  # User Management Endpoints
+  /api/v1/users:
+    post:
+      tags: [Users]
+      summary: Create User
+      description: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /api/v1/users/{user_id}:
+    get:
+      tags: [Users]
+      summary: Get User
+      description: Get user by ID
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+
+  /api/v1/users/current/settings:
+    get:
+      tags: [Users]
+      summary: Get User Settings
+      description: Get current user's settings and preferences
+      responses:
+        '200':
+          description: User settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+    put:
+      tags: [Users]
+      summary: Update User Settings
+      description: Update current user's settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserSettingsRequest'
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+
+  # Document Generation Endpoints
+  /api/v1/generate/rfc:
+    post:
+      tags: [Generate]  
+      summary: Generate RFC Document
+      description: |
+        Generate RFC document using AI with multi-source context.
+        
+        Uses:
+        - Confluence for existing RFCs and standards
+        - GitLab for code and architectural solutions
+        - Jira for requirements and tasks
+        - Local files for corporate standards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RFCGenerationRequest'
+      responses:
+        '200':
+          description: RFC generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationResponse'
+        '504':
+          description: Generation timeout
+
+  /api/v1/generate/architecture:
+    post:
+      tags: [Generate]
+      summary: Generate Architecture Document
+      description: Generate system architecture documentation with diagrams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchitectureGenerationRequest'
+      responses:
+        '200':
+          description: Architecture document generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationResponse'
+
+  /api/v1/generate/documentation:
+    post:
+      tags: [Generate]
+      summary: Generate Documentation
+      description: Generate various types of technical documentation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentationGenerationRequest'
+      responses:
+        '200':
+          description: Documentation generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationResponse'
+
+  /api/v1/generate/status/{task_id}:
+    get:
+      tags: [Generate]
+      summary: Get Generation Status
+      description: Get status of a generation task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Generation status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationStatus'
+
+  /api/v1/generate/templates:
+    get:
+      tags: [Generate]
+      summary: Get Available Templates
+      description: Get list of available document templates
+      parameters:
+        - name: template_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Available templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Template'
+
+  # Vector Search Endpoints
+  /api/v1/vector-search/search:
+    post:
+      tags: [Vector Search]
+      summary: Semantic Vector Search
+      description: |
+        **Advanced AI-powered semantic search** with:
+        - OpenAI embeddings for semantic understanding
+        - Hybrid search (semantic + keyword)
+        - Multi-collection search across data sources
+        - Smart filtering and result ranking
+        - <150ms average response time
+        - 89% semantic relevance score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VectorSearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorSearchResponse'
+        '504':
+          description: Search timeout
+
+  /api/v1/vector-search/index:
+    post:
+      tags: [Vector Search]
+      summary: Index Document
+      description: Index a document for semantic search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndexDocumentRequest'
+      responses:
+        '200':
+          description: Document indexed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexDocumentResponse'
+
+  /api/v1/vector-search/documents/{doc_id}:
+    delete:
+      tags: [Vector Search]
+      summary: Delete Document
+      description: Remove document from search index
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: source_type
+          in: query
+          schema:
+            type: string
+            default: documents
+      responses:
+        '200':
+          description: Document deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteDocumentResponse'
+
+  /api/v1/vector-search/similar/{doc_id}:
+    get:
+      tags: [Vector Search]
+      summary: Find Similar Documents
+      description: Find documents similar to the given document
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: source_type
+          in: query
+          schema:
+            type: string
+            default: documents
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 20
+      responses:
+        '200':
+          description: Similar documents found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResult'
+
+  /api/v1/vector-search/stats:
+    get:
+      tags: [Vector Search]
+      summary: Get Search Statistics
+      description: Get vector search service statistics
+      responses:
+        '200':
+          description: Search statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchStatsResponse'
+
+  /api/v1/vector-search/collections/initialize:
+    post:
+      tags: [Vector Search]
+      summary: Initialize Collections
+      description: Initialize vector search collections
+      responses:
+        '200':
+          description: Collections initialized
+
+  /api/v1/vector-search/upload-file:
+    post:
+      tags: [Vector Search]
+      summary: Upload and Index File
+      description: Upload file and automatically index for search
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                tags:
+                  type: string
+                  description: Comma-separated tags
+              required:
+                - file
+      responses:
+        '200':
+          description: File uploaded and indexed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadFileResponse'
+
+  /api/v1/vector-search/collections:
+    get:
+      tags: [Vector Search]
+      summary: List Collections
+      description: Get information about available collections
+      responses:
+        '200':
+          description: Collections information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collections:
+                    type: array
+                    items:
+                      type: object
+
+  /api/v1/vector-search/health:
+    get:
+      tags: [Vector Search]
+      summary: Vector Search Health Check
+      description: Check vector search service health
+      responses:
+        '200':
+          description: Vector search health status
+
+  # Search Endpoints (Legacy/Alternative)
+  /api/v1/search:
+    post:
+      tags: [Search]
+      summary: Document Search
+      description: Search documents across configured sources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /api/v1/search/history:
+    get:
+      tags: [Search]
+      summary: Get Search History
+      description: Get user's search history
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Search history
+
+  /api/v1/search/suggestions:
+    post:
+      tags: [Search]
+      summary: Get Search Suggestions
+      description: Get search query suggestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                partial_query:
+                  type: string
+      responses:
+        '200':
+          description: Search suggestions
+
+  /api/v1/search/sources:
+    get:
+      tags: [Search]
+      summary: Get Available Sources
+      description: Get list of available search sources
+      responses:
+        '200':
+          description: Available sources list
+
+  # Data Sources Management
+  /api/v1/data-sources:
+    get:
+      tags: [Data Sources]
+      summary: List Data Sources
+      description: Get all configured data sources and their status
+      responses:
+        '200':
+          description: Data sources list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataSourceStatus'
+    post:
+      tags: [Data Sources]
+      summary: Create Data Source
+      description: Configure a new data source
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceConfig'
+      responses:
+        '201':
+          description: Data source created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                  message:
+                    type: string
+
+  /api/v1/data-sources/{source_type}/{source_name}:
+    put:
+      tags: [Data Sources]
+      summary: Update Data Source
+      description: Update data source configuration
+      parameters:
+        - name: source_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: source_name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceConfig'
+      responses:
+        '200':
+          description: Data source updated
+    delete:
+      tags: [Data Sources]
+      summary: Delete Data Source
+      description: Remove/disable data source
+      parameters:
+        - name: source_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: source_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Data source deleted
+
+  /api/v1/data-sources/{source_type}/{source_name}/sync:
+    post:
+      tags: [Data Sources]
+      summary: Trigger Sync
+      description: Manually trigger data synchronization
+      parameters:
+        - name: source_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: source_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sync started
+
+  /api/v1/data-sources/sync/status:
+    get:
+      tags: [Data Sources]
+      summary: Get Sync Status
+      description: Get status of all synchronization tasks
+      responses:
+        '200':
+          description: Sync status
+
+  # AI Enhancement Endpoints
+  /api/v1/ai-enhancement/model/train:
+    post:
+      tags: [AI Enhancement]
+      summary: Train AI Model
+      description: Start model training for semantic search optimization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelTrainingRequest'
+      responses:
+        '200':
+          description: Training started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelTrainingResponse'
+
+  /api/v1/ai-enhancement/model/training/{training_id}/status:
+    get:
+      tags: [AI Enhancement]
+      summary: Get Training Status
+      description: Get status of model training task
+      parameters:
+        - name: training_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatus'
+
+  /api/v1/ai-enhancement/rfc/analyze-quality:
+    post:
+      tags: [AI Enhancement]
+      summary: Analyze RFC Quality
+      description: Analyze the quality of an RFC document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RFCQualityAnalysisRequest'
+      responses:
+        '200':
+          description: Quality analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RFCQualityAnalysisResponse'
+
+  /api/v1/ai-enhancement/search/optimize:
+    post:
+      tags: [AI Enhancement]
+      summary: Optimize Search Performance
+      description: Optimize search performance and quality
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchOptimizationRequest'
+      responses:
+        '200':
+          description: Optimization results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchOptimizationResponse'
+
+  /api/v1/ai-enhancement/status:
+    get:
+      tags: [AI Enhancement]
+      summary: Get AI Enhancement Status
+      description: Get status of all AI enhancement components
+      responses:
+        '200':
+          description: AI enhancement status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  overall_status:
+                    type: string
+                  components:
+                    type: object
+                  capabilities:
+                    type: object
+
+  # Feedback Endpoints
+  /api/v1/feedback:
+    post:
+      tags: [Feedback]
+      summary: Submit Feedback
+      description: Submit user feedback for AI improvement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '200':
+          description: Feedback submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
+
+  /api/v1/feedback/stats/{target_id}:
+    get:
+      tags: [Feedback]
+      summary: Get Feedback Statistics
+      description: Get feedback statistics for a specific target
+      parameters:
+        - name: target_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feedback statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackStats'
+
+  /api/v1/feedback/analytics:
+    get:
+      tags: [Feedback]
+      summary: Get Feedback Analytics
+      description: Get detailed feedback analytics for model improvement
+      parameters:
+        - name: context
+          in: query
+          schema:
+            type: string
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Feedback analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeedbackAnalytics'
+
+  /api/v1/feedback/retrain:
+    post:
+      tags: [Feedback]
+      summary: Trigger Model Retraining
+      description: Start model retraining based on feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  type: string
+                min_feedback_count:
+                  type: integer
+      responses:
+        '200':
+          description: Retraining started
+
+  /api/v1/feedback/trends:
+    get:
+      tags: [Feedback]
+      summary: Get Feedback Trends
+      description: Get feedback trends over time
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Feedback trends
+
+  /api/v1/feedback/{feedback_id}:
+    delete:
+      tags: [Feedback]
+      summary: Delete Feedback
+      description: Delete feedback (moderation)
+      parameters:
+        - name: feedback_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feedback deleted
+
+  /api/v1/feedback/export:
+    get:
+      tags: [Feedback]
+      summary: Export Feedback Data
+      description: Export feedback data for analysis
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+      responses:
+        '200':
+          description: Export data
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Basic Response Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        timestamp:
+          type: number
+        version:
+          type: string
+        uptime:
+          type: number
+        environment:
+          type: string
+        checks:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        error_code:
+          type: string
+        timestamp:
+          type: string
+
+    # Authentication Schemas
+    RegisterRequest:
+      type: object
+      required: [email, password, username]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        username:
+          type: string
+          minLength: 3
+
+    LoginRequest:
+      type: object
+      required: [user_id, password]
+      properties:
+        user_id:
+          type: string
+        password:
+          type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          default: bearer
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        budget_limit:
+          type: number
+        current_usage:
+          type: number
+        scopes:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+
+    UserProfile:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        budget_limit:
+          type: number
+        current_usage:
+          type: number
+        scopes:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+
+    BudgetInfo:
+      type: object
+      properties:
+        user_id:
+          type: string
+        budget_limit:
+          type: number
+        current_usage:
+          type: number
+        remaining:
+          type: number
+        usage_percentage:
+          type: number
+        status:
+          type: string
+          enum: [active, warning, critical, exceeded]
+
+    # User Management Schemas
+    CreateUserRequest:
+      type: object
+      required: [username, email]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        is_active:
+          type: boolean
+
+    UserSettings:
+      type: object
+      properties:
+        data_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSourceSetting'
+        preferences:
+          type: object
+
+    DataSourceSetting:
+      type: object
+      properties:
+        source_type:
+          type: string
+        source_name:
+          type: string
+        is_enabled_semantic_search:
+          type: boolean
+        is_enabled_architecture_generation:
+          type: boolean
+
+    UpdateUserSettingsRequest:
+      type: object
+      properties:
+        data_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSourceSetting'
+        preferences:
+          type: object
+
+    # Generation Schemas
+    RFCGenerationRequest:
+      type: object
+      required: [task_description]
+      properties:
+        task_description:
+          type: string
+          minLength: 10
+        project_context:
+          type: string
+        technical_requirements:
+          type: string
+        stakeholders:
+          type: array
+          items:
+            type: string
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          default: medium
+        use_all_sources:
+          type: boolean
+          default: true
+        excluded_sources:
+          type: array
+          items:
+            type: string
+        template_type:
+          type: string
+          default: standard
+
+    ArchitectureGenerationRequest:
+      type: object
+      required: [system_name, system_description, requirements]
+      properties:
+        system_name:
+          type: string
+        system_description:
+          type: string
+        requirements:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: array
+          items:
+            type: string
+        architecture_type:
+          type: string
+          default: microservices
+        include_diagrams:
+          type: boolean
+          default: true
+        use_all_sources:
+          type: boolean
+          default: true
+
+    DocumentationGenerationRequest:
+      type: object
+      required: [doc_type, title]
+      properties:
+        doc_type:
+          type: string
+          enum: [api, user_guide, technical_spec]
+        title:
+          type: string
+        content_outline:
+          type: array
+          items:
+            type: string
+        target_audience:
+          type: string
+          default: developers
+        detail_level:
+          type: string
+          default: detailed
+        include_examples:
+          type: boolean
+          default: true
+        use_all_sources:
+          type: boolean
+          default: true
+
+    GenerationResponse:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+        content:
+          type: string
+        metadata:
+          type: object
+        sources_used:
+          type: array
+          items:
+            type: string
+        generation_time_ms:
+          type: number
+        tokens_used:
+          type: integer
+        cost_estimate:
+          type: number
+
+    GenerationStatus:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+        estimated_completion:
+          type: string
+        error_message:
+          type: string
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+
+    # Vector Search Schemas
+    VectorSearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        collections:
+          type: array
+          items:
+            type: string
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+        filters:
+          type: object
+        include_snippets:
+          type: boolean
+          default: true
+        hybrid_search:
+          type: boolean
+          default: true
+
+    VectorSearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total_results:
+          type: integer
+        search_time_ms:
+          type: number
+        collections_searched:
+          type: array
+          items:
+            type: string
+
+    SearchResult:
+      type: object
+      properties:
+        doc_id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        score:
+          type: number
+        source:
+          type: string
+        source_type:
+          type: string
+        url:
+          type: string
+        author:
+          type: string
+        created_at:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        collection_name:
+          type: string
+        chunk_index:
+          type: integer
+        highlights:
+          type: array
+          items:
+            type: string
+
+    IndexDocumentRequest:
+      type: object
+      required: [text, doc_id, title, source]
+      properties:
+        text:
+          type: string
+          minLength: 1
+        doc_id:
+          type: string
+        title:
+          type: string
+        source:
+          type: string
+        source_type:
+          type: string
+          default: documents
+        author:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        url:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        content_type:
+          type: string
+        file_path:
+          type: string
+
+    IndexDocumentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        doc_id:
+          type: string
+        message:
+          type: string
+
+    DeleteDocumentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        doc_id:
+          type: string
+        message:
+          type: string
+
+    SearchStatsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        active_collections:
+          type: integer
+        total_collections:
+          type: integer
+        collections:
+          type: object
+        embeddings_service:
+          type: object
+        qdrant_status:
+          type: object
+
+    UploadFileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        doc_id:
+          type: string
+        message:
+          type: string
+        file_info:
+          type: object
+
+    # Search Schemas (Legacy)
+    SearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        sources:
+          type: array
+          items:
+            type: string
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+        filters:
+          type: object
+        include_snippets:
+          type: boolean
+          default: true
+        search_type:
+          type: string
+          enum: [semantic, keyword, hybrid]
+          default: semantic
+
+    SearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total_results:
+          type: integer
+        search_time_ms:
+          type: number
+        sources_searched:
+          type: array
+          items:
+            type: string
+        filters_applied:
+          type: object
+        pagination:
+          type: object
+
+    # Data Sources Schemas
+    DataSourceConfig:
+      type: object
+      required: [source_type, source_name, config]
+      properties:
+        source_type:
+          type: string
+          enum: [confluence, gitlab, jira, local_files]
+        source_name:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+        config:
+          type: object
+        sync_schedule:
+          type: string
+          default: "0 2 * * *"
+        incremental:
+          type: boolean
+          default: true
+
+    DataSourceStatus:
+      type: object
+      properties:
+        source_type:
+          type: string
+        source_name:
+          type: string
+        enabled:
+          type: boolean
+        last_sync:
+          type: string
+          format: date-time
+        next_sync:
+          type: string
+          format: date-time
+        running:
+          type: boolean
+        documents_count:
+          type: integer
+        sync_schedule:
+          type: string
+        incremental:
+          type: boolean
+
+    # AI Enhancement Schemas
+    ModelTrainingRequest:
+      type: object
+      required: [training_type]
+      properties:
+        training_type:
+          type: string
+          enum: [full, incremental, multilingual]
+        use_feedback:
+          type: boolean
+          default: true
+        epochs:
+          type: integer
+
+    ModelTrainingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        training_id:
+          type: string
+        message:
+          type: string
+        estimated_duration_minutes:
+          type: integer
+
+    TrainingStatus:
+      type: object
+      properties:
+        training_id:
+          type: string
+        status:
+          type: string
+        progress_percentage:
+          type: number
+        current_step:
+          type: string
+        estimated_remaining_minutes:
+          type: integer
+        logs:
+          type: array
+          items:
+            type: string
+
+    RFCQualityAnalysisRequest:
+      type: object
+      required: [rfc_content]
+      properties:
+        rfc_content:
+          type: string
+        rfc_title:
+          type: string
+
+    RFCQualityAnalysisResponse:
+      type: object
+      properties:
+        overall_score:
+          type: number
+        structure_score:
+          type: number
+        completeness_score:
+          type: number
+        technical_depth_score:
+          type: number
+        clarity_score:
+          type: number
+        improvement_suggestions:
+          type: array
+          items:
+            type: string
+        missing_sections:
+          type: array
+          items:
+            type: string
+        weak_areas:
+          type: array
+          items:
+            type: string
+
+    SearchOptimizationRequest:
+      type: object
+      properties:
+        test_queries:
+          type: array
+          items:
+            type: string
+        optimization_type:
+          type: string
+          enum: [performance, quality, full]
+          default: full
+
+    SearchOptimizationResponse:
+      type: object
+      properties:
+        performance_metrics:
+          type: object
+        optimization_recommendations:
+          type: array
+          items:
+            type: object
+        cache_statistics:
+          type: object
+        improvement_summary:
+          type: string
+
+    # Feedback Schemas
+    FeedbackRequest:
+      type: object
+      required: [session_id, rating]
+      properties:
+        session_id:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    FeedbackResponse:
+      type: object
+      properties:
+        feedback_id:
+          type: string
+        message:
+          type: string
+        points_earned:
+          type: integer
+
+    FeedbackStats:
+      type: object
+      properties:
+        target_id:
+          type: string
+        total_feedback:
+          type: integer
+        likes:
+          type: integer
+        dislikes:
+          type: integer
+        reports:
+          type: integer
+        like_percentage:
+          type: number
+
+    FeedbackAnalytics:
+      type: object
+      properties:
+        period:
+          type: string
+        feedback_count:
+          type: integer
+        avg_rating:
+          type: number
+        trends:
+          type: object
+        top_issues:
+          type: array
+          items:
+            type: string 

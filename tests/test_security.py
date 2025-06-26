@@ -61,17 +61,21 @@ class TestInputValidation:
         ]
         
         for dangerous_input in dangerous_inputs:
-            with pytest.raises(HTTPException) as exc_info:
+            with pytest.raises(ValueError) as exc_info:
                 validate_input(dangerous_input, "test_field")
-            assert exc_info.value.status_code == 400
+            assert "Invalid content detected" in str(exc_info.value)
     
     def test_sanitize_string(self):
         """Test string sanitization"""
-        test_input = "  <script>alert('test')</script>  Normal text  "
+        test_input = "  Normal text without dangerous content  "
         result = sanitize_string(test_input)
         
-        assert "<script>" not in result
         assert "Normal text" in result
+        
+        # Test that dangerous content raises an error
+        dangerous_input = "  <script>alert('test')</script>  Normal text  "
+        with pytest.raises(ValueError):
+            sanitize_string(dangerous_input)
     
     def test_validate_email(self):
         """Test email validation"""
@@ -83,7 +87,7 @@ class TestInputValidation:
             assert result == email.lower()
         
         for email in invalid_emails:
-            with pytest.raises(HTTPException):
+            with pytest.raises(ValueError):
                 validate_email(email)
 
 

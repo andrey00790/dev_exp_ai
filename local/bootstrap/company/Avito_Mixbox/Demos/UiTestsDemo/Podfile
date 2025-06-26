@@ -1,0 +1,113 @@
+require_relative 'cocoapods/lock_patcher'
+require_relative 'cocoapods/repo'
+require_relative 'cocoapods/enable_testing_with_mixbox'
+require_relative '../../cocoapods/patch_xcconfigs_toolchain_dir'
+require_relative '../../cocoapods/patch_deployment_target'
+
+project 'UiTestsDemo.xcodeproj'
+workspace 'UiTestsDemo.xcworkspace'
+
+# Note: you don't need this, this is just to keep demo up-to-date with other code
+require_relative 'cocoapods/software_versions'
+platform :ios, :deployment_target => $mixbox_ios_version
+
+use_frameworks!
+inhibit_all_warnings!
+
+# This code imitates as if Mixbox has been released to Cocoapods,
+# but it actually uses local code. Mixbox is automatically released to Cocoapods,
+# so in your project you may use just `pod SomePod`.
+# We use local pods here, because we test Demo on CI **before** release, so we can't really use
+# previously release versions to test next release.
+#
+# Feel free to delete it.
+#
+mixbox = Devpods::Repo.new(
+    'ssh://git@github.com:avito-tech/Mixbox.git',
+    lambda { |name, hash|
+      local_hash = hash.clone
+      
+      # You may want to use this if you don't use `inhibit_all_warnings!`
+      local_hash[:inhibit_warnings] = false
+      
+      # You WANT to use this to not have useless empty frameworks.
+      # I also recommend you to use a tool like Amimono, which can combine everything to a single
+      # framework, so the size and performance of your app will be improved significantly and it will
+      # also add another level of defence against test frameworks leaking to production. But this
+      # level of defence will work as a defence only if code in frameworks was disabled via #if conditional
+      # compilation clauses. Note that Mixbox guarantees that everything is disabled in production by default
+      # via conditional compilation clauses.
+      local_hash[:configurations] = ['Debug']
+      
+      pod name, local_hash
+    }
+)
+# TODO: Check that this works (after demo will be fixed in master):
+# mixbox.branch_value = 'master'
+mixbox.local_path_value = '../..'
+
+# This is optional if you want to use different kinds of testing (BlackBox & GrayBox)
+# This should be your custom pod, but you can live without it, for example, just put files in some folder
+# and add files files to both targets. It will work better if you make a pod though.
+def ui_tests_shared_code_pods
+  pod 'UiTestsSharedCode', :path => 'Frameworks/UiTestsSharedCode'
+end
+
+target 'GrayBoxTests' do
+  # This is mandatory for gray box testing:
+  
+  mixbox.pod 'MixboxGray' 
+  
+  # This is optional:
+  
+  ui_tests_shared_code_pods
+end
+
+target 'BlackBoxTests' do
+  # This is mandatory for black box testing:
+   
+  mixbox.pod 'MixboxBlack'
+  
+  # This is optional:
+  
+  ui_tests_shared_code_pods
+end
+
+# Targets
+
+target 'App' do
+  # This is mandatory for app to be testable.
+  # Don't worry, no code will leak in production (except dummy code in `MixboxTestability`, see notice below).
+  #
+  # However, there would be empty frameworks (with no code, except some dummy in MixboxTestability),
+  # if you don't use any application size optimization tool (like Amimono), it will add a very little overhead.
+  # So in that case, consider using something like:
+  #
+  # ```
+  # pod 'MixboxInAppServices, :configurations => ['Test']
+  # ```
+  #
+  # Note also that in this case you have to define all its dependencies also (MixboxUiKit, MixboxFoundation, etc),
+  # all of them should be in 'Test` configuration (or 'Debug' or whatever you use for tests).
+  #
+  # The only exception is `MixboxTestability`. You can link it to your test configuration only, but we don't recommend it.
+  # In other words. We recommend to link it in your release builds. It will contain only little code and the code will do nothing
+  # in your release build (assuming you didn't set `MIXBOX_ENABLE_ALL_FRAMEWORKS`, which is for your test/debug configuariton).
+  # This way you can use things like `testability_customValues` or other extensions of testability of your app without
+  # putting your code withing conditional compilation blocks (example: `#if TEST` or `#if DEBUG` + your code + `#endif`,
+  # or whatever flag you use for conditional compilation).
+  # Of course you can link it only in your test builds (not in release builds), but in our opinion, it doesn't worth the hassle. 
+  
+  mixbox.pod 'MixboxInAppServices'  
+end
+
+post_install do |installer|
+  enable_testing_with_mixbox_for_configuration_name(installer, 'Debug')
+
+  # Fix for cocoapods lower than 1.13 on xcode 15
+  patch_xcconfigs_toolchain_dir(installer)  
+end
+
+at_exit do
+  inhibit_pod_deployment_target_warning()
+end

@@ -1,8 +1,8 @@
 {
   "metadata": {
     "version": "2.0",
-    "generated_at": "2025-06-16T19:05:48.258838",
-    "total_pairs": 10,
+    "generated_at": "2025-06-26T18:30:23.491601",
+    "total_pairs": 7,
     "languages": [
       "ru",
       "en"
@@ -14,55 +14,17 @@
       "performance"
     ],
     "data_source": "auto_generated_e2e_dataset",
-    "config_loaded": "dataset_config.yml"
+    "config_loaded": "default"
   },
   "training_pairs": [
     {
-      "query": "Как реализовать OAuth 2.0 аутентификацию?",
-      "language": "ru",
-      "expected_docs": [
-        "oauth2_guide_ru.md",
-        "authentication_patterns_ru.md"
-      ],
-      "relevance_scores": [
-        0.95,
-        0.85
-      ]
-    },
-    {
-      "query": "How to implement OAuth 2.0 authentication?",
+      "query": "How to implement OAuth 2.0?",
       "language": "en",
       "expected_docs": [
-        "oauth2_guide_en.md",
-        "authentication_patterns_en.md"
+        "oauth2_guide.md"
       ],
       "relevance_scores": [
-        0.95,
-        0.85
-      ]
-    },
-    {
-      "query": "Микросервисы архитектура лучшие практики",
-      "language": "ru",
-      "expected_docs": [
-        "microservices_architecture_ru.md",
-        "patterns_ru.md"
-      ],
-      "relevance_scores": [
-        0.9,
-        0.8
-      ]
-    },
-    {
-      "query": "Microservices architecture best practices",
-      "language": "en",
-      "expected_docs": [
-        "microservices_architecture_en.md",
-        "patterns_en.md"
-      ],
-      "relevance_scores": [
-        0.9,
-        0.8
+        0.95
       ]
     },
     {

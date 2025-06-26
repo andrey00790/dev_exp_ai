@@ -1,0 +1,61 @@
+# Data Ingestion Requirements
+# Core dependencies
+asyncio-throttle==1.0.2
+aiohttp==3.9.1
+aiofiles==23.2.1
+asyncpg==0.29.0
+pydantic==2.5.2
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.13.1
+psycopg2-binary==2.9.9
+
+# Vector database
+qdrant-client==1.7.0
+
+# Document processing
+PyPDF2==3.0.1
+python-docx==1.1.0
+ebooklib==0.18
+beautifulsoup4==4.12.2
+lxml==4.9.4
+markdown==3.5.2
+python-magic==0.4.27
+
+# API clients
+atlassian-python-api==3.41.8
+python-gitlab==4.2.0
+requests==2.31.0
+
+# Text processing
+nltk==3.8.1
+spacy==3.7.2
+langchain==0.0.350
+tiktoken==0.5.2
+
+# Embeddings
+openai==1.6.1
+sentence-transformers==2.2.2
+
+# Concurrency and async
+asyncio==3.4.3
+concurrent-futures==3.1.1
+tenacity==8.2.3
+
+# Monitoring and logging
+prometheus-client==0.19.0
+structlog==23.2.0
+rich==13.7.0
+
+# Utilities
+tqdm==4.66.1
+click==8.1.7
+httpx==0.26.0
+chardet==5.2.0
+
+# Security
+cryptography==41.0.8
+urllib3==2.1.0 

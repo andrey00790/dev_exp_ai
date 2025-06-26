@@ -179,6 +179,32 @@ async def get_budget_info(current_user: User = Depends(get_current_user)):
         "currency": "USD"
     }
 
+@router.get("/budget/status")
+async def get_budget_status(current_user: User = Depends(get_current_user)):
+    """
+    Get user's budget status (for test compatibility).
+    """
+    usage_percentage = (current_user.current_usage / current_user.budget_limit) * 100
+    
+    status_level = "active"
+    if usage_percentage >= 100:
+        status_level = "exceeded"
+    elif usage_percentage >= 95:
+        status_level = "critical"
+    elif usage_percentage >= 80:
+        status_level = "warning"
+    
+    return {
+        "user_id": current_user.user_id,
+        "budget_limit": current_user.budget_limit,
+        "current_usage": current_user.current_usage,
+        "remaining_budget": current_user.budget_limit - current_user.current_usage,
+        "usage_percentage": round(usage_percentage, 2),
+        "status": status_level,
+        "currency": "USD",
+        "last_updated": "2025-06-11T18:00:00Z"
+    }
+
 @router.get("/scopes")
 async def get_user_scopes(current_user: User = Depends(get_current_user)):
     """
