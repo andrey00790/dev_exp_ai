@@ -1,0 +1,340 @@
+# DataSources Configuration for AI Assistant ETL Pipeline
+# Supports multiple data sources: YDB, ClickHouse, Confluence, GitLab, Jira, Local Files
+# Environment variables can override any setting using DS_<SOURCE_TYPE>_<SOURCE_NAME>_<SETTING> format
+
+# Global ETL Settings
+scheduler:
+  interval_minutes: 30  # How often to check for changes
+  max_concurrent_sources: 3
+  batch_size: 1000
+  max_retries: 3
+
+# YDB DataSources
+ydb:
+  # Production YDB instance
+  - name: "production"
+    enabled: true
+    endpoint: "${DS_YDB_PRODUCTION_ENDPOINT:grpcs://ydb.example.com:2135}"
+    database: "${DS_YDB_PRODUCTION_DATABASE:/production/database}"
+    auth_method: "${DS_YDB_PRODUCTION_AUTH_METHOD:metadata}"  # env, token, static, service_account, metadata, anonymous
+    
+    # Optional authentication settings
+    token: "${DS_YDB_PRODUCTION_TOKEN:}"
+    username: "${DS_YDB_PRODUCTION_USERNAME:}"
+    password: "${DS_YDB_PRODUCTION_PASSWORD:}"
+    service_account_key_file: "${DS_YDB_PRODUCTION_SA_KEY_FILE:}"
+    
+    # Sync settings
+    sync_mode: "${DS_YDB_PRODUCTION_SYNC_MODE:incremental}"  # incremental or full
+    table_filter: "${DS_YDB_PRODUCTION_TABLE_FILTER:}"  # Filter tables by name substring
+    last_modified_column: "${DS_YDB_PRODUCTION_MODIFIED_COLUMN:updated_at}"
+    batch_size: 1000
+    timeout: 30
+    
+    # Metadata
+    description: "Production YDB instance"
+    tags: ["production", "ydb", "primary"]
+
+  # Development YDB instance  
+  - name: "development"
+    enabled: "${DS_YDB_DEVELOPMENT_ENABLED:false}"
+    endpoint: "${DS_YDB_DEVELOPMENT_ENDPOINT:grpc://localhost:2136}"
+    database: "${DS_YDB_DEVELOPMENT_DATABASE:/local}"
+    auth_method: "${DS_YDB_DEVELOPMENT_AUTH_METHOD:anonymous}"
+    
+    sync_mode: "full"
+    table_filter: "test_"
+    batch_size: 500
+    timeout: 10
+    
+    description: "Development YDB instance"
+    tags: ["development", "ydb", "testing"]
+
+  # Analytics YDB instance
+  - name: "analytics"
+    enabled: "${DS_YDB_ANALYTICS_ENABLED:true}"
+    endpoint: "${DS_YDB_ANALYTICS_ENDPOINT:grpcs://ydb-analytics.example.com:2135}"
+    database: "${DS_YDB_ANALYTICS_DATABASE:/analytics/database}"
+    auth_method: "${DS_YDB_ANALYTICS_AUTH_METHOD:service_account}"
+    service_account_key_file: "${DS_YDB_ANALYTICS_SA_KEY_FILE:/etc/keys/ydb-analytics.json}"
+    
+    sync_mode: "incremental"
+    table_filter: "fact_,dim_"  # Only sync fact and dimension tables
+    last_modified_column: "last_update_ts"
+    batch_size: 2000
+    
+    description: "Analytics YDB instance with fact and dimension tables"
+    tags: ["analytics", "ydb", "dwh"]
+
+# ClickHouse DataSources
+clickhouse:
+  # Main analytics ClickHouse cluster
+  - name: "analytics"
+    enabled: true
+    host: "${DS_CLICKHOUSE_ANALYTICS_HOST:clickhouse.example.com}"
+    port: "${DS_CLICKHOUSE_ANALYTICS_PORT:8123}"
+    database: "${DS_CLICKHOUSE_ANALYTICS_DATABASE:analytics}"
+    username: "${DS_CLICKHOUSE_ANALYTICS_USERNAME:default}"
+    password: "${DS_CLICKHOUSE_ANALYTICS_PASSWORD:}"
+    secure: "${DS_CLICKHOUSE_ANALYTICS_SECURE:true}"
+    verify: "${DS_CLICKHOUSE_ANALYTICS_VERIFY:true}"
+    
+    # SSL certificates (optional)
+    ca_cert: "${DS_CLICKHOUSE_ANALYTICS_CA_CERT:}"
+    client_cert: "${DS_CLICKHOUSE_ANALYTICS_CLIENT_CERT:}"
+    client_cert_key: "${DS_CLICKHOUSE_ANALYTICS_CLIENT_CERT_KEY:}"
+    
+    # Sync settings
+    sync_mode: "${DS_CLICKHOUSE_ANALYTICS_SYNC_MODE:incremental}"
+    table_filter: "${DS_CLICKHOUSE_ANALYTICS_TABLE_FILTER:events_,user_}"
+    last_modified_column: "${DS_CLICKHOUSE_ANALYTICS_MODIFIED_COLUMN:event_time}"
+    batch_size: 10000  # ClickHouse handles large batches well
+    timeout: 60
+    
+    # Custom ClickHouse settings
+    settings:
+      max_memory_usage: 10000000000
+      max_execution_time: 300
+      
+    description: "Main analytics ClickHouse cluster"
+    tags: ["analytics", "clickhouse", "events"]
+
+  # Logs ClickHouse cluster
+  - name: "logs"
+    enabled: "${DS_CLICKHOUSE_LOGS_ENABLED:true}"
+    host: "${DS_CLICKHOUSE_LOGS_HOST:clickhouse-logs.example.com}"
+    port: "${DS_CLICKHOUSE_LOGS_PORT:8123}"
+    database: "${DS_CLICKHOUSE_LOGS_DATABASE:logs}"
+    username: "${DS_CLICKHOUSE_LOGS_USERNAME:readonly}"
+    password: "${DS_CLICKHOUSE_LOGS_PASSWORD:}"
+    secure: "${DS_CLICKHOUSE_LOGS_SECURE:true}"
+    
+    sync_mode: "incremental"
+    table_filter: "app_logs,error_logs"
+    last_modified_column: "timestamp"
+    batch_size: 5000
+    timeout: 30
+    
+    description: "Application logs ClickHouse cluster"
+    tags: ["logs", "clickhouse", "monitoring"]
+
+  # Local development ClickHouse
+  - name: "local"
+    enabled: "${DS_CLICKHOUSE_LOCAL_ENABLED:false}"
+    host: "${DS_CLICKHOUSE_LOCAL_HOST:localhost}"
+    port: "${DS_CLICKHOUSE_LOCAL_PORT:8123}"
+    database: "${DS_CLICKHOUSE_LOCAL_DATABASE:default}"
+    username: "${DS_CLICKHOUSE_LOCAL_USERNAME:default}"
+    password: "${DS_CLICKHOUSE_LOCAL_PASSWORD:}"
+    secure: false
+    verify: false
+    
+    sync_mode: "full"
+    batch_size: 1000
+    timeout: 10
+    
+    description: "Local development ClickHouse"
+    tags: ["development", "clickhouse", "local"]
+
+# Confluence DataSources
+confluence:
+  - name: "main"
+    enabled: "${DS_CONFLUENCE_MAIN_ENABLED:true}"
+    base_url: "${DS_CONFLUENCE_MAIN_URL:https://confluence.example.com}"
+    username: "${DS_CONFLUENCE_MAIN_USERNAME:}"
+    password: "${DS_CONFLUENCE_MAIN_PASSWORD:}"
+    token: "${DS_CONFLUENCE_MAIN_TOKEN:}"  # Alternative to username/password
+    
+    # Sync settings
+    space_filter: "${DS_CONFLUENCE_MAIN_SPACES:TECH,DOC,API}"  # Comma-separated space keys
+    sync_mode: "incremental"
+    last_modified_column: "lastModified"
+    batch_size: 50
+    
+    description: "Main Confluence instance"
+    tags: ["confluence", "documentation"]
+
+# GitLab DataSources
+gitlab:
+  - name: "main"
+    enabled: "${DS_GITLAB_MAIN_ENABLED:true}"
+    base_url: "${DS_GITLAB_MAIN_URL:https://gitlab.example.com}"
+    token: "${DS_GITLAB_MAIN_TOKEN:}"
+    
+    # Project settings
+    project_filter: "${DS_GITLAB_MAIN_PROJECTS:group/project1,group/project2}"
+    include_issues: "${DS_GITLAB_MAIN_INCLUDE_ISSUES:true}"
+    include_merge_requests: "${DS_GITLAB_MAIN_INCLUDE_MRS:true}"
+    include_wiki: "${DS_GITLAB_MAIN_INCLUDE_WIKI:true}"
+    
+    sync_mode: "incremental"
+    last_modified_column: "updated_at"
+    batch_size: 100
+    
+    description: "Main GitLab instance"
+    tags: ["gitlab", "code", "issues"]
+
+# Jira DataSources
+jira:
+  - name: "main"
+    enabled: "${DS_JIRA_MAIN_ENABLED:true}"
+    base_url: "${DS_JIRA_MAIN_URL:https://jira.example.com}"
+    username: "${DS_JIRA_MAIN_USERNAME:}"
+    token: "${DS_JIRA_MAIN_TOKEN:}"
+    
+    # Project settings
+    project_filter: "${DS_JIRA_MAIN_PROJECTS:PROJ,DEV,SUPPORT}"
+    issue_types: "${DS_JIRA_MAIN_ISSUE_TYPES:Story,Task,Bug}"
+    include_comments: "${DS_JIRA_MAIN_INCLUDE_COMMENTS:true}"
+    
+    sync_mode: "incremental"
+    last_modified_column: "updated"
+    batch_size: 100
+    
+    description: "Main Jira instance"
+    tags: ["jira", "issues", "tickets"]
+
+# Local Files DataSource
+local_files:
+  - name: "bootstrap"
+    enabled: "${DS_LOCAL_FILES_ENABLED:true}"
+    path: "${DS_LOCAL_FILES_PATH:./local/bootstrap}"
+    
+    # File filters
+    include_extensions: "${DS_LOCAL_FILES_EXTENSIONS:.md,.txt,.pdf,.docx}"
+    exclude_patterns: "${DS_LOCAL_FILES_EXCLUDE:*.tmp,.*}"
+    
+    sync_mode: "full"  # Always full sync for local files
+    batch_size: 50
+    
+    description: "Local bootstrap files"
+    tags: ["local", "files", "bootstrap"]
+
+# Vector Store Settings
+vector_store:
+  collection_name: "${QDRANT_COLLECTION_NAME:documents}"
+  vector_size: 384
+  embedding_model: "all-MiniLM-L6-v2"
+  
+  # Qdrant specific settings
+  qdrant:
+    url: "${QDRANT_URL:http://localhost:6333}"
+    api_key: "${QDRANT_API_KEY:}"
+    timeout: 30
+    
+# Content Processing Settings
+content_processing:
+  max_length: 8000
+  chunk_size: 512
+  chunk_overlap: 50
+  
+  # Language processing
+  detect_language: true
+  supported_languages: ["en", "ru", "es", "fr", "de"]
+  
+  # Content extraction
+  extract_metadata: true
+  clean_html: true
+  normalize_text: true
+
+# Database Settings
+database:
+  postgres:
+    url: "${DATABASE_URL:postgresql://user:password@localhost:5432/ai_assistant}"
+    pool_size: 10
+    timeout: 30
+    
+  # Ingestion log settings
+  ingestion_log:
+    table_name: "ingestion_log"
+    retention_days: 30
+    cleanup_interval_hours: 24
+
+# Monitoring and Alerting
+monitoring:
+  enabled: true
+  
+  # Health check intervals
+  health_check_interval: 300  # 5 minutes
+  
+  # Alert thresholds
+  alerts:
+    sync_failure_threshold: 3  # Alert after 3 consecutive failures
+    sync_duration_threshold: 3600  # Alert if sync takes > 1 hour
+    error_rate_threshold: 0.1  # Alert if error rate > 10%
+    
+  # Metrics export
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+
+# Глобальные настройки для всех источников
+global_settings:
+  # Пул соединений
+  connection_pool:
+    default_max_connections: 10
+    connection_timeout: 30
+    idle_timeout: 300
+    
+  # Retry политика
+  retry_policy:
+    max_retries: 3
+    retry_delay: 2
+    exponential_backoff: true
+    
+  # Мониторинг
+  monitoring:
+    health_check_interval: 60  # секунд
+    enable_metrics: true
+    log_slow_queries: true
+    slow_query_threshold: 1000  # миллисекунд
+    
+  # Кэширование схем
+  schema_cache:
+    enabled: true
+    ttl_minutes: 60
+    auto_refresh: true
+
+# Настройки для семантического поиска
+semantic_search:
+  # Источники по умолчанию
+  default_enabled_sources:
+    - "analytics_clickhouse"
+    - "production_ydb"
+  
+  # Пользователи могут выбирать источники
+  user_selectable: true
+  
+  # Веса для ранжирования результатов
+  source_weights:
+    clickhouse: 1.0
+    ydb: 0.9
+    confluence: 1.2
+    gitlab: 0.8
+  
+  # Параллельный поиск
+  parallel_search:
+    enabled: true
+    max_concurrent_sources: 5
+    timeout_per_source: 10  # секунд
+
+# Примеры переменных окружения для переопределения:
+# DS_CLICKHOUSE_HOST=my-clickhouse.company.com
+# DS_CLICKHOUSE_PORT=8123  
+# DS_CLICKHOUSE_DATABASE=my_db
+# DS_CLICKHOUSE_USERNAME=my_user
+# DS_CLICKHOUSE_PASSWORD=my_password
+# DS_CLICKHOUSE_SSL=true
+# DS_CLICKHOUSE_ENABLED=true
+# DS_CLICKHOUSE_SOURCE_ID=my_clickhouse
+# DS_CLICKHOUSE_NAME="My ClickHouse"
+# DS_CLICKHOUSE_DESCRIPTION="Custom ClickHouse instance"
+
+# DS_YDB_ENDPOINT=grpcs://my-ydb.yandexcloud.net:2135
+# DS_YDB_DATABASE=/ru-central1/folder/database
+# DS_YDB_AUTH_METHOD=service_account_key
+# DS_YDB_SERVICE_ACCOUNT_KEY_FILE=/path/to/key.json
+# DS_YDB_ENABLED=true
+# DS_YDB_SOURCE_ID=my_ydb
+# DS_YDB_NAME="My YDB" 

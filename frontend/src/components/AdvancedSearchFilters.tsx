@@ -8,38 +8,26 @@ import {
   AccordionSummary,
   AccordionDetails,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Checkbox,
   FormControlLabel,
   FormGroup,
   TextField,
   Chip,
   Button,
-  IconButton,
-  Tooltip,
   Grid,
   Slider,
   Switch,
   Autocomplete,
-  DatePicker,
   Alert,
-  Badge,
-  Divider
+  Badge
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
   Clear as ClearIcon,
   FilterList as FilterIcon,
   Bookmark as BookmarkIcon,
-  Download as DownloadIcon,
   Info as InfoIcon
 } from '@mui/icons-material';
-import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { ru } from 'date-fns/locale';
 
 interface SourceFilter {
   confluence?: string[];
@@ -448,71 +436,69 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ mb: 2 }}>Быстрые фильтры</Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                  {[
-                    { label: 'Сегодня', days: 1 },
-                    { label: 'Неделя', days: 7 },
-                    { label: 'Месяц', days: 30 },
-                    { label: 'Квартал', days: 90 }
-                  ].map(period => (
-                    <Button
-                      key={period.label}
-                      size="small"
-                      variant="outlined"
-                      onClick={() => {
-                        const now = new Date();
-                        const pastDate = new Date(now.getTime() - period.days * 24 * 60 * 60 * 1000);
-                        updateFilter('time', 'updated_after', pastDate);
-                        updateFilter('time', 'updated_before', now);
-                      }}
-                    >
-                      {period.label}
-                    </Button>
-                  ))}
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>Дата создания</Typography>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <MuiDatePicker
-                    label="С"
-                    value={filters.time?.created_after || null}
-                    onChange={(date) => updateFilter('time', 'created_after', date)}
-                    renderInput={(params) => <TextField {...params} size="small" />}
-                  />
-                  <MuiDatePicker
-                    label="По"
-                    value={filters.time?.created_before || null}
-                    onChange={(date) => updateFilter('time', 'created_before', date)}
-                    renderInput={(params) => <TextField {...params} size="small" />}
-                  />
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>Дата обновления</Typography>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <MuiDatePicker
-                    label="С"
-                    value={filters.time?.updated_after || null}
-                    onChange={(date) => updateFilter('time', 'updated_after', date)}
-                    renderInput={(params) => <TextField {...params} size="small" />}
-                  />
-                  <MuiDatePicker
-                    label="По"
-                    value={filters.time?.updated_before || null}
-                    onChange={(date) => updateFilter('time', 'updated_before', date)}
-                    renderInput={(params) => <TextField {...params} size="small" />}
-                  />
-                </Box>
-              </Grid>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>Быстрые фильтры</Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                {[
+                  { label: 'Сегодня', days: 1 },
+                  { label: 'Неделя', days: 7 },
+                  { label: 'Месяц', days: 30 },
+                  { label: 'Квартал', days: 90 }
+                ].map(period => (
+                  <Button
+                    key={period.label}
+                    size="small"
+                    variant="outlined"
+                    onClick={() => {
+                      const now = new Date();
+                      const pastDate = new Date(now.getTime() - period.days * 24 * 60 * 60 * 1000);
+                      updateFilter('time', 'updated_after', pastDate);
+                      updateFilter('time', 'updated_before', now);
+                    }}
+                  >
+                    {period.label}
+                  </Button>
+                ))}
+              </Box>
             </Grid>
-          </LocalizationProvider>
+
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Дата создания</Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <TextField
+                  label="С"
+                  type="date"
+                  value={filters.time?.created_after ? filters.time.created_after.toISOString().split('T')[0] : ''}
+                  onChange={(e) => updateFilter('time', 'created_after', e.target.value ? new Date(e.target.value) : undefined)}
+                />
+                <TextField
+                  label="По"
+                  type="date"
+                  value={filters.time?.created_before ? filters.time.created_before.toISOString().split('T')[0] : ''}
+                  onChange={(e) => updateFilter('time', 'created_before', e.target.value ? new Date(e.target.value) : undefined)}
+                />
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Дата обновления</Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <TextField
+                  label="С"
+                  type="date"
+                  value={filters.time?.updated_after ? filters.time.updated_after.toISOString().split('T')[0] : ''}
+                  onChange={(e) => updateFilter('time', 'updated_after', e.target.value ? new Date(e.target.value) : undefined)}
+                />
+                <TextField
+                  label="По"
+                  type="date"
+                  value={filters.time?.updated_before ? filters.time.updated_before.toISOString().split('T')[0] : ''}
+                  onChange={(e) => updateFilter('time', 'updated_before', e.target.value ? new Date(e.target.value) : undefined)}
+                />
+              </Box>
+            </Grid>
+          </Grid>
         </AccordionDetails>
       </Accordion>
     );

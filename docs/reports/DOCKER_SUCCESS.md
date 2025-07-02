@@ -1,1 +1,0 @@
-Docker Frontend Integration COMPLETE! Frontend added to docker-compose.yaml. Quick start: ./start-dev.sh. 76 tests passing. Services: React(3000), FastAPI(8000), PostgreSQL(5432), Qdrant(6333), Ollama(11434)

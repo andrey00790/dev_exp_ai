@@ -1,1 +1,4 @@
-import pytest; import requests; print("Test file created")
+import pytest
+import requests
+
+print("Test file created")

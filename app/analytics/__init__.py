@@ -9,23 +9,18 @@ Provides comprehensive analytics capabilities including:
 - Report generation
 """
 
-from .models import (
-    UsageMetric,
-    CostMetric,
-    PerformanceMetric,
-    UserBehaviorMetric
-)
-
-from .service import AnalyticsService
 from .aggregator import DataAggregator
 from .insights import InsightsEngine
+from .models import (CostMetric, PerformanceMetric, UsageMetric,
+                     UserBehaviorMetric)
+from .service import AnalyticsService
 
 __all__ = [
     "UsageMetric",
-    "CostMetric", 
+    "CostMetric",
     "PerformanceMetric",
     "UserBehaviorMetric",
     "AnalyticsService",
     "DataAggregator",
-    "InsightsEngine"
-] 
+    "InsightsEngine",
+]

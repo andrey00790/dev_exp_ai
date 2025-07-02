@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import ApiClient from '../utils/api';
+import { apiClient } from '../api/apiClient';
 
 interface BudgetStatus {
   user_id: string;
@@ -25,10 +25,10 @@ const BudgetDashboard: React.FC = () => {
   const fetchBudgetStatus = async () => {
     try {
       setLoading(true);
-      const response = await ApiClient.get('/api/v1/budget/status');
+      const response = await apiClient.get('/budget/status');
       
-      if (response.ok) {
-        const data = await response.json();
+      if (response.status === 200) {
+        const data = response.data;
         setBudgetStatus(data);
       } else {
         throw new Error('Failed to fetch budget status');

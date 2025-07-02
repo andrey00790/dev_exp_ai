@@ -1,1 +1,0 @@
-protocol Protocol4 {}

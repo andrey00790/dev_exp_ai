@@ -8,15 +8,15 @@ This module provides enterprise SSO authentication support including:
 - Provider configuration
 """
 
-from .saml_auth import SAMLAuthHandler
+from .models import SSOProvider, SSOUser
 from .oauth_auth import OAuthAuthHandler
+from .saml_auth import SAMLAuthHandler
 from .sso_manager import SSOManager
-from .models import SSOUser, SSOProvider
 
 __all__ = [
     "SAMLAuthHandler",
-    "OAuthAuthHandler", 
+    "OAuthAuthHandler",
     "SSOManager",
     "SSOUser",
-    "SSOProvider"
-] 
+    "SSOProvider",
+]

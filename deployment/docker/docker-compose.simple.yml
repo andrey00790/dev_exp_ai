@@ -60,12 +60,12 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ../../:/code
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres/ai_assistant
       - QDRANT_HOST=qdrant

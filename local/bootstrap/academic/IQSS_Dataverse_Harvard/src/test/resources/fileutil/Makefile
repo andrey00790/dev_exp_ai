@@ -1,1 +1,0 @@
-To test file type recognition from file name

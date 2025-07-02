@@ -1,4 +1,5 @@
-// API utility with automatic JWT token injection for authenticated requests
+// Context7 pattern: API utility with automatic JWT token injection for authenticated requests
+// Following explicit export patterns for better tree-shaking and compatibility
 
 export class ApiClient {
   private static getAuthToken(): string | null {
@@ -11,9 +12,9 @@ export class ApiClient {
     // Don't add auth header for auth endpoints
     const isAuthEndpoint = url.startsWith('/auth/');
     
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
 
     // Add Authorization header if token exists and not auth endpoint
@@ -69,8 +70,11 @@ export class ApiClient {
   }
 }
 
+// Context7 pattern: Named exports for explicit imports
+export { ApiClient as apiClient };
+
 // Convenience function to maintain backward compatibility
 export const apiFetch = ApiClient.fetch;
 
-// Export default as the ApiClient class
+// Default export for backward compatibility  
 export default ApiClient;

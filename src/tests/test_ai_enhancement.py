@@ -60,7 +60,7 @@ def test_rfc_quality_enhancer():
     print("=" * 50)
     
     try:
-        from services.rfc_quality_enhancer import get_rfc_quality_enhancer
+        from domain.rfc_generation.rfc_quality_enhancer import get_rfc_quality_enhancer
         
         # Инициализация
         enhancer = get_rfc_quality_enhancer()
@@ -126,7 +126,7 @@ async def test_vector_search_optimizer():
     print("=" * 50)
     
     try:
-        from services.vector_search_optimizer import get_vector_search_optimizer
+        from domain.integration.vector_search_optimizer import get_vector_search_optimizer
         
         # Инициализация
         optimizer = get_vector_search_optimizer()
@@ -184,8 +184,8 @@ def test_integration():
     try:
         # Проверяем что все компоненты могут работать вместе
         from model_training import ModelTrainer
-        from services.rfc_quality_enhancer import get_rfc_quality_enhancer
-        from services.vector_search_optimizer import get_vector_search_optimizer
+        from domain.rfc_generation.rfc_quality_enhancer import get_rfc_quality_enhancer
+        from domain.integration.vector_search_optimizer import get_vector_search_optimizer
         
         trainer = ModelTrainer()
         enhancer = get_rfc_quality_enhancer()
@@ -226,7 +226,7 @@ def test_multilingual_support():
     print("=" * 50)
     
     try:
-        from services.rfc_quality_enhancer import get_rfc_quality_enhancer
+        from domain.rfc_generation.rfc_quality_enhancer import get_rfc_quality_enhancer
         
         enhancer = get_rfc_quality_enhancer()
         

@@ -14,13 +14,14 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 import structlog
+from pathlib import Path
 
-from scripts.ingestion.confluence_client import ConfluenceIngestionClient
-from scripts.ingestion.gitlab_client import GitLabIngestionClient
-from scripts.ingestion.local_files_processor import LocalFilesProcessor
-from scripts.ingestion.database_manager import DatabaseManager
-from scripts.ingestion.vector_store_manager import VectorStoreManager
-from scripts.ingestion.content_processor import ContentProcessor
+from tools.scripts.ingestion.confluence_client import ConfluenceIngestionClient
+from tools.scripts.ingestion.gitlab_client import GitLabIngestionClient
+from tools.scripts.ingestion.local_files_processor import LocalFilesProcessor
+from tools.scripts.ingestion.database_manager import DatabaseManager
+from tools.scripts.ingestion.vector_store_manager import VectorStoreManager
+from tools.scripts.ingestion.content_processor import ContentProcessor
 
 logger = structlog.get_logger()
 
@@ -330,7 +331,8 @@ class DataSyncScheduler:
             
             total_processed = 0
             
-            async for batch in client.fetch_content_batches():
+            content_batches = await client.fetch_content_batches()
+            for batch in content_batches:
                 if batch:
                     # Обработка контента
                     processed_batch = await self.content_processor.process_batch(
@@ -369,7 +371,8 @@ class DataSyncScheduler:
             
             total_processed = 0
             
-            async for batch in client.fetch_content_batches():
+            content_batches = await client.fetch_content_batches()
+            for batch in content_batches:
                 if batch:
                     # Обработка контента
                     processed_batch = await self.content_processor.process_batch(
@@ -415,8 +418,6 @@ class DataSyncScheduler:
     async def _sync_local_files(self, job_config: SyncJobConfig):
         """Синхронизация локальных файлов"""
         try:
-            from pathlib import Path
-            
             processor = LocalFilesProcessor(
                 job_config.config,
                 {"max_workers": 5, "batch_size": 25, "timeout_seconds": 300}
@@ -425,7 +426,8 @@ class DataSyncScheduler:
             bootstrap_dir = Path(job_config.config["bootstrap_dir"])
             total_processed = 0
             
-            async for batch in processor.process_files_batches(bootstrap_dir):
+            file_batches = await processor.process_files_batches(bootstrap_dir)
+            for batch in file_batches:
                 if batch:
                     # Обработка контента
                     processed_batch = await self.content_processor.process_batch(

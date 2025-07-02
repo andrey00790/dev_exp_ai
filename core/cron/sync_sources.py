@@ -22,10 +22,10 @@ from pathlib import Path
 # Добавляем корневую директорию в путь для импорта модулей
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from services.data_source_service import get_data_source_service
+from domain.integration.data_source_service import get_data_source_service
 from models.search import SyncTriggerRequest, SourceType
 from app.config import settings
-from services.data_sync_service import DataSyncService
+from domain.integration.data_sync_service import DataSyncService
 from user_config_manager import UserConfigManager, get_user_config_manager
 
 # Настройка логирования

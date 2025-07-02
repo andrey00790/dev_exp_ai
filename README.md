@@ -178,26 +178,49 @@ function SearchComponent() {
 ## 📚 **Documentation**
 
 ### **User Guides**
-- 📖 **[User Guide](docs/user_guide.md)** - Complete user manual with step-by-step scenarios
+- 📖 **[User Guide](docs/guides/USER_GUIDE.md)** - Complete user manual with step-by-step scenarios
 - 🎤 **[Voice Features](docs/voice_guide.md)** - Voice input/output usage
 - 🏥 **[HIPAA Guide](docs/compliance/HIPAA_COMPLIANCE_GUIDE.md)** - Healthcare compliance
+- 🔐 **[VK OAuth Guide](docs/integrations/VK_OAUTH_GUIDE.md)** - VK авторизация и контроль доступа
 
 ### **Developer Resources**
-- 🛠️ **[Резюме инструментов разработки](docs/DEVELOPMENT_TOOLS_SUMMARY.md)** - Все инструменты в одном месте
-- 🚀 **[Быстрый старт - Шпаргалка](docs/QUICK_START_CHEATSHEET.md)** - Все команды для разработки в одном месте
-- 📋 **[Подробное руководство по локальной разработке](docs/LOCAL_DEVELOPMENT_GUIDE.md)** - Пошаговый запуск и отладка
-- 🛠️ **[Development Guide](docs/dev_guide.md)** - Setup, debugging, CI/CD
+- 🛠️ **[Development Guide](docs/guides/DEVELOPER_GUIDE.md)** - Setup, debugging, CI/CD
+- 🚀 **[Local Development](docs/guides/LOCAL_DEVELOPMENT.md)** - Пошаговый запуск и отладка
+- 📋 **[Development](docs/guides/DEVELOPMENT.md)** - Все команды для разработки в одном месте
+- 🗄️ **[New DataSources Guide](docs/guides/NEW_DATASOURCES_GUIDE.md)** - ClickHouse и YDB интеграция
 - 🏗️ **[Architecture](docs/architecture/ARCHITECTURE.md)** - System design
-- 📋 **[API Reference](docs/API_REFERENCE.md)** - Complete API endpoint guide
+- 📋 **[API Documentation](docs/architecture/API_DOCS.md)** - Complete API endpoint guide
 - 🔌 **[OpenAPI Spec](openapi.yaml)** - Full OpenAPI 3.0.3 specification
-- 🔧 **[Настройка OpenAPI](docs/OPENAPI_SETUP_GUIDE.md)** - Генерация SDK и интеграция
 - 🌐 **[Interactive API Docs](http://localhost:8000/docs)** - Swagger UI interface
-- 🧪 **[Testing Guide](docs/testing_guide.md)** - Unit, integration, E2E tests
+- 🧪 **[Testing Requirements](docs/requirements/TESTING_REQUIREMENTS.md)** - Unit, integration, E2E tests
 
 ### **Deployment & Operations**
-- 🚀 **[Deployment Guide](docs/deployment_guide.md)** - Production deployment
-- 🐳 **[Docker Guide](docs/docker_guide.md)** - Container setup
-- 📊 **[Monitoring Guide](docs/monitoring_guide.md)** - Observability setup
+- 🚀 **[Deployment Guide](docs/guides/DEPLOYMENT_GUIDE.md)** - Production deployment
+- 🚀 **[Production Deployment](docs/guides/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Production deployment advanced
+- 🐳 **[Docker Environments](docs/guides/DOCKER_ENVIRONMENTS_GUIDE.md)** - Container setup and management
+- ⎈ **[Kubernetes Deployment](docs/guides/KUBERNETES_DEPLOYMENT.md)** - K8s deployment
+- 📊 **[WebSocket Guide](docs/guides/WEBSOCKET_GUIDE.md)** - Real-time communications
+
+### **Architecture & Design**
+- 🏗️ **[System Architecture](docs/architecture/ARCHITECTURE.md)** - Overall system design
+- 🤖 **[AI Agents](docs/architecture/AGENTS.md)** - AI agent architecture
+- 🔒 **[Security Checklist](docs/architecture/SECURITY_CHECKLIST.md)** - Security considerations
+- 🎨 **[UI/UX Design](docs/design/GUI_SPECIFICATION.md)** - Frontend design specification
+- 👥 **[Customer Journey](docs/design/CUSTOMER_JOURNEY_MAPS_AND_DESIGN.md)** - User experience design
+
+### **VK Teams Integration**
+- 📱 **[VK Teams Integration](docs/integrations/VK_TEAMS_INTEGRATION.md)** - Bot integration guide
+- 📚 **[VK Teams README](docs/integrations/VK_TEAMS_README.md)** - Complete setup instructions
+
+### **Requirements & Analysis**
+- 📋 **[Functional Requirements](docs/requirements/FUNCTIONAL_NON_FUNCTIONAL_REQUIREMENTS.md)** - System requirements
+- 🔍 **[Requirements Analysis](docs/requirements/REQUIREMENTS_ANALYSIS.md)** - Detailed analysis
+- 🧪 **[Testing Requirements](docs/requirements/TESTING_REQUIREMENTS.md)** - Test strategy
+
+### **Technical Reports**
+- 📊 **[Documentation Update Report](docs/guides/DOCUMENTATION_UPDATE_REPORT.md)** - Documentation changes
+- 🔧 **[Makefile Analysis](docs/guides/MAKEFILE_ANALYSIS_FINAL_REPORT.md)** - Build system analysis
+- 🧪 **[OpenAPI Testing Report](docs/guides/OPENAPI_TESTING_REPORT.md)** - API testing results
 
 ---
 
@@ -342,6 +365,8 @@ ws.onmessage = (event) => {
 ## 🔗 **Integrations**
 
 ### **Data Sources**
+- **📊 ClickHouse** - OLAP database for analytics and reporting
+- **🗃️ Yandex Database (YDB)** - Distributed SQL database
 - **📄 Confluence** - Wiki pages and documentation
 - **🔗 GitLab** - Code repositories and issues  
 - **🎫 Jira** - Project management and tickets

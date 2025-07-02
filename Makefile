@@ -10,6 +10,8 @@ VENV = venv
 DOCKER_COMPOSE = docker-compose
 KUBECTL = kubectl
 HELM = helm
+PYTEST = pytest
+PYTEST_ARGS = -v --tb=short
 
 # Цвета для вывода
 RED = \033[0;31m
@@ -44,7 +46,7 @@ quick-start: ## Быстрый старт для разработки (инфр�
 	$(MAKE) dev-infra-up
 	@echo "$(CYAN)💡 Теперь запустите приложение: make dev$(NC)"
 
-setup-dev: install dev-infra-up migrate ## Полная настройка окружения разработки
+setup-dev: install dev-infra-up migrate load-test-data ## Полная настройка окружения разработки
 	@echo "$(GREEN)✅ Окружение разработки готово!$(NC)"
 	@echo "$(CYAN)Запустите приложение: make dev$(NC)"
 
@@ -142,216 +144,248 @@ dev-debug: ## Запуск с подробной отладкой
 	 export SECRET_KEY=dev-secret-key-not-for-production && \
 	 ./$(VENV)/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --log-level debug
 
-##@ 🐳 Полная система (Docker)
-system-up: ## Запустить полную систему в Docker
-	@echo "$(GREEN)🚀 Запуск полной системы...$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml up -d
-	@echo "$(GREEN)✅ Полная система запущена!$(NC)"
-	@echo "$(CYAN)🌐 Доступные сервисы:$(NC)"
-	@echo "  • API:        http://localhost:8000"
-	@echo "  • Frontend:   http://localhost:3000"
-	@echo "  • API Docs:   http://localhost:8000/docs"
+##@ 🐳 Docker Окружения
+# Переменные для Docker Compose файлов
+DOCKER_PATH = deployment/docker
+COMPOSE_DEV = -f docker-compose.dev.yml
+COMPOSE_TEST = -f docker-compose.tests.yml
+COMPOSE_FULL = -f docker-compose.full.yml
+COMPOSE_PROD = -f docker-compose.prod.yml
+COMPOSE_LOAD = -f docker-compose.load-test.yml
 
-system-up-full: ## Запустить систему с мониторингом
-	@echo "$(GREEN)🚀 Запуск полной системы с мониторингом...$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.full.yml --profile monitoring up -d
-	@echo "$(GREEN)✅ Полная система с мониторингом запущена!$(NC)"
+up-dev: ## 🔧 Запустить окружение для разработки (только инфраструктура)
+	@echo "$(GREEN)🔧 Запуск окружения для разработки...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) up -d postgres redis qdrant
+	@echo "$(GREEN)✅ Development infrastructure started!$(NC)"
+	@echo "$(CYAN)🗄️  PostgreSQL: localhost:5432 (ai_user/ai_password_dev)$(NC)"
+	@echo "$(CYAN)🔍 Qdrant:     http://localhost:6333$(NC)"
+	@echo "$(CYAN)📨 Redis:      localhost:6379$(NC)"
+	@echo "$(CYAN)💡 Run app:    make dev$(NC)"
 
-system-down: ## Остановить полную систему
-	@echo "$(YELLOW)🛑 Остановка полной системы...$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml down
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.full.yml down
-	@echo "$(GREEN)✅ Система остановлена$(NC)"
+up-dev-full: ## 🚀 Запустить полное окружение разработки (+ админ панели)
+	@echo "$(GREEN)🚀 Запуск полного окружения разработки...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) --profile admin up -d
+	@echo "$(GREEN)✅ Full development environment started!$(NC)"
+	@echo "$(CYAN)📖 App:        http://localhost:8000$(NC)"
+	@echo "$(CYAN)🗄️  PostgreSQL: localhost:5432$(NC)"
+	@echo "$(CYAN)🔍 Qdrant:     http://localhost:6333$(NC)"
+	@echo "$(CYAN)📨 Redis:      localhost:6379$(NC)"
+	@echo "$(CYAN)🔧 Adminer:    http://localhost:8080$(NC)"
+	@echo "$(CYAN)📊 Redis UI:   http://localhost:8081$(NC)"
 
-system-status: ## Статус полной системы
-	@echo "$(BLUE)📊 Статус полной системы:$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml ps || true
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.full.yml ps || true
+up-dev-with-llm: ## 🤖 Запустить разработку + LLM (Ollama)
+	@echo "$(GREEN)🤖 Запуск разработки с LLM...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) --profile admin --profile llm up -d
+	@echo "$(GREEN)✅ Development with LLM started!$(NC)"
+	@echo "$(CYAN)🤖 Ollama:     http://localhost:11434$(NC)"
 
-system-logs: ## Логи полной системы
-	@echo "$(GREEN)📋 Логи системы:$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml logs -f
+up-dev-monitoring: ## 📊 Запустить разработку с мониторингом
+	@echo "$(GREEN)📊 Запуск разработки с мониторингом...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) --profile monitoring up -d
+	@echo "$(GREEN)✅ Development with monitoring started!$(NC)"
+	@echo "$(CYAN)📊 Grafana:    http://localhost:3001 (admin/admin123)$(NC)"
+	@echo "$(CYAN)📈 Prometheus: http://localhost:9090$(NC)"
 
-system-restart: system-down system-up ## Перезапустить полную систему
+##@ 🧪 Тестовые окружения
+up-test: ## 🧪 Запустить базовое тестовое окружение (unit/integration)
+	@echo "$(GREEN)🧪 Запуск базового тестового окружения...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) up -d test-postgres test-redis test-qdrant test-app
+	@echo "$(GREEN)✅ Test environment started!$(NC)"
+	@echo "$(CYAN)🧪 Test App:   http://localhost:8001$(NC)"
+	@echo "$(CYAN)🗄️  Test DB:    localhost:5433$(NC)"
+	@echo "$(CYAN)🔍 Test Qdrant: http://localhost:6335$(NC)"
+	@echo "$(CYAN)📨 Test Redis:  localhost:6380$(NC)"
 
-##@ 🗄 База данных
-migrate: ## Применение миграций
-	@echo "$(BLUE)🗄 Применение миграций...$(NC)"
+up-test-e2e: ## 🎯 Запустить полное E2E тестовое окружение (+ Jira, Confluence, GitLab)
+	@echo "$(GREEN)🎯 Запуск E2E тестового окружения (это займет 10-15 минут)...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) --profile e2e up -d
+	@echo "$(GREEN)✅ E2E environment started!$(NC)"
+	@echo "$(YELLOW)⏳ Ожидание инициализации сервисов (5-10 минут)...$(NC)"
+	@echo "$(CYAN)🧪 Test App:    http://localhost:8001$(NC)"
+	@echo "$(CYAN)📋 Jira:       http://localhost:8082$(NC)"
+	@echo "$(CYAN)📝 Confluence: http://localhost:8083$(NC)"
+	@echo "$(CYAN)🦊 GitLab:     http://localhost:8084$(NC)"
+	@echo "$(CYAN)🔍 Elastic:    http://localhost:9201$(NC)"
+	@echo "$(CYAN)💾 ClickHouse: http://localhost:8125$(NC)"
+	@echo "$(CYAN)📊 YDB:        http://localhost:8766$(NC)"
+
+up-test-load: ## ⚡ Запустить окружение для нагрузочных тестов
+	@echo "$(GREEN)⚡ Запуск окружения для нагрузочных тестов...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_LOAD) up -d
+	@echo "$(GREEN)✅ Load test environment started!$(NC)"
+
+##@ 🛑 Остановка окружений
+down-dev: ## 🛑 Остановить окружение разработки
+	@echo "$(YELLOW)🛑 Остановка окружения разработки...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) down
+
+down-test: ## 🛑 Остановить тестовое окружение
+	@echo "$(YELLOW)🛑 Остановка тестового окружения...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) down
+
+down-test-e2e: ## 🛑 Остановить E2E тестовое окружение
+	@echo "$(YELLOW)🛑 Остановка E2E тестового окружения...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) --profile e2e down
+
+down-all: ## 🛑 Остановить все окружения
+	@echo "$(RED)🛑 Остановка всех Docker окружений...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) down || true
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) down || true
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_FULL) down || true
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_PROD) down || true
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_LOAD) down || true
+	@echo "$(GREEN)✅ All environments stopped$(NC)"
+
+##@ 📊 Статус и мониторинг
+status-dev: ## 📊 Статус окружения разработки
+	@echo "$(BLUE)📊 Статус окружения разработки:$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) ps
+
+status-test: ## 📊 Статус тестового окружения
+	@echo "$(BLUE)📊 Статус тестового окружения:$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) ps
+
+status-all: ## 📊 Статус всех окружений
+	@echo "$(BLUE)📊 Статус всех окружений:$(NC)"
+	@echo "$(GREEN)Development:$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) ps 2>/dev/null || echo "  Not running"
+	@echo "$(GREEN)Testing:$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) ps 2>/dev/null || echo "  Not running"
+
+logs-dev: ## 📋 Логи окружения разработки
+	@echo "$(GREEN)📋 Логи окружения разработки:$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) logs -f
+
+logs-test: ## 📋 Логи тестового окружения
+	@echo "$(GREEN)📋 Логи тестового окружения:$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) logs -f
+
+##@ 🧪 Тестирование (с Docker)
+test-with-docker: up-test ## 🧪 Запуск всех тестов с Docker окружением
+	@echo "$(BLUE)🧪 Запуск тестов с Docker окружением...$(NC)"
+	@sleep 30  # Ожидание готовности сервисов
 	@export PYTHONPATH=$$PWD && \
-	 export DATABASE_URL=postgresql://ai_user:ai_password_dev@localhost:5432/ai_assistant && \
-	 ./$(VENV)/bin/alembic upgrade head
-	@echo "$(GREEN)✅ Миграции применены$(NC)"
+	 export DATABASE_URL=postgresql://test_user:test_password@localhost:5433/ai_test && \
+	 export REDIS_URL=redis://localhost:6380/0 && \
+	 export QDRANT_URL=http://localhost:6335 && \
+	 export TESTING=true && \
+	 $(PYTEST) $(PYTEST_ARGS) tests/unit/ tests/integration/
+	@$(MAKE) down-test
 
-migrate-create: ## Создание новой миграции
-	@read -p "Название миграции: " name; \
-	export PYTHONPATH=$$PWD && \
-	export DATABASE_URL=postgresql://ai_user:ai_password_dev@localhost:5432/ai_assistant && \
-	./$(VENV)/bin/alembic revision --autogenerate -m "$$name"
+test-unit-docker: up-test ## 🔬 Unit тесты с Docker
+	@echo "$(BLUE)🔬 Запуск unit тестов с Docker...$(NC)"
+	@sleep 20
+	@export PYTHONPATH=$$PWD && \
+	 export DATABASE_URL=postgresql://test_user:test_password@localhost:5433/ai_test && \
+	 export REDIS_URL=redis://localhost:6380/0 && \
+	 export QDRANT_URL=http://localhost:6335 && \
+	 export TESTING=true && \
+	 $(PYTEST) $(PYTEST_ARGS) tests/unit/ -m "not slow"
+	@$(MAKE) down-test
 
-db-reset: ## Сброс базы данных
-	@echo "$(RED)🗄 Сброс базы данных...$(NC)"
-	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml stop postgres
-	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml rm -f postgres
-	@$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d postgres
-	@sleep 10
-	@$(MAKE) migrate
-	@echo "$(GREEN)✅ База данных сброшена$(NC)"
+test-integration-docker: up-test ## 🔗 Integration тесты с Docker
+	@echo "$(BLUE)🔗 Запуск integration тестов с Docker...$(NC)"
+	@sleep 30
+	@export PYTHONPATH=$$PWD && \
+	 export DATABASE_URL=postgresql://test_user:test_password@localhost:5433/ai_test && \
+	 export REDIS_URL=redis://localhost:6380/0 && \
+	 export QDRANT_URL=http://localhost:6335 && \
+	 export TESTING=true && \
+	 $(PYTEST) $(PYTEST_ARGS) tests/integration/ --timeout=300
+	@$(MAKE) down-test
 
-##@ 🧪 Тестирование
-test: ## Запуск всех тестов
-	@echo "$(BLUE)🧪 Запуск всех тестов...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/ -v --tb=short
+test-e2e-docker: up-test-e2e load-test-data-e2e ## 🎭 E2E тесты с полным Docker окружением
+	@echo "$(BLUE)🎭 Запуск E2E тестов с полным окружением...$(NC)"
+	@echo "$(YELLOW)⏳ Ожидание готовности всех сервисов (3-5 минут)...$(NC)"
+	@sleep 180
+	@export PYTHONPATH=$$PWD && \
+	 export DATABASE_URL=postgresql://test_user:test_password@localhost:5433/ai_test && \
+	 export REDIS_URL=redis://localhost:6380/0 && \
+	 export QDRANT_URL=http://localhost:6335 && \
+	 export JIRA_URL=http://localhost:8082 && \
+	 export CONFLUENCE_URL=http://localhost:8083 && \
+	 export GITLAB_URL=http://localhost:8084 && \
+	 export TESTING=true && \
+	 $(PYTEST) $(PYTEST_ARGS) tests/e2e/ --timeout=600
+	@$(MAKE) down-test-e2e
 
-test-unit: ## Запуск unit тестов
-	@echo "$(BLUE)🔬 Запуск unit тестов...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/unit/ -v
-
-test-integration: ## Запуск integration тестов
-	@echo "$(BLUE)🔗 Запуск integration тестов...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/integration/ -v
-
-test-smoke: ## Запуск smoke тестов
-	@echo "$(BLUE)💨 Запуск smoke тестов...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/smoke/ -v
-
-test-e2e: ## Запуск e2e тестов
-	@echo "$(BLUE)🎭 Запуск e2e тестов...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest tests/e2e/ -v
-
-test-coverage: ## Тестирование с покрытием кода
-	@echo "$(BLUE)📊 Тестирование с покрытием...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/pytest --cov=app --cov-report=html --cov-report=term tests/
-	@echo "$(GREEN)📊 Отчет сохранен в htmlcov/index.html$(NC)"
-
-test-load: ## Запуск нагрузочных тестов
+test-load-docker: up-test-load ## ⚡ Нагрузочные тесты с Docker
 	@echo "$(BLUE)⚡ Запуск нагрузочных тестов...$(NC)"
+	@sleep 30
 	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/python tests/performance/test_core_functionality_load.py
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_LOAD) down
 
-##@ 🔍 Качество кода
-lint: ## Проверка кода линтерами
-	@echo "$(BLUE)🔍 Проверка кода...$(NC)"
-	./$(VENV)/bin/flake8 app/ tests/ || true
-	./$(VENV)/bin/pylint app/ --disable=C0114,C0116 || true
+##@ 📦 Управление данными
+load-test-data-basic: ## 📊 Загрузить базовые тестовые данные
+	@echo "$(GREEN)📊 Загрузка базовых тестовых данных...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) run --rm test-data-loader
 
-format: ## Форматирование кода
-	@echo "$(BLUE)✨ Форматирование кода...$(NC)"
-	./$(VENV)/bin/black app/ tests/ || true
-	./$(VENV)/bin/isort app/ tests/ || true
+load-test-data-e2e: ## 📊 Загрузить данные для E2E тестов
+	@echo "$(GREEN)📊 Загрузка данных для E2E тестов...$(NC)"
+	cd $(DOCKER_PATH) && LOAD_E2E_DATA=true $(DOCKER_COMPOSE) $(COMPOSE_TEST) --profile e2e run --rm test-data-loader
 
-format-check: ## Проверка форматирования
-	@echo "$(BLUE)📏 Проверка форматирования...$(NC)"
-	./$(VENV)/bin/black --check app/ tests/ || true
-	./$(VENV)/bin/isort --check-only app/ tests/ || true
+clean-test-data: ## 🧹 Очистить тестовые данные
+	@echo "$(YELLOW)🧹 Очистка тестовых данных...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) down -v
 
-##@ ⎈ Kubernetes & Helm
-helm-install: ## Установка через Helm
-	@echo "$(PURPLE)⎈ Установка через Helm...$(NC)"
-	@$(HELM) install ai-assistant deployment/helm/ai-assistant/ \
-		--namespace ai-assistant \
-		--create-namespace \
-		--values deployment/helm/ai-assistant/values.yaml \
-		--wait
-	@echo "$(GREEN)✅ Helm установка завершена$(NC)"
+##@ 🔨 Сборка и развертывание
+build-dev: ## 🔨 Собрать образы для разработки
+	@echo "$(BLUE)🔨 Сборка образов для разработки...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) build
 
-helm-upgrade: ## Обновление Helm релиза
-	@echo "$(PURPLE)⎈ Обновление Helm релиза...$(NC)"
-	@$(HELM) upgrade ai-assistant deployment/helm/ai-assistant/ \
-		--namespace ai-assistant \
-		--values deployment/helm/ai-assistant/values.yaml \
-		--wait
-	@echo "$(GREEN)✅ Helm обновление завершено$(NC)"
+build-test: ## 🔨 Собрать образы для тестов
+	@echo "$(BLUE)🔨 Сборка образов для тестов...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) build
 
-helm-uninstall: ## Удаление Helm релиза
-	@echo "$(RED)⎈ Удаление Helm релиза...$(NC)"
-	@$(HELM) uninstall ai-assistant --namespace ai-assistant
-	@echo "$(GREEN)✅ Helm удаление завершено$(NC)"
+build-all: ## 🔨 Собрать все образы
+	@echo "$(BLUE)🔨 Сборка всех образов...$(NC)"
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_DEV) build
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_TEST) build
+	cd $(DOCKER_PATH) && $(DOCKER_COMPOSE) $(COMPOSE_FULL) build
 
-helm-status: ## Статус Helm деплоя
-	@echo "$(BLUE)⎈ Статус Helm:$(NC)"
-	@$(HELM) status ai-assistant --namespace ai-assistant
+##@ 🎯 Быстрые команды для разработчиков
+quick-test: ## ⚡ Быстрое тестирование (только unit, без Docker)
+	@echo "$(BLUE)⚡ Быстрое unit тестирование...$(NC)"
+	@export PYTHONPATH=$$PWD && $(PYTEST) $(PYTEST_ARGS) tests/unit/ -x --tb=short -q
 
-helm-logs: ## Логи Helm деплоя
-	@echo "$(GREEN)⎈ Логи Helm:$(NC)"
-	@$(KUBECTL) logs -l app.kubernetes.io/name=ai-assistant -n ai-assistant -f
+quick-test-file: ## ⚡ Быстрое тестирование файла (make quick-test-file FILE=tests/unit/test_file.py)
+	@if [ -z "$(FILE)" ]; then echo "$(RED)Укажите файл: make quick-test-file FILE=tests/unit/test_file.py$(NC)"; exit 1; fi
+	@echo "$(BLUE)⚡ Тестирование файла $(FILE)...$(NC)"
+	@export PYTHONPATH=$$PWD && $(PYTEST) $(PYTEST_ARGS) $(FILE) -v
 
-##@ 📊 Мониторинг и диагностика
-health: ## Проверка здоровья системы
-	@echo "$(BLUE)🏥 Проверка здоровья системы...$(NC)"
-	@curl -f http://localhost:8000/health 2>/dev/null | jq . || echo "$(RED)❌ API недоступен$(NC)"
+dev-reset: down-dev up-dev ## 🔄 Быстрый перезапуск окружения разработки
 
-health-detailed: ## Детальная проверка здоровья
-	@echo "$(BLUE)🔬 Детальная диагностика...$(NC)"
-	@export PYTHONPATH=$$PWD && ./$(VENV)/bin/python debug_helper.py basic || true
+test-reset: down-test up-test ## 🔄 Быстрый перезапуск тестового окружения
 
-logs: ## Просмотр логов приложения
-	@echo "$(BLUE)📋 Логи приложения...$(NC)"
-	@tail -f logs/app.log 2>/dev/null || echo "$(YELLOW)Файл логов не найден$(NC)"
-
-monitor: ## Запуск мониторинга
-	@echo "$(BLUE)📊 Запуск мониторинга...$(NC)"
-	@$(DOCKER_COMPOSE) -f monitoring/docker-compose.monitoring.yml up -d || true
-	@echo "$(GREEN)Grafana: http://localhost:3001$(NC)"
-	@echo "$(GREEN)Prometheus: http://localhost:9090$(NC)"
-
-##@ 🧹 Очистка
-clean: ## Очистка временных файлов
-	@echo "$(YELLOW)🧹 Очистка временных файлов...$(NC)"
-	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
-	rm -rf .pytest_cache/ htmlcov/ .coverage 2>/dev/null || true
-	@echo "$(GREEN)✅ Временные файлы удалены$(NC)"
-
-clean-docker: ## Очистка Docker ресурсов
-	@echo "$(RED)🐳 Очистка Docker ресурсов...$(NC)"
-	docker system prune -f
-	docker volume prune -f
-	@echo "$(GREEN)✅ Docker ресурсы очищены$(NC)"
-
-clean-all: clean clean-docker dev-infra-clean ## Полная очистка
-	@echo "$(GREEN)✅ Полная очистка завершена$(NC)"
-
-##@ 📦 Продакшн деплой
-build: ## Сборка Docker образов
-	@echo "$(BLUE)🐳 Сборка Docker образов...$(NC)"
-	docker build -t ai-assistant:latest .
-	docker build -f deployment/docker/Dockerfile.prod -t ai-assistant:prod .
-
-deploy-prod: build ## Продакшн развертывание
-	@echo "$(GREEN)🏭 Продакшн развертывание...$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.prod.yml up -d
-
-deploy-local: build ## Локальное развертывание через Docker
-	@echo "$(GREEN)🚀 Локальное развертывание...$(NC)"
-	@$(DOCKER_COMPOSE) -f deployment/docker/docker-compose.simple.yml up -d
-
-##@ ℹ️ Информация
-status: ## Статус всех систем
-	@echo "$(BLUE)📊 Статус всех систем:$(NC)"
-	@echo "$(GREEN)Docker контейнеры:$(NC)"
-	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+##@ 📚 Документация и справка
+docs-docker: ## 📚 Показать документацию по Docker окружениям
+	@echo "$(GREEN)📚 AI Assistant - Docker Environments Documentation$(NC)"
 	@echo ""
-	@echo "$(GREEN)Kubernetes pods:$(NC)"
-	@$(KUBECTL) get pods -n ai-assistant 2>/dev/null || echo "Kubernetes недоступен"
-
-info: ## Информация о проекте
-	@echo "$(GREEN)🤖 AI Assistant Platform$(NC)"
-	@echo "$(BLUE)Версия:$(NC) 1.0.0"
-	@echo "$(BLUE)Python:$(NC) $$(python3 --version 2>/dev/null || echo 'Не установлен')"
-	@echo "$(BLUE)Docker:$(NC) $$(docker --version 2>/dev/null | head -1 || echo 'Не установлен')"
-	@echo "$(BLUE)Kubernetes:$(NC) $$(kubectl version --client --short 2>/dev/null || echo 'Недоступен')"
+	@echo "$(CYAN)🔧 Development Environments:$(NC)"
+	@echo "  make up-dev          - Только инфраструктура (БД, Redis, Qdrant)"
+	@echo "  make up-dev-full     - + админ панели (Adminer, Redis UI)"
+	@echo "  make up-dev-with-llm - + локальный LLM (Ollama)"
+	@echo "  make up-dev-monitoring - + мониторинг (Grafana, Prometheus)"
 	@echo ""
-	@echo "$(GREEN)🌐 Доступные сервисы после запуска:$(NC)"
-	@echo "  API:           http://localhost:8000"
-	@echo "  Docs:          http://localhost:8000/docs"
-	@echo "  Health:        http://localhost:8000/health"
-	@echo "  Frontend:      http://localhost:3000"
-	@echo "  Adminer:       http://localhost:8080"
-	@echo "  Redis UI:      http://localhost:8081"
-	@echo "  Qdrant UI:     http://localhost:6333/dashboard"
-	@echo "  MailHog:       http://localhost:8025"
-	@echo "  Grafana:       http://localhost:3001"
-	@echo "  Prometheus:    http://localhost:9090"
+	@echo "$(CYAN)🧪 Test Environments:$(NC)"
+	@echo "  make up-test         - Базовое тестовое окружение"
+	@echo "  make up-test-e2e     - Полное E2E окружение (+ Jira, Confluence, GitLab)"
+	@echo "  make up-test-load    - Нагрузочное тестирование"
+	@echo ""
+	@echo "$(CYAN)🧪 Test Commands:$(NC)"
+	@echo "  make test-with-docker      - Все тесты с Docker"
+	@echo "  make test-unit-docker      - Unit тесты с Docker"  
+	@echo "  make test-integration-docker - Integration тесты с Docker"
+	@echo "  make test-e2e-docker       - E2E тесты с полным окружением"
+	@echo "  make test-load-docker      - Нагрузочные тесты"
+	@echo ""
+	@echo "$(CYAN)⚡ Quick Commands:$(NC)"
+	@echo "  make quick-test           - Быстрые unit тесты (без Docker)"
+	@echo "  make quick-test-file FILE=path - Тест конкретного файла"
+	@echo "  make dev-reset           - Перезапуск разработки"
+	@echo "  make test-reset          - Перезапуск тестов"
+
+help-docker: docs-docker ## Алиас для docs-docker
 
 # Значение по умолчанию
 .DEFAULT_GOAL := help
@@ -360,4 +394,16 @@ info: ## Информация о проекте
 docker-up: system-up
 docker-down: system-down
 docker-logs: system-logs
-docker-status: system-status 
+docker-status: system-status
+
+# Дополнительные команды
+load-test-data: ## Загрузить тестовые данные
+	@echo "📊 Loading test data..."
+	python tools/scripts/create_data.py
+
+backup-db: ## Создать бэкап базы данных
+	@echo "💾 Creating database backup..."
+	pg_dump ai_assistant > backup_$(shell date +%Y%m%d_%H%M%S).sql
+
+# Значение по умолчанию
+.DEFAULT_GOAL := help 

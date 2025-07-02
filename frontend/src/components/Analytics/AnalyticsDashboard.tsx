@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Grid,
   Card,
   CardContent,
   Typography,
+  Grid,
+  Alert,
   Tabs,
   Tab,
   FormControl,
@@ -12,20 +13,19 @@ import {
   Select,
   MenuItem,
   Button,
-  Alert,
   CircularProgress,
   Chip,
   Stack
 } from '@mui/material';
 import {
   TrendingUp,
+  TrendingDown,
   AttachMoney,
   Speed,
-  People,
-  Timeline,
-  Assessment,
   Warning,
-  CheckCircle
+  CheckCircle,
+  Assessment,
+  Timeline
 } from '@mui/icons-material';
 import { Line, Bar, Pie } from 'react-chartjs-2';
 import {
@@ -56,6 +56,21 @@ ChartJS.register(
   Filler
 );
 
+// Chart colors and styles
+const chartColors = {
+  primary: '#1976d2',
+  secondary: '#dc004e',
+  success: '#2e7d32',
+  warning: '#ed6c02',
+  error: '#d32f2f',
+  info: '#0288d1',
+  gradients: {
+    blue: ['rgba(25, 118, 210, 0.8)', 'rgba(25, 118, 210, 0.1)'],
+    green: ['rgba(46, 125, 50, 0.8)', 'rgba(46, 125, 50, 0.1)'],
+    orange: ['rgba(237, 108, 2, 0.8)', 'rgba(237, 108, 2, 0.1)']
+  }
+};
+
 interface MetricCard {
   title: string;
   value: string | number;
@@ -75,6 +90,15 @@ interface DashboardData {
   optimization_opportunities?: any[];
   insights?: any[];
   generated_at?: string;
+  error_analytics?: {
+    error_rate_percent: number;
+    total_errors: number;
+    top_errors?: any[];
+  };
+  cost_by_service?: any[];
+  response_time_trends?: any[];
+  slowest_endpoints?: any[];
+  performance_insights?: any[];
 }
 
 interface AnalyticsDashboardProps {
@@ -84,54 +108,27 @@ interface AnalyticsDashboardProps {
 
 const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId, isAdmin = false }) => {
   const [activeTab, setActiveTab] = useState(0);
-  const [timeRange, setTimeRange] = useState('last_7_days');
+  const [timeRange, setTimeRange] = useState('last_24_hours');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData>({});
 
-  // Chart theme colors
-  const chartColors = {
-    primary: '#1976d2',
-    secondary: '#dc004e',
-    success: '#2e7d32',
-    warning: '#ed6c02',
-    info: '#0288d1',
-    gradients: {
-      blue: ['rgba(25, 118, 210, 0.8)', 'rgba(25, 118, 210, 0.1)'],
-      green: ['rgba(46, 125, 50, 0.8)', 'rgba(46, 125, 50, 0.1)'],
-      orange: ['rgba(237, 108, 2, 0.8)', 'rgba(237, 108, 2, 0.1)']
-    }
-  };
-
   useEffect(() => {
     loadDashboardData();
-  }, [activeTab, timeRange, userId]);
+  }, [timeRange, userId]);
 
   const loadDashboardData = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      const endpoints = [
-        { tab: 0, endpoint: '/api/v1/analytics/dashboard/usage' },
-        { tab: 1, endpoint: '/api/v1/analytics/dashboard/cost' },
-        { tab: 2, endpoint: '/api/v1/analytics/dashboard/performance' }
-      ];
-
-      const currentEndpoint = endpoints.find(e => e.tab === activeTab);
-      if (!currentEndpoint) return;
-
-      const response = await fetch(currentEndpoint.endpoint, {
-        method: 'POST',
+      const token = localStorage.getItem('auth_token');
+      const endpoint = isAdmin ? '/analytics/admin/dashboard' : '/analytics/dashboard';
+      
+      const response = await fetch(`${endpoint}?time_range=${timeRange}${userId ? `&user_id=${userId}` : ''}`, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          time_range: timeRange,
-          user_id: userId,
-          aggregation: 'daily'
-        })
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
@@ -139,36 +136,12 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId, isAdmin
       }
 
       const data = await response.json();
-      setDashboardData(data.data || {});
-
-      // Load insights if admin
-      if (isAdmin && activeTab <= 2) {
-        await loadInsights();
-      }
-
+      setDashboardData(data);
     } catch (err) {
-      console.error('Failed to load dashboard data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      console.error('Dashboard data loading error:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadInsights = async () => {
-    try {
-      const insightType = activeTab === 1 ? 'cost' : 'performance';
-      const response = await fetch(`/api/v1/analytics/insights/${insightType}?time_range=${timeRange}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const insights = await response.json();
-        setDashboardData(prev => ({ ...prev, insights: insights.insights }));
-      }
-    } catch (err) {
-      console.error('Failed to load insights:', err);
     }
   };
 
@@ -185,7 +158,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId, isAdmin
           {
             title: 'Unique Users',
             value: dashboardData.top_features?.length || 0,
-            icon: <People />,
+            icon: <Timeline />,
             color: chartColors.success
           },
           {
@@ -240,13 +213,13 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId, isAdmin
           },
           {
             title: 'Error Rate',
-            value: `${dashboardData.error_rates?.error_rate_percent || 0}%`,
+            value: `${dashboardData.error_analytics?.error_rate_percent || 0}%`,
             icon: <Warning />,
-            color: dashboardData.error_rates?.error_rate_percent > 5 ? chartColors.secondary : chartColors.success
+            color: dashboardData.error_analytics?.error_rate_percent > 5 ? chartColors.secondary : chartColors.success
           },
           {
             title: 'Total Requests',
-            value: dashboardData.error_rates?.total_requests || 0,
+            value: dashboardData.error_analytics?.total_requests || 0,
             icon: <Timeline />,
             color: chartColors.info
           },
@@ -299,7 +272,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId, isAdmin
 
     return (
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -328,7 +301,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ userId, isAdmin
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

@@ -1,12 +1,16 @@
 import apiClient from './client';
 
-export interface ChatResponse {
+export interface ChatMessage {
+  id: string;
   content: string;
+  timestamp: string;
+  type: 'user' | 'assistant';
   metadata?: {
     searchResults?: SearchResult[];
     rfcData?: RFCData;
     documentationData?: DocumentationData;
     error?: string;
+    isStreaming?: boolean;
   };
 }
 
@@ -16,7 +20,7 @@ export interface SearchResult {
   content: string;
   source: string;
   score: number;
-  url?: string;
+  metadata?: any;
 }
 
 export interface RFCData {
@@ -32,6 +36,7 @@ export interface RFCData {
   completeness?: number;
   questions?: AIQuestion[];
   is_ready_to_generate?: boolean;
+  metadata?: any;
 }
 
 export interface AIQuestion {
@@ -45,15 +50,21 @@ export interface AIQuestion {
 }
 
 export interface DocumentationData {
-  language: string;
-  file_path: string;
-  documentation_type: string;
-  coverage: number;
-  sections: Array<{
-    title: string;
-    content: string;
-    type: string;
-  }>;
+  title: string;
+  content: string;
+  sections: DocumentationSection[];
+  file_tree?: string;
+  summary?: string;
+  language?: string;
+  file_path?: string;
+  documentation_type?: string;
+  coverage?: number;
+}
+
+export interface DocumentationSection {
+  title: string;
+  content: string;
+  type: 'overview' | 'api' | 'examples' | 'installation' | 'usage';
 }
 
 export interface SearchRequest {
@@ -91,19 +102,66 @@ export interface DocumentationRequest {
   doc_type?: string;
 }
 
+export interface ChatResponse {
+  response: string;
+  sources?: Array<{
+    title: string;
+    content: string;
+    source: string;
+    url?: string;
+  }>;
+  conversationId?: string;
+  error?: string;
+}
+
+export interface ApiSearchResponse {
+  id: string;
+  timestamp: string;
+  results: SearchResult[];
+}
+
+export interface ApiGenerateResponse {
+  id: string;
+  timestamp: string;
+  session_id?: string;
+  questions?: any[];
+  is_ready_to_generate?: boolean;
+  rfc_content?: string;
+  content?: string;
+  sections?: any[];
+}
+
+export interface ApiDocumentationResponse {
+  id: string;
+  timestamp: string;
+  documentation?: string;
+  language?: string;
+  coverage?: number;
+  sections?: any[];
+}
+
+export interface ApiResponse<T = any> {
+  data: T;
+  success: boolean;
+  error?: string;
+}
+
 class ChatApi {
   // Semantic Search
-  async search(query: string, attachments?: File[]): Promise<ChatResponse> {
+  async search(query: string, _attachments?: File[]): Promise<ChatMessage> {
     try {
       const searchRequest: SearchRequest = {
         query,
         limit: 10,
       };
 
-      const response = await apiClient.post('/api/v1/vector-search/search', searchRequest);
+      const response = await apiClient.post('/api/v1/vector-search/search', searchRequest) as ApiSearchResponse;
       
       return {
+        id: response.id,
         content: this.formatSearchResults(response.results || []),
+        timestamp: response.timestamp,
+        type: 'assistant',
         metadata: {
           searchResults: response.results || [],
         },
@@ -111,7 +169,10 @@ class ChatApi {
     } catch (error) {
       console.error('Search API error:', error);
       return {
+        id: '',
         content: 'Sorry, I encountered an error while searching. Please try again.',
+        timestamp: '',
+        type: 'assistant',
         metadata: {
           error: error instanceof Error ? error.message : 'Search failed',
         },
@@ -120,7 +181,7 @@ class ChatApi {
   }
 
   // RFC Generation - Start Session
-  async generateRFC(description: string, taskType: 'new_feature' | 'modify_existing' | 'analyze_current' = 'new_feature'): Promise<ChatResponse> {
+  async generateRFC(description: string, taskType: 'new_feature' | 'modify_existing' | 'analyze_current' = 'new_feature'): Promise<ChatMessage> {
     try {
       // Get current user ID (in real app, this would come from auth context)
       const userId = 'admin_001'; // TODO: Get from auth context
@@ -133,7 +194,7 @@ class ChatApi {
       };
 
       console.log('Sending RFC generation request:', generateRequest);
-      const response = await apiClient.post('/api/v1/generate', generateRequest);
+      const response = await apiClient.post('/api/v1/generate', generateRequest) as ApiGenerateResponse;
       console.log('RFC generation response:', response);
       
       // Format response for chat
@@ -166,7 +227,10 @@ class ChatApi {
         content += "Please answer these questions to continue with RFC generation.";
 
         return {
+          id: response.id,
           content,
+          timestamp: response.timestamp,
+          type: 'assistant',
           metadata: {
             rfcData: {
               session_id: response.session_id || `session_${Date.now()}`,
@@ -183,7 +247,10 @@ class ChatApi {
         content += "Generating RFC directly from your description...";
         
         return {
+          id: response.id,
           content: response.rfc_content || response.content || content,
+          timestamp: response.timestamp,
+          type: 'assistant',
           metadata: {
             rfcData: {
               session_id: response.session_id || `session_${Date.now()}`,
@@ -198,7 +265,10 @@ class ChatApi {
     } catch (error) {
       console.error('RFC Generation API error:', error);
       return {
+        id: '',
         content: 'Sorry, I encountered an error while generating the RFC. Please try again.',
+        timestamp: '',
+        type: 'assistant',
         metadata: {
           error: error instanceof Error ? error.message : 'RFC generation failed',
         },
@@ -220,14 +290,14 @@ class ChatApi {
   }
 
   // RFC Generation - Answer Questions
-  async answerRFCQuestions(sessionId: string, answers: Array<{ question_id: string; answer: string }>): Promise<ChatResponse> {
+  async answerRFCQuestions(sessionId: string, answers: Array<{ question_id: string; answer: string }>): Promise<ChatMessage> {
     try {
       const answerRequest: AnswerRequest = {
         session_id: sessionId,
         answers,
       };
 
-      const response = await apiClient.post('/api/v1/generate/answer', answerRequest);
+      const response = await apiClient.post('/api/v1/generate/answer', answerRequest) as ApiGenerateResponse;
       
       let content = "Thank you for your answers!\n\n";
       
@@ -248,7 +318,10 @@ class ChatApi {
       }
       
       return {
+        id: response.id,
         content,
+        timestamp: response.timestamp,
+        type: 'assistant',
         metadata: {
           rfcData: {
             session_id: sessionId,
@@ -263,7 +336,10 @@ class ChatApi {
     } catch (error) {
       console.error('Answer RFC Questions API error:', error);
       return {
+        id: '',
         content: 'Sorry, I encountered an error while processing your answers. Please try again.',
+        timestamp: '',
+        type: 'assistant',
         metadata: {
           error: error instanceof Error ? error.message : 'Failed to process answers',
         },
@@ -272,17 +348,20 @@ class ChatApi {
   }
 
   // RFC Generation - Finalize
-  async finalizeRFC(sessionId: string, additionalRequirements?: string): Promise<ChatResponse> {
+  async finalizeRFC(sessionId: string, additionalRequirements?: string): Promise<ChatMessage> {
     try {
       const finalizeRequest: FinalizeRequest = {
         session_id: sessionId,
         additional_requirements: additionalRequirements,
       };
 
-      const response = await apiClient.post('/api/v1/generate/finalize', finalizeRequest);
+      const response = await apiClient.post('/api/v1/generate/finalize', finalizeRequest) as ApiGenerateResponse & { rfc?: any };
       
       return {
+        id: response.id,
         content: response.rfc?.content || 'RFC generated successfully!',
+        timestamp: response.timestamp,
+        type: 'assistant',
         metadata: {
           rfcData: {
             session_id: sessionId,
@@ -298,7 +377,10 @@ class ChatApi {
     } catch (error) {
       console.error('Finalize RFC API error:', error);
       return {
+        id: '',
         content: 'Sorry, I encountered an error while finalizing the RFC. Please try again.',
+        timestamp: '',
+        type: 'assistant',
         metadata: {
           error: error instanceof Error ? error.message : 'RFC finalization failed',
         },
@@ -317,19 +399,24 @@ class ChatApi {
   }
 
   // Code Documentation
-  async generateDocumentation(description: string, attachments?: File[]): Promise<ChatResponse> {
+  async generateDocumentation(description: string, attachments?: File[]): Promise<ChatMessage> {
     try {
       if (attachments && attachments.length > 0) {
         // Upload file and generate documentation
         const file = attachments[0];
         const response = await apiClient.uploadFile('/api/v1/documentation/analyze', file, {
           doc_type: 'comprehensive',
-        });
+        }) as ApiDocumentationResponse;
 
         return {
+          id: response.id,
           content: response.documentation || 'Documentation generated successfully',
+          timestamp: response.timestamp,
+          type: 'assistant',
           metadata: {
             documentationData: {
+              title: file.name,
+              content: response.documentation || 'Documentation generated successfully',
               language: response.language || 'unknown',
               file_path: file.name,
               documentation_type: 'comprehensive',
@@ -345,12 +432,17 @@ class ChatApi {
           doc_type: 'comprehensive',
         };
 
-        const response = await apiClient.post('/api/v1/documentation/generate', docRequest);
+        const response = await apiClient.post('/api/v1/documentation/generate', docRequest) as ApiDocumentationResponse;
         
         return {
+          id: response.id,
           content: response.documentation || 'Documentation generated successfully',
+          timestamp: response.timestamp,
+          type: 'assistant',
           metadata: {
             documentationData: {
+              title: 'inline',
+              content: response.documentation || 'Documentation generated successfully',
               language: response.language || 'unknown',
               file_path: 'inline',
               documentation_type: 'comprehensive',
@@ -363,7 +455,10 @@ class ChatApi {
     } catch (error) {
       console.error('Documentation API error:', error);
       return {
+        id: '',
         content: 'Sorry, I encountered an error while generating documentation. Please try again.',
+        timestamp: '',
+        type: 'assistant',
         metadata: {
           error: error instanceof Error ? error.message : 'Documentation generation failed',
         },
@@ -372,7 +467,7 @@ class ChatApi {
   }
 
   // General chat (fallback to search)
-  async general(message: string, attachments?: File[]): Promise<ChatResponse> {
+  async general(message: string, attachments?: File[]): Promise<ChatMessage> {
     // For general messages, we can use search as a fallback
     // or implement a general chat endpoint if available
     return this.search(message, attachments);
@@ -418,7 +513,7 @@ class ChatApi {
   // Authentication helper
   async login(email: string, password: string): Promise<{ access_token: string; user: any }> {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await apiClient.post('/auth/login', { email, password }) as { access_token: string; user: any };
       return response;
     } catch (error) {
       console.error('Login error:', error);
@@ -435,6 +530,9 @@ class ChatApi {
       throw error;
     }
   }
+
+  // These methods are now handled by the instance methods above
+  // Removing duplicates to fix TypeScript issues
 }
 
 export const chatApi = new ChatApi();

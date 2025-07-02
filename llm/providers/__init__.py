@@ -1,11 +1,6 @@
 """
-LLM Providers package.
+LLM Providers - Compatibility wrapper
+"""
 
-Unified interface for multiple LLM providers:
-- OpenAI (GPT-4, GPT-3.5)
-- Anthropic (Claude)
-- Cohere
-- Ollama (local models)
-- Azure OpenAI
-- Google PaLM
-""" 
+# Re-export everything from adapters.llm.providers
+from adapters.llm.providers import * 
