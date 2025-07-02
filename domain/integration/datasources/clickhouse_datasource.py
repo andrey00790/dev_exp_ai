@@ -10,7 +10,14 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
-import clickhouse_connect
+# Optional ClickHouse imports
+try:
+    import clickhouse_connect
+    CLICKHOUSE_AVAILABLE = True
+except ImportError:
+    CLICKHOUSE_AVAILABLE = False
+    clickhouse_connect = None
+
 from dataclasses import dataclass
 
 from ..datasource_interface import (
@@ -51,6 +58,8 @@ class ClickHouseDataSource(DataSourceInterface):
 
     def __init__(self, config: DataSourceConfig):
         super().__init__(config)
+        if not CLICKHOUSE_AVAILABLE:
+            raise ImportError("clickhouse_connect package is required for ClickHouse datasource")
         self.client: Optional[clickhouse_connect.driver.Client] = None
         self.ch_config: ClickHouseConnectionConfig = self._parse_config(config.connection_params)
         self._last_sync_timestamp: Optional[datetime] = None

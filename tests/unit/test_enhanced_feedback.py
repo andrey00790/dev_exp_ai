@@ -25,7 +25,7 @@ class TestEnhancedFeedbackService:
     """Тесты для EnhancedFeedbackService"""
 
     @pytest.fixture
-    async def feedback_service(self):
+    def feedback_service(self):
         """Создание экземпляра сервиса для тестирования"""
         # Мокаем PubSub endpoint
         mock_pubsub = AsyncMock()
@@ -654,11 +654,12 @@ class TestFeedbackAnalytics:
     """Тесты для аналитических функций"""
 
     @pytest.fixture
-    async def populated_service(self):
-        """Сервис с предзаполненными данными для аналитики"""
-        service = EnhancedFeedbackService()
+    def populated_service(self):
+        """Сервис для аналитики (будет заполнен в тестах)"""
+        return EnhancedFeedbackService()
 
-        # Создаем разнообразный feedback
+    async def _populate_service(self, service):
+        """Хелпер для заполнения сервиса тестовыми данными"""
         test_data = [
             (
                 "user1",
@@ -749,7 +750,8 @@ class TestFeedbackAnalytics:
     @pytest.mark.asyncio
     async def test_like_ratio_calculation(self, populated_service):
         """Тест вычисления соотношения лайков"""
-        summary = await populated_service.get_content_feedback("content1")
+        service = await self._populate_service(populated_service)
+        summary = await service.get_content_feedback("content1")
 
         # content1: 2 лайка, 1 дизлайк = 2/3 = 0.67
         assert abs(summary.like_ratio - 2 / 3) < 0.01
@@ -757,7 +759,8 @@ class TestFeedbackAnalytics:
     @pytest.mark.asyncio
     async def test_average_rating_calculation(self, populated_service):
         """Тест вычисления среднего рейтинга"""
-        summary = await populated_service.get_content_feedback("content2")
+        service = await self._populate_service(populated_service)
+        summary = await service.get_content_feedback("content2")
 
         # content2: рейтинги 5 и 4 = среднее 4.5
         assert summary.avg_rating == 4.5
@@ -765,7 +768,8 @@ class TestFeedbackAnalytics:
     @pytest.mark.asyncio
     async def test_sentiment_distribution(self, populated_service):
         """Тест распределения тональности"""
-        summary = await populated_service.get_content_feedback("content3")
+        service = await self._populate_service(populated_service)
+        summary = await service.get_content_feedback("content3")
 
         # content3: "Great!" (positive) и "Terrible" (negative)
         assert summary.sentiment_distribution.get("positive", 0) == 1
@@ -774,7 +778,8 @@ class TestFeedbackAnalytics:
     @pytest.mark.asyncio
     async def test_engagement_metrics(self, populated_service):
         """Тест метрик вовлечения"""
-        analytics = await populated_service.get_feedback_analytics()
+        service = await self._populate_service(populated_service)
+        analytics = await service.get_feedback_analytics()
 
         engagement = analytics["engagement_metrics"]
         assert "feedback_per_day" in engagement

@@ -10,12 +10,12 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 # API test imports
 from fastapi.testclient import TestClient
-from vectorstore.collections import (CollectionManager, CollectionType,
-                                     DocumentMetadata, get_collection_manager)
-from vectorstore.embeddings import (DocumentChunker, OpenAIEmbeddings,
+from adapters.vectorstore.collections import (CollectionManager, CollectionType,
+                                     DocumentMetadata)
+from adapters.vectorstore.embeddings import (DocumentChunker, OpenAIEmbeddings,
                                     get_embeddings_service)
 # Test imports
-from vectorstore.qdrant_client import QdrantVectorStore, get_qdrant_client
+from adapters.vectorstore.qdrant_client import QdrantVectorStore, get_qdrant_client
 
 from app.main import app
 from domain.integration.vector_search_service import (
@@ -29,7 +29,7 @@ pytestmark = pytest.mark.integration
 @pytest.fixture
 def mock_embeddings():
     """Mock embeddings service for testing."""
-    with patch("vectorstore.embeddings.OpenAIEmbeddings") as mock:
+    with patch("adapters.vectorstore.embeddings.OpenAIEmbeddings") as mock:
         mock_instance = Mock()
         mock_instance.embed_text = AsyncMock()
         mock_instance.embed_texts = AsyncMock()
@@ -41,7 +41,7 @@ def mock_embeddings():
 @pytest.fixture
 def mock_qdrant():
     """Mock Qdrant client for testing."""
-    with patch("vectorstore.qdrant_client.QdrantVectorStore") as mock:
+    with patch("adapters.vectorstore.qdrant_client.QdrantVectorStore") as mock:
         mock_instance = Mock()
         mock_instance.health_check.return_value = {
             "status": "healthy",
@@ -255,7 +255,7 @@ class TestCollectionManager:
     @pytest.mark.asyncio
     async def test_collection_initialization(self):
         """Test collection initialization."""
-        with patch("vectorstore.collections.get_qdrant_client") as mock_get_client:
+        with patch("adapters.vectorstore.collections.get_qdrant_client") as mock_get_client:
             mock_get_client.return_value = self.mock_qdrant
 
             manager = CollectionManager()
@@ -268,7 +268,7 @@ class TestCollectionManager:
     async def test_document_indexing(self):
         """Test document indexing process."""
         # Mock embedding result
-        from vectorstore.embeddings import EmbeddingResult
+        from adapters.vectorstore.embeddings import EmbeddingResult
 
         mock_embedding = EmbeddingResult(
             text="test text", vector=[0.1] * 1536, token_count=10, cost_estimate=0.001
@@ -281,9 +281,9 @@ class TestCollectionManager:
         self.mock_qdrant.create_collection.return_value = True
 
         with patch(
-            "vectorstore.collections.get_qdrant_client"
+            "adapters.vectorstore.collections.get_qdrant_client"
         ) as mock_get_client, patch(
-            "vectorstore.collections.get_embeddings_service"
+            "adapters.vectorstore.collections.get_embeddings_service"
         ) as mock_get_embeddings:
 
             mock_get_client.return_value = self.mock_qdrant
@@ -311,7 +311,7 @@ class TestCollectionManager:
     async def test_document_search(self):
         """Test document search functionality."""
         # Mock embedding result
-        from vectorstore.embeddings import EmbeddingResult
+        from adapters.vectorstore.embeddings import EmbeddingResult
 
         mock_embedding = EmbeddingResult(
             text="search query", vector=[0.1] * 1536, token_count=5, cost_estimate=0.001
@@ -336,9 +336,9 @@ class TestCollectionManager:
         self.mock_qdrant.collection_exists.return_value = True
 
         with patch(
-            "vectorstore.collections.get_qdrant_client"
+            "adapters.vectorstore.collections.get_qdrant_client"
         ) as mock_get_client, patch(
-            "vectorstore.collections.get_embeddings_service"
+            "adapters.vectorstore.collections.get_embeddings_service"
         ) as mock_get_embeddings:
 
             mock_get_client.return_value = self.mock_qdrant

@@ -118,7 +118,7 @@ class TestMetricsHandlers:
         assert "media_type" in result
         assert result["media_type"] == "text/plain; version=0.0.4; charset=utf-8"
 
-    @patch("app.monitoring.metrics.logger")
+    @patch("infra.monitoring.metrics.logger")
     def test_initialize_app_info(self, mock_logger):
         """Test app info initialization."""
         initialize_app_info("1.0.0", "test")
@@ -165,7 +165,7 @@ class TestMetricsMiddleware:
     """Test metrics middleware."""
 
     @patch("app.monitoring.metrics.time.time")
-    @patch("app.monitoring.metrics.logger")
+    @patch("infra.monitoring.metrics.logger")
     async def test_metrics_middleware_success(self, mock_logger, mock_time):
         """Test metrics middleware with successful request."""
         from app.monitoring.metrics import metrics_middleware
@@ -187,14 +187,10 @@ class TestMetricsMiddleware:
         assert result == mock_response
         mock_logger.error.assert_not_called()
 
-    @patch("app.monitoring.metrics.time.time")
-    @patch("app.monitoring.metrics.logger")
-    async def test_metrics_middleware_error(self, mock_logger, mock_time):
+    @patch("infra.monitoring.metrics.logger")
+    async def test_metrics_middleware_error(self, mock_logger):
         """Test metrics middleware with error."""
         from app.monitoring.metrics import metrics_middleware
-
-        # Mock time progression
-        mock_time.side_effect = [1000.0, 1001.0]  # 1 second duration
 
         # Mock request
         mock_request = MagicMock()

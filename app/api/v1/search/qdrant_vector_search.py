@@ -8,9 +8,9 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from vectorstore.collections import (CollectionType, DocumentMetadata,
+from adapters.vectorstore.collections import (CollectionType, DocumentMetadata,
                                      get_collection_manager)
-from vectorstore.qdrant_client import get_qdrant_client
+from adapters.vectorstore.qdrant_client import get_qdrant_client
 
 from infra.monitoring.metrics import record_semantic_search_metrics
 from app.security.auth import get_current_user, require_admin

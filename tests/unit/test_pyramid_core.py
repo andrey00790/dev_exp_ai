@@ -13,7 +13,7 @@ import pytest
 
 # Import core modules to test
 try:
-    from vectorstore.embeddings import EmbeddingService
+    from adapters.vectorstore.embeddings import EmbeddingService
 
     from app.security.auth import AuthService
     from app.security.hipaa_compliance import HIPAAComplianceService

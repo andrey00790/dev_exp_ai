@@ -414,13 +414,13 @@ class MermaidDiagramGenerator:
         return "\n".join(lines)
 
     def generate_component_diagram(
-        self, component: ComponentAnalysis, config: Optional[DiagramConfig] = None
+        self, component, config: Optional[DiagramConfig] = None
     ) -> str:
         """
         Generate detailed component diagram.
 
         Args:
-            component: Component to diagram
+            component: Component to diagram (ServiceComponent)
             config: Diagram configuration
 
         Returns:
@@ -461,11 +461,19 @@ class MermaidDiagramGenerator:
         # Add files structure
         if component.files:
             lines.append("    subgraph Files [📁 Key Files]")
-            key_files = [
-                f
-                for f in component.files
-                if not any(skip in f for skip in ["test", "__pycache__", ".pyc"])
-            ][:5]
+            # Handle both old string format and new CodeFile format
+            key_files = []
+            for f in component.files:
+                if hasattr(f, 'file_path'):  # CodeFile object
+                    file_path = f.file_path
+                else:  # String (legacy)
+                    file_path = f
+                
+                if not any(skip in file_path for skip in ["test", "__pycache__", ".pyc"]):
+                    key_files.append(file_path)
+            
+            # Limit to 5 files
+            key_files = key_files[:5]
 
             for i, file_path in enumerate(key_files):
                 file_id = f"file_{i}"
@@ -489,7 +497,7 @@ class MermaidDiagramGenerator:
         return self.service_styles.get(service_type, {}).get("icon", "📦")
 
     def _create_component_label(
-        self, component: ComponentAnalysis, show_icons: bool = True
+        self, component, show_icons: bool = True
     ) -> str:
         """Create label for component node"""
         icon = self._get_service_icon(component.service_type) if show_icons else ""
@@ -509,8 +517,8 @@ class MermaidDiagramGenerator:
             return f'"{component.name}<br/><small>{" ".join(component.technology_stack[:2])}</small>"'
 
     def _group_components_by_type(
-        self, components: List[ComponentAnalysis]
-    ) -> Dict[str, List[ComponentAnalysis]]:
+        self, components
+    ) -> Dict[str, List]:
         """Group components by service type"""
         grouped = {}
         for component in components:
@@ -522,7 +530,7 @@ class MermaidDiagramGenerator:
         return grouped
 
     def _generate_component_styles(
-        self, components: List[ComponentAnalysis]
+        self, components
     ) -> List[str]:
         """Generate styling for components"""
         styles = ["    %% Component Styling"]
@@ -537,7 +545,7 @@ class MermaidDiagramGenerator:
         return styles
 
     def _generate_dependency_styles(
-        self, components: List[ComponentAnalysis]
+        self, components
     ) -> List[str]:
         """Generate styling for dependency graph"""
         styles = ["    %% Dependency Styling"]

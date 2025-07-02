@@ -40,12 +40,7 @@ class TestAppDatabase:
             from infra.database.session import get_db
             assert get_db is not None
         except ImportError:
-            # Пробуем альтернативный путь
-            try:
-                from app.database import get_db
-                assert get_db is not None
-            except ImportError:
-                pytest.skip("Database session module not available")
+            pytest.skip("Database session module not available")
 
     def test_database_init(self):
         """Тест инициализации БД"""

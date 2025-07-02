@@ -62,14 +62,14 @@ class TestE2EComprehensive:
         """Test Jira data processing endpoint."""
         # Skip this test if the service doesn't exist
         try:
-            import services.jira_service
-
+            # Check if domain module exists instead
+            from domain.integration import datasources
             service_exists = True
         except ImportError:
             service_exists = False
 
         if service_exists:
-            with patch("services.jira_service.get_jira_service") as mock_get:
+            with patch("domain.integration.datasources.jira.get_jira_service") as mock_get:
                 mock_service = Mock()
                 mock_service.sync_issues = AsyncMock(return_value={"synced": 10})
                 mock_get.return_value = mock_service

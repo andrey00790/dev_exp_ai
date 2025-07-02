@@ -98,7 +98,7 @@ async def login(request: Request, credentials: UserLogin):
         # Additional validation
         # validate_input(credentials.email, "email")
 
-        token = login_user(credentials)
+        token = await login_user(credentials)
         logger.info(f"User logged in: {credentials.email}")
         return token
 

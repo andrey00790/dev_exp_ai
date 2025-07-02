@@ -9,8 +9,15 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import ydb
-import ydb.iam
+# Optional YDB imports
+try:
+    import ydb
+    import ydb.iam
+    YDB_AVAILABLE = True
+except ImportError:
+    YDB_AVAILABLE = False
+    ydb = None
+
 from dataclasses import dataclass
 
 from ..datasource_interface import (
@@ -47,6 +54,8 @@ class YDBDataSource(DataSourceInterface):
 
     def __init__(self, config: DataSourceConfig):
         super().__init__(config)
+        if not YDB_AVAILABLE:
+            raise ImportError("ydb package is required for YDB datasource")
         self.driver: Optional[ydb.Driver] = None
         self.session_pool: Optional[ydb.QuerySessionPool] = None
         self.ydb_config: YDBConnectionConfig = self._parse_config(config.connection_params)

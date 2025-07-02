@@ -7,7 +7,7 @@ import pytest
 import asyncio
 import time
 from typing import Dict, Any
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 
 # Test containers imports (optional - только если установлены)
 try:

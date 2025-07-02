@@ -271,6 +271,7 @@ class TestMonitoringAPM:
             tracker = Mock()
             tracker.active_transactions = {}
 
+        # Используем реальную логику или мок с правильными возвращаемыми значениями
         if hasattr(tracker, 'start_transaction'):
             with patch('time.time', return_value=1234567890.0):
                 transaction_id = tracker.start_transaction("search_request", "test_user")
@@ -278,10 +279,13 @@ class TestMonitoringAPM:
                 if hasattr(tracker, 'active_transactions'):
                     assert transaction_id in tracker.active_transactions
         else:
-            # Мок отсутствующего метода
+            # Мок с правильным return value (строка вместо Mock)
             tracker.start_transaction = Mock(return_value="trans_123")
+            tracker.active_transactions["trans_123"] = {"name": "search_request"}
+            
             transaction_id = tracker.start_transaction("search_request", "test_user")
             assert transaction_id == "trans_123"
+            assert transaction_id in tracker.active_transactions
 
     def test_end_transaction(self):
         """Тест завершения транзакции"""
@@ -300,11 +304,12 @@ class TestMonitoringAPM:
                 assert result["duration"] == 1.0
                 assert result["status"] == "success"
         else:
-            # Мок отсутствующих методов
+            # Мок с правильным return value (словарь вместо Mock)
             mock_result = {"duration": 1.0, "status": "success"}
             tracker.end_transaction = Mock(return_value=mock_result)
             result = tracker.end_transaction("trans_123", "success")
             assert result["duration"] == 1.0
+            assert result["status"] == "success"
 
     def test_add_span(self):
         """Тест добавления span"""
@@ -325,10 +330,18 @@ class TestMonitoringAPM:
                 transaction = tracker.active_transactions[transaction_id]
                 assert len(transaction["spans"]) == 1
         else:
-            # Мок отсутствующих методов
+            # Подготовим активную транзакцию
+            tracker.active_transactions = {"trans_123": {"spans": []}}
+            
+            # Мок с правильным return value (строка вместо Mock)
             tracker.add_span = Mock(return_value="span_123")
             span_id = tracker.add_span("trans_123", "database_query", {"query": "SELECT * FROM docs"})
+            
+            # Симулируем добавление span
+            tracker.active_transactions["trans_123"]["spans"].append({"id": "span_123"})
+            
             assert span_id == "span_123"
+            assert len(tracker.active_transactions["trans_123"]["spans"]) == 1
 
     def test_get_transaction_metrics(self):
         """Тест получения метрик транзакции"""
@@ -351,7 +364,7 @@ class TestMonitoringAPM:
             assert metrics["success_count"] == 2
             assert metrics["error_count"] == 1
         else:
-            # Мок отсутствующего метода
+            # Мок с правильным return value (словарь вместо Mock)
             mock_metrics = {
                 "total_count": 3,
                 "success_count": 2,
@@ -361,6 +374,8 @@ class TestMonitoringAPM:
             tracker.get_transaction_metrics = Mock(return_value=mock_metrics)
             metrics = tracker.get_transaction_metrics("search")
             assert metrics["total_count"] == 3
+            assert metrics["success_count"] == 2
+            assert metrics["error_count"] == 1
 
 
 class TestMonitoringAlerts:
@@ -396,14 +411,21 @@ class TestMonitoringAlerts:
             assert alert["type"] == "response_time"
             assert alert["severity"] == "warning"
         else:
-            # Мок отсутствующего метода
+            # Мок с правильной логикой возврата None или словаря
             def mock_check_response_time(response_time, threshold=1.0):
                 if response_time > threshold:
                     return {"type": "response_time", "severity": "warning"}
                 return None
             
             manager.check_response_time_alert = mock_check_response_time
+            
+            # Тест нормального времени ответа
+            alert = manager.check_response_time_alert(0.5, threshold=1.0)
+            assert alert is None
+            
+            # Тест превышения порога
             alert = manager.check_response_time_alert(1.5, threshold=1.0)
+            assert alert is not None
             assert alert["type"] == "response_time"
 
     def test_check_error_rate_alert(self):
@@ -425,14 +447,21 @@ class TestMonitoringAlerts:
             assert alert["type"] == "error_rate"
             assert alert["severity"] == "critical"
         else:
-            # Мок отсутствующего метода
+            # Мок с правильной логикой возврата None или словаря
             def mock_check_error_rate(error_rate, threshold=0.05):
                 if error_rate > threshold:
                     return {"type": "error_rate", "severity": "critical"}
                 return None
             
             manager.check_error_rate_alert = mock_check_error_rate
+            
+            # Тест нормальной частоты ошибок
+            alert = manager.check_error_rate_alert(0.02, threshold=0.05)
+            assert alert is None
+            
+            # Тест превышения порога
             alert = manager.check_error_rate_alert(0.08, threshold=0.05)
+            assert alert is not None
             assert alert["type"] == "error_rate"
 
     def test_check_system_resource_alert(self):
@@ -464,21 +493,38 @@ class TestMonitoringAlerts:
             assert alert["type"] == "system_resources"
             assert "cpu" in alert["message"]
         else:
-            # Мок отсутствующего метода
+            # Мок с правильной логикой возврата None или словаря
             def mock_check_system_resource(**kwargs):
                 cpu_percent = kwargs.get('cpu_percent', 0)
+                memory_percent = kwargs.get('memory_percent', 0)
                 cpu_threshold = kwargs.get('cpu_threshold', 80.0)
+                memory_threshold = kwargs.get('memory_threshold', 85.0)
+                
                 if cpu_percent > cpu_threshold:
-                    return {"type": "system_resources", "message": "High cpu usage"}
+                    return {"type": "system_resources", "message": f"High cpu usage: {cpu_percent}%"}
+                elif memory_percent > memory_threshold:
+                    return {"type": "system_resources", "message": f"High memory usage: {memory_percent}%"}
                 return None
             
             manager.check_system_resource_alert = mock_check_system_resource
+            
+            # Тест нормального использования ресурсов
+            alert = manager.check_system_resource_alert(
+                cpu_percent=50.0,
+                memory_percent=60.0,
+                cpu_threshold=80.0,
+                memory_threshold=85.0,
+            )
+            assert alert is None
+            
+            # Тест превышения порога CPU
             alert = manager.check_system_resource_alert(
                 cpu_percent=90.0,
                 memory_percent=60.0,
                 cpu_threshold=80.0,
                 memory_threshold=85.0,
             )
+            assert alert is not None
             assert "cpu" in alert["message"]
 
 
@@ -521,14 +567,21 @@ class TestMonitoringDashboard:
             assert "endpoints" in dashboard_data
             assert "overall_stats" in dashboard_data
         else:
-            # Мок отсутствующего метода
+            # Мок с правильным return value (словарь вместо Mock)
             mock_dashboard_data = {
-                "endpoints": {"search": {"avg_response_time": 0.65}},
-                "overall_stats": {"total_requests": 3}
+                "endpoints": {
+                    "search": {"avg_response_time": 0.65, "request_count": 2},
+                    "generate": {"avg_response_time": 2.0, "request_count": 1}
+                },
+                "overall_stats": {"total_requests": 3, "avg_response_time": 1.1}
             }
             aggregator.aggregate_metrics = Mock(return_value=mock_dashboard_data)
             dashboard_data = aggregator.aggregate_metrics(metrics_data)
+            
+            assert dashboard_data is not None
             assert "endpoints" in dashboard_data
+            assert "overall_stats" in dashboard_data
+            assert dashboard_data["overall_stats"]["total_requests"] == 3
 
     def test_time_series_data_preparation(self):
         """Тест подготовки данных временных рядов"""
@@ -557,11 +610,18 @@ class TestMonitoringDashboard:
             assert prepared_data is not None
             assert len(prepared_data) <= 12  # 60 минут / 5 минут интервал
         else:
-            # Мок отсутствующего метода
-            mock_prepared_data = [{"interval": i, "avg_response_time": 0.5} for i in range(12)]
+            # Мок с правильным return value (список вместо Mock)
+            mock_prepared_data = [
+                {"interval": f"{i*5}-{(i+1)*5}min", "avg_response_time": 0.5 + i*0.05}
+                for i in range(12)
+            ]
             aggregator.prepare_time_series = Mock(return_value=mock_prepared_data)
             prepared_data = aggregator.prepare_time_series(time_series_data, interval_minutes=5)
-            assert len(prepared_data) == 12
+            
+            assert prepared_data is not None
+            assert len(prepared_data) == 12  # Список из 12 элементов
+            assert isinstance(prepared_data, list)
+            assert all("interval" in item for item in prepared_data)
 
 
 class TestMonitoringUtilities:

@@ -11,9 +11,9 @@ from typing import List
 # Add project root to path
 sys.path.insert(0, '/Users/a.kotenev/PycharmProjects/dev_exp_ai')
 
-from vectorstore.qdrant_client import get_qdrant_client
-from vectorstore.collections import get_collection_manager, CollectionType, DocumentMetadata
-from vectorstore.embeddings import get_embeddings_service
+from adapters.vectorstore.qdrant_client import get_qdrant_client
+from adapters.vectorstore.collections import get_collection_manager, CollectionType, DocumentMetadata
+from adapters.vectorstore.embeddings import get_embeddings_service
 
 async def test_qdrant_integration():
     """Test Qdrant integration with collections and embeddings."""

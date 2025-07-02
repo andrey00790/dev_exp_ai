@@ -125,8 +125,4 @@ class CodeLanguage(str, Enum):
     OTHER = "other"
 
 
-# Legacy aliases for backward compatibility  
-# These will be deprecated in future versions
-# Note: Cannot inherit from Enum in Python, so using direct assignment
-LegacySourceType = SourceType  # Deprecated: Use SourceType instead
-LegacyFeedbackType = FeedbackType  # Deprecated: Use FeedbackType instead 
+# Legacy aliases removed - all code should use direct enum names 

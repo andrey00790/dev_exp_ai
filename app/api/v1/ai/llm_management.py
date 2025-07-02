@@ -9,8 +9,8 @@ import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from llm.llm_router import RoutingStrategy
-from llm.llm_service import get_llm_service, initialize_llm_service
+from adapters.llm.llm_router import RoutingStrategy
+from adapters.llm.llm_service import get_llm_service, initialize_llm_service
 from pydantic import BaseModel, Field
 
 # Import standardized async patterns

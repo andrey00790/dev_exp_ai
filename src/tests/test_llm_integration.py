@@ -33,7 +33,7 @@ async def test_llm_provider_system():
     print("\n1️⃣ Testing LLM Service Initialization")
     
     try:
-        from llm.llm_service import get_llm_service, initialize_llm_service
+        from adapters.llm.llm_service import get_llm_service, initialize_llm_service
         
         # Initialize service
         llm_service = get_llm_service()
@@ -141,8 +141,8 @@ def fibonacci(n):
     print("\n7️⃣ Testing Router Functionality")
     
     try:
-        from llm.llm_router import LLMRouter, RoutingStrategy
-        from llm.providers.base import LLMRequest
+        from adapters.llm.llm_router import LLMRouter, RoutingStrategy
+        from adapters.llm.providers.base import LLMRequest
         
         # Test different routing strategies
         router = LLMRouter(RoutingStrategy.BALANCED)

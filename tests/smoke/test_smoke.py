@@ -7,14 +7,14 @@ from app.security.auth import User
 
 # Simplified test app creation (same as in conftest attempt)
 def create_smoke_test_app() -> FastAPI:
-    from app.api.v1.auth import auth, users
+    from app.api.v1.auth import auth_router, users
     from app.api.v1.search import search
     from app.security.auth import auth_middleware
     from app.websocket import handle_websocket_connection
 
     app = FastAPI(title="Smoke Test App")
     app.add_middleware(auth_middleware)
-    app.include_router(auth, prefix="/api/v1")
+    app.include_router(auth_router, prefix="/api/v1")
     app.include_router(users, prefix="/api/v1")
     app.include_router(search, prefix="/api/v1")
 

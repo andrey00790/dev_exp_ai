@@ -34,7 +34,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
-from vectorstore.collections import CollectionType
+from adapters.vectorstore.collections import CollectionType
 
 # Import standardized async patterns
 from app.core.async_utils import (AsyncTimeouts, async_retry,

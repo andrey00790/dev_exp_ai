@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from llm.llm_loader import load_llm
+from adapters.llm.llm_loader import load_llm
 
 from models.generation import GenerationSession, TaskType, UserAnswer
 

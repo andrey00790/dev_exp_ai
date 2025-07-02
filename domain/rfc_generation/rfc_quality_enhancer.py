@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from llm.llm_loader import load_llm
+from adapters.llm.llm_loader import load_llm
 
 from domain.core.learning_pipeline_service import get_learning_service
 from models.generation import GeneratedRFC

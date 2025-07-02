@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-from llm.llm_loader import load_llm
+from adapters.llm.llm_loader import load_llm
 
 from domain.monitoring.feedback_service import get_feedback_service
 from models.feedback import FeedbackContext, FeedbackType, UserFeedback

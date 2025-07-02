@@ -122,13 +122,13 @@ def test_api_structure():
 
     # ИСПРАВЛЕНО: проверяем сервисы с fallback
     try:
-        from services import search_service
+        from domain.integration import search_service
         assert hasattr(search_service, "SearchService") or hasattr(search_service, "get_search_service")
     except ImportError:
         pass
 
     try:
-        from services import data_source_service  
+        from domain.integration import data_source_service  
         assert hasattr(data_source_service, "DataSourceService") or hasattr(data_source_service, "get_data_source_service")
     except ImportError:
         pass
