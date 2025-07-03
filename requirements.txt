@@ -141,3 +141,8 @@ psutil==5.9.6
 # Updated for Python 3.11 compatibility
 redis>=4.0.0
 email-validator>=2.0.0
+=======
+PyYAML
+GitPython
+pdfminer.six
+requests
