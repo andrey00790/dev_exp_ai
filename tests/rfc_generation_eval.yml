@@ -1,0 +1,383 @@
+# Оценка генерации RFC - 60 кейсов (русский + английский)
+# RFC Generation Evaluation - 60 cases (Russian + English)
+metadata:
+  version: "2.0"
+  total_cases: 60
+  languages: ["ru", "en"]
+  required_sections_min: 10
+  yaml_header_required: true
+  
+system_design: # 20 кейсов (10 русских + 10 английских)
+  # Russian cases
+  - id: "sd_001_ru"
+    title: "Дизайн TinyURL для высокой масштабируемости"
+    prompt: "Спроектируйте сервис сокращения URL обрабатывающий 100М URL/день с кешированием, ограничением скорости, аналитикой"
+    sections: ["Постановка задачи", "Требования", "Архитектура", "База данных", "API", "Кеширование", "Безопасность", "Мониторинг", "Реализация", "Риски"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_002_ru" 
+    title: "Глобальная архитектура CDN"
+    prompt: "Спроектируйте глобальную CDN с пограничными локациями, инвалидацией кеша, маршрутизацией контента, оптимизацией производительности"
+    sections: ["Краткое описание", "Требования", "Архитектура", "Дизайн края", "Управление кешем", "Балансировка нагрузки", "Производительность", "Безопасность", "Развертывание", "Стоимость"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_003_ru"
+    title: "Система чата реального времени"
+    prompt: "Спроектируйте систему обмена сообщениями для 1Б пользователей с доставкой, присутствием, группами, шифрованием"
+    sections: ["Проблема", "Функциональные требования", "Нефункциональные требования", "Архитектура", "Протокол сообщений", "База данных", "Реальное время", "Безопасность", "Масштабируемость", "Тестирование"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_004_ru"
+    title: "Лента фотографий Instagram"
+    prompt: "Спроектируйте ленту фотографий с генерацией, хранением, рекомендациями, социальными функциями"
+    sections: ["Обзор", "Требования пользователей", "Алгоритм ленты", "Хранение изображений", "База данных", "Кеширование", "Рекомендации", "Социальный граф", "Производительность", "Мониторинг"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_005_ru"
+    title: "Система обработки платежей"
+    prompt: "Спроектируйте платежную систему как Stripe с обнаружением мошенничества, мультивалютностью, соответствием PCI"
+    sections: ["Бизнес требования", "Требования безопасности", "Архитектура", "Поток платежей", "Обнаружение мошенничества", "База данных", "API", "Соответствие", "Обработка ошибок", "Аудит"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_006_ru"
+    title: "Платформа видеостриминга"
+    prompt: "Спроектируйте сервис как Netflix с CDN, рекомендациями, адаптивным стримингом"
+    sections: ["Проблема", "Требования", "Архитектура контента", "Видео пайплайн", "CDN", "Управление пользователями", "Рекомендации", "Аналитика", "Стоимость", "Аварийное восстановление"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_007_ru"
+    title: "Сервис каршеринга"
+    prompt: "Спроектируйте платформу как Uber с сопоставлением, отслеживанием, ценообразованием, платежами"
+    sections: ["Обзор", "Функции", "Алгоритм сопоставления", "Сервисы локации", "Ценообразование", "Реальное время", "Платежи", "Управление водителями", "Масштабируемость", "Качество"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_008_ru"
+    title: "Распределенная поисковая система"
+    prompt: "Спроектируйте веб-поиск с обходом, индексацией, ранжированием, обработкой запросов"
+    sections: ["Обзор", "Обход", "Индексация", "Ранжирование", "Обработка запросов", "Хранение", "Кеширование", "Производительность", "Инфраструктура", "Операции"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_009_ru"
+    title: "Система облачного хранения"
+    prompt: "Спроектируйте сервис как Dropbox с синхронизацией, версионированием, совместным доступом, конфликтами"
+    sections: ["Требования", "Архитектура хранения", "Протокол синхронизации", "Управление версиями", "Разрешение конфликтов", "Совместный доступ", "Безопасность", "Резервное копирование", "Клиенты", "Мониторинг"]
+    complexity: "high"
+    language: "ru"
+  - id: "sd_010_ru"
+    title: "Платформа онлайн игр"
+    prompt: "Спроектируйте многопользовательскую платформу с игровым процессом реального времени, сопоставлением, анти-читом"
+    sections: ["Обзор", "Игровой движок", "Сопоставление", "Данные игроков", "Лидерборды", "Анти-чит", "Сеть", "Социальные функции", "Производительность", "Развертывание"]
+    complexity: "high"
+    language: "ru"
+
+  # English cases
+  - id: "sd_001_en"
+    title: "TinyURL High Scalability Design"
+    prompt: "Design URL shortening service handling 100M URLs/day with caching, rate limiting, analytics"
+    sections: ["Problem Statement", "Requirements", "Architecture", "Database", "API", "Caching", "Security", "Monitoring", "Implementation", "Risks"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_002_en" 
+    title: "Global CDN Architecture"
+    prompt: "Design global CDN with edge locations, cache invalidation, content routing, performance optimization"
+    sections: ["Executive Summary", "Requirements", "Architecture", "Edge Design", "Cache Management", "Load Balancing", "Performance", "Security", "Deployment", "Cost"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_003_en"
+    title: "Real-time Chat System"
+    prompt: "Design messaging system for 1B users with delivery, presence, groups, encryption"
+    sections: ["Problem", "Functional Req", "Non-Functional Req", "Architecture", "Message Protocol", "Database", "Real-time", "Security", "Scalability", "Testing"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_004_en"
+    title: "Instagram Photo Feed"
+    prompt: "Design photo feed with generation, storage, recommendations, social features"
+    sections: ["Overview", "User Req", "Feed Algorithm", "Image Storage", "Database", "Caching", "Recommendations", "Social Graph", "Performance", "Monitoring"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_005_en"
+    title: "Payment Processing System"
+    prompt: "Design payment system like Stripe with fraud detection, multi-currency, PCI compliance"
+    sections: ["Business Req", "Security Req", "Architecture", "Payment Flow", "Fraud Detection", "Database", "API", "Compliance", "Error Handling", "Audit"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_006_en"
+    title: "Video Streaming Platform"
+    prompt: "Design Netflix-like service with CDN, recommendations, adaptive streaming"
+    sections: ["Problem", "Requirements", "Content Architecture", "Video Pipeline", "CDN", "User Management", "Recommendations", "Analytics", "Cost", "DR"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_007_en"
+    title: "Ride Sharing Service"
+    prompt: "Design Uber-like platform with matching, tracking, pricing, payments"
+    sections: ["Overview", "Features", "Matching Algorithm", "Location Services", "Pricing", "Real-time", "Payment", "Driver Management", "Scalability", "QA"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_008_en"
+    title: "Distributed Search Engine"
+    prompt: "Design web search with crawling, indexing, ranking, query processing"
+    sections: ["Overview", "Crawling", "Indexing", "Ranking", "Query Processing", "Storage", "Caching", "Performance", "Infrastructure", "Operations"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_009_en"
+    title: "Cloud Storage System"
+    prompt: "Design Dropbox-like service with sync, versioning, sharing, conflicts"
+    sections: ["Requirements", "Storage Architecture", "Sync Protocol", "Version Management", "Conflict Resolution", "Sharing", "Security", "Backup", "Clients", "Monitoring"]
+    complexity: "high"
+    language: "en"
+  - id: "sd_010_en"
+    title: "Online Gaming Platform"
+    prompt: "Design multiplayer platform with real-time gameplay, matchmaking, anti-cheat"
+    sections: ["Overview", "Game Engine", "Matchmaking", "Player Data", "Leaderboards", "Anti-cheat", "Network", "Social", "Performance", "Deployment"]
+    complexity: "high"
+    language: "en"
+
+microservices: # 20 кейсов (10 русских + 10 английских)
+  # Russian cases
+  - id: "ms_001_ru"
+    title: "Микросервисы электронной коммерции"
+    prompt: "Спроектируйте микросервисы для e-commerce с пользователями, каталогом, заказами, платежами, инвентарем"
+    sections: ["Архитектура", "Границы сервисов", "Коммуникация", "Управление данными", "API Gateway", "Аутентификация", "Событийная архитектура", "Развертывание", "Мониторинг", "Тестирование"]
+    complexity: "medium"
+    language: "ru"
+  - id: "ms_002_ru"
+    title: "CQRS Event Sourcing для банкинга"
+    prompt: "Реализуйте CQRS с Event Sourcing для банковских транзакций и журналов аудита"
+    sections: ["Обзор паттерна", "Сторона команд", "Сторона запросов", "Хранилище событий", "Проекции", "Согласованность", "Снепшоты", "Обработка ошибок", "Производительность", "Миграция"]
+    complexity: "high"
+    language: "ru"
+  - id: "ms_003_ru"
+    title: "Saga для распределенных транзакций"
+    prompt: "Реализуйте паттерн Saga для обработки заказов через микросервисы"
+    sections: ["Требования транзакций", "Дизайн Saga", "Оркестровка", "Компенсация", "Управление состоянием", "Восстановление ошибок", "Мониторинг", "Тестирование", "Реализация", "Операции"]
+    complexity: "medium"
+    language: "ru"
+  - id: "ms_004_ru"
+    title: "Circuit Breaker для устойчивости"
+    prompt: "Спроектируйте circuit breaker для коммуникации микросервисов с fallback"
+    sections: ["Требования устойчивости", "Дизайн Circuit Breaker", "Переходы состояний", "Fallback", "Метрики", "Конфигурация", "Интеграция", "Тестирование", "Мониторинг", "Лучшие практики"]
+    complexity: "medium"
+    language: "ru"
+  - id: "ms_005_ru"
+    title: "API Gateway с ограничением скорости"
+    prompt: "Спроектируйте API Gateway с ограничением скорости, аутентификацией, маршрутизацией, управлением трафиком"
+    sections: ["Требования Gateway", "Ограничение скорости", "Поток аутентификации", "Маршрутизация", "Балансировка нагрузки", "Безопасность", "Аналитика", "Конфигурация", "Производительность", "Развертывание"]
+    complexity: "medium"
+    language: "ru"
+  - id: "ms_006_ru"
+    title: "Service Mesh с Istio"
+    prompt: "Реализуйте service mesh с Istio для коммуникации, безопасности, наблюдаемости"
+    sections: ["Service Mesh", "Архитектура Istio", "Управление трафиком", "Политики безопасности", "Наблюдаемость", "Конфигурация", "Влияние на производительность", "Миграция", "Устранение неполадок", "Операции"]
+    complexity: "high"
+    language: "ru"
+  - id: "ms_007_ru"
+    title: "Событийная архитектура с Kafka"
+    prompt: "Спроектируйте событийную архитектуру с Kafka для обработки в реальном времени"
+    sections: ["Событийная архитектура", "Конфигурация Kafka", "Стратегия топиков", "Паттерны продюсеров", "Паттерны консьюмеров", "Управление схемами", "Обработка ошибок", "Мониторинг", "Масштабируемость", "Аварийное восстановление"]
+    complexity: "medium"
+    language: "ru"
+  - id: "ms_008_ru"
+    title: "Strangler Fig для миграции легаси"
+    prompt: "Мигрируйте монолит в микросервисы используя паттерн Strangler Fig"
+    sections: ["Стратегия миграции", "Анализ легаси", "Реализация Strangler", "Маршрутизация", "Синхронизация данных", "Тестирование", "Откат", "Производительность", "Снижение рисков", "Временные рамки"]
+    complexity: "high"
+    language: "ru"
+  - id: "ms_009_ru"
+    title: "Паттерн База данных на сервис"
+    prompt: "Спроектируйте базу-данных-на-сервис с согласованностью и оптимизацией запросов"
+    sections: ["Архитектура данных", "Границы сервисов", "Выбор базы данных", "Согласованность данных", "Кросс-сервисные запросы", "Управление транзакциями", "Миграция данных", "Резервное копирование", "Производительность", "Мониторинг"]
+    complexity: "medium"
+    language: "ru"
+  - id: "ms_010_ru"
+    title: "Bulkhead для изоляции ресурсов"
+    prompt: "Реализуйте паттерн bulkhead для изоляции ресурсов и предотвращения каскадных сбоев"
+    sections: ["Стратегия изоляции", "Дизайн Bulkhead", "Распределение ресурсов", "Ограничение сбоев", "Влияние на производительность", "Конфигурация", "Мониторинг", "Тестирование", "Реализация", "Операции"]
+    complexity: "medium"
+    language: "ru"
+
+  # English cases
+  - id: "ms_001_en"
+    title: "E-commerce Microservices"
+    prompt: "Design microservices for e-commerce with users, catalog, orders, payments, inventory"
+    sections: ["Architecture", "Service Boundaries", "Communication", "Data Management", "API Gateway", "Auth", "Event-Driven", "Deployment", "Monitoring", "Testing"]
+    complexity: "medium"
+    language: "en"
+  - id: "ms_002_en"
+    title: "CQRS Event Sourcing Banking"
+    prompt: "Implement CQRS with Event Sourcing for banking transactions and audit trails"
+    sections: ["Pattern Overview", "Command Side", "Query Side", "Event Store", "Projections", "Consistency", "Snapshots", "Error Handling", "Performance", "Migration"]
+    complexity: "high"
+    language: "en"
+  - id: "ms_003_en"
+    title: "Saga Distributed Transactions"
+    prompt: "Implement Saga pattern for order processing across microservices"
+    sections: ["Transaction Req", "Saga Design", "Orchestration", "Compensation", "State Management", "Error Recovery", "Monitoring", "Testing", "Implementation", "Operations"]
+    complexity: "medium"
+    language: "en"
+  - id: "ms_004_en"
+    title: "Circuit Breaker Resilience"
+    prompt: "Design circuit breaker for microservices communication with fallbacks"
+    sections: ["Resilience Req", "Circuit Design", "State Transitions", "Fallback", "Metrics", "Configuration", "Integration", "Testing", "Monitoring", "Best Practices"]
+    complexity: "medium"
+    language: "en"
+  - id: "ms_005_en"
+    title: "API Gateway Rate Limiting"
+    prompt: "Design API Gateway with rate limiting, auth, routing, traffic management"
+    sections: ["Gateway Req", "Rate Limiting", "Auth Flow", "Routing", "Load Balancing", "Security", "Analytics", "Configuration", "Performance", "Deployment"]
+    complexity: "medium"
+    language: "en"
+  - id: "ms_006_en"
+    title: "Service Mesh Istio"
+    prompt: "Implement service mesh with Istio for communication, security, observability"
+    sections: ["Service Mesh", "Istio Architecture", "Traffic Management", "Security Policies", "Observability", "Configuration", "Performance", "Migration", "Troubleshooting", "Operations"]
+    complexity: "high"
+    language: "en"
+  - id: "ms_007_en"
+    title: "Event-Driven Kafka Architecture"
+    prompt: "Design event-driven architecture with Kafka for real-time processing"
+    sections: ["Event Architecture", "Kafka Config", "Topic Strategy", "Producer Patterns", "Consumer Patterns", "Schema Management", "Error Handling", "Monitoring", "Scalability", "DR"]
+    complexity: "medium"
+    language: "en"
+  - id: "ms_008_en"
+    title: "Strangler Fig Legacy Migration"
+    prompt: "Migrate monolith to microservices using Strangler Fig pattern"
+    sections: ["Migration Strategy", "Legacy Analysis", "Strangler Implementation", "Routing", "Data Sync", "Testing", "Rollback", "Performance", "Risk Mitigation", "Timeline"]
+    complexity: "high"
+    language: "en"
+  - id: "ms_009_en"
+    title: "Database per Service Pattern"
+    prompt: "Design database-per-service with consistency and query optimization"
+    sections: ["Data Architecture", "Service Boundaries", "Database Selection", "Data Consistency", "Cross-Service Queries", "Transaction Management", "Data Migration", "Backup", "Performance", "Monitoring"]
+    complexity: "medium"
+    language: "en"
+  - id: "ms_010_en"
+    title: "Bulkhead Resource Isolation"
+    prompt: "Implement bulkhead pattern for resource isolation and failure prevention"
+    sections: ["Isolation Strategy", "Bulkhead Design", "Resource Allocation", "Failure Containment", "Performance Impact", "Configuration", "Monitoring", "Testing", "Implementation", "Operations"]
+    complexity: "medium"
+    language: "en"
+
+infrastructure: # 20 кейсов (10 русских + 10 английских)
+  # Russian cases
+  - id: "infra_001_ru"
+    title: "Продакшн кластер Kubernetes"
+    prompt: "Спроектируйте готовый к продакшену кластер K8s с высокой доступностью, безопасностью, мониторингом, аварийным восстановлением"
+    sections: ["Архитектура кластера", "Высокая доступность", "Усиление безопасности", "Конфигурация сети", "Управление хранилищем", "Мониторинг", "Резервное копирование", "Стратегия обновления", "Оптимизация стоимости", "Операции"]
+    complexity: "high"
+    language: "ru"
+  - id: "infra_002_ru"
+    title: "GitOps CI/CD пайплайн"
+    prompt: "Спроектируйте CI/CD с GitOps, автоматизированным тестированием, сканированием безопасности, прогрессивным развертыванием"
+    sections: ["Архитектура пайплайна", "GitOps workflow", "Автоматизированное тестирование", "Интеграция безопасности", "Прогрессивное развертывание", "Управление средами", "Откат", "Мониторинг", "Соответствие", "Команды workflows"]
+    complexity: "medium"
+    language: "ru"
+  - id: "infra_003_ru"
+    title: "Terraform инфраструктура как код"
+    prompt: "Реализуйте IaC с Terraform для мультиоблачного развертывания и автоматизации"
+    sections: ["Стратегия IaC", "Архитектура Terraform", "Управление состоянием", "Дизайн модулей", "Мультиоблако", "Интеграция CI/CD", "Сканирование безопасности", "Управление стоимостью", "Аварийное восстановление", "Лучшие практики"]
+    complexity: "medium"
+    language: "ru"
+  - id: "infra_004_ru"
+    title: "Наблюдаемость Prometheus Grafana"
+    prompt: "Спроектируйте платформу наблюдаемости с Prometheus, Grafana, распределенной трассировкой"
+    sections: ["Стратегия наблюдаемости", "Сбор метрик", "Архитектура логирования", "Распределенная трассировка", "Дизайн дашбордов", "Правила алертинга", "Анализ производительности", "Планирование мощности", "SLI/SLO", "Реагирование на инциденты"]
+    complexity: "medium"
+    language: "ru"
+  - id: "infra_005_ru"
+    title: "Zero-Trust сетевая безопасность"
+    prompt: "Реализуйте zero-trust безопасность с верификацией личности, микросегментацией"
+    sections: ["Принципы Zero-Trust", "Управление идентичностью", "Сегментация сети", "Контроль доступа", "Безопасность устройств", "Непрерывный мониторинг", "Обнаружение угроз", "Соответствие", "Реализация", "Оценка рисков"]
+    complexity: "high"
+    language: "ru"
+  - id: "infra_006_ru"
+    title: "Vault управление секретами"
+    prompt: "Спроектируйте управление секретами с HashiCorp Vault, ротацией, политиками, аудитом"
+    sections: ["Архитектура секретов", "Конфигурация Vault", "Политики доступа", "Стратегии ротации", "Паттерны интеграции", "Аудит", "Высокая доступность", "Резервное копирование", "Производительность", "Операции"]
+    complexity: "medium"
+    language: "ru"
+  - id: "infra_007_ru"
+    title: "Мультирегиональное аварийное восстановление"
+    prompt: "Спроектируйте мультирегиональное аварийное восстановление с автоматическим переключением, репликацией, восстановлением"
+    sections: ["Стратегия аварийного восстановления", "Мультирегиональная настройка", "Репликация данных", "Автоматизация переключения", "Процедуры восстановления", "Фреймворк тестирования", "RTO/RPO", "Анализ стоимости", "Соответствие", "Runbook"]
+    complexity: "high"
+    language: "ru"
+  - id: "infra_008_ru"
+    title: "Безопасность контейнеров и соответствие"
+    prompt: "Реализуйте безопасность контейнеров со сканированием, защитой времени выполнения, автоматизацией соответствия"
+    sections: ["Фреймворк безопасности", "Сканирование образов", "Защита времени выполнения", "Управление уязвимостями", "Автоматизация соответствия", "Принуждение политик", "Реагирование на инциденты", "Аудит", "Руководящие принципы", "Улучшение"]
+    complexity: "medium"
+    language: "ru"
+  - id: "infra_009_ru"
+    title: "Автомасштабирование и оптимизация стоимости"
+    prompt: "Спроектируйте автомасштабирование с оптимизацией стоимости, распределением ресурсов, производительностью"
+    sections: ["Стратегия масштабирования", "Распределение ресурсов", "Оптимизация стоимости", "Метрики производительности", "Политики масштабирования", "Предсказание нагрузки", "Мониторинг ресурсов", "Контроль бюджета", "Отчетность", "Оптимизация"]
+    complexity: "medium"
+    language: "ru"
+  - id: "infra_010_ru"
+    title: "Безопасность Service Mesh"
+    prompt: "Реализуйте безопасность service mesh с mTLS, авторизацией, шифрованием"
+    sections: ["Архитектура безопасности", "Реализация mTLS", "Политики авторизации", "Шифрование трафика", "Управление сертификатами", "Мониторинг безопасности", "Обнаружение угроз", "Соответствие", "Производительность", "Операции"]
+    complexity: "high"
+    language: "ru"
+
+  # English cases
+  - id: "infra_001_en"
+    title: "Production Kubernetes Cluster"
+    prompt: "Design production K8s cluster with HA, security, monitoring, disaster recovery"
+    sections: ["Cluster Architecture", "High Availability", "Security Hardening", "Network Config", "Storage Management", "Monitoring", "Backup", "Upgrade Strategy", "Cost Optimization", "Operations"]
+    complexity: "high"
+    language: "en"
+  - id: "infra_002_en"
+    title: "GitOps CI/CD Pipeline"
+    prompt: "Design CI/CD with GitOps, automated testing, security scanning, progressive deployment"
+    sections: ["Pipeline Architecture", "GitOps Workflow", "Automated Testing", "Security Integration", "Progressive Deployment", "Environment Management", "Rollback", "Monitoring", "Compliance", "Team Workflows"]
+    complexity: "medium"
+    language: "en"
+  - id: "infra_003_en"
+    title: "Terraform Infrastructure as Code"
+    prompt: "Implement IaC with Terraform for multi-cloud deployment and automation"
+    sections: ["IaC Strategy", "Terraform Architecture", "State Management", "Module Design", "Multi-Cloud", "CI/CD Integration", "Security Scanning", "Cost Management", "Disaster Recovery", "Best Practices"]
+    complexity: "medium"
+    language: "en"
+  - id: "infra_004_en"
+    title: "Observability Prometheus Grafana"
+    prompt: "Design observability platform with Prometheus, Grafana, distributed tracing"
+    sections: ["Observability Strategy", "Metrics Collection", "Logging Architecture", "Distributed Tracing", "Dashboard Design", "Alerting Rules", "Performance Analysis", "Capacity Planning", "SLI/SLO", "Incident Response"]
+    complexity: "medium"
+    language: "en"
+  - id: "infra_005_en"
+    title: "Zero-Trust Network Security"
+    prompt: "Implement zero-trust security with identity verification, micro-segmentation"
+    sections: ["Zero-Trust Principles", "Identity Management", "Network Segmentation", "Access Controls", "Device Security", "Continuous Monitoring", "Threat Detection", "Compliance", "Implementation", "Risk Assessment"]
+    complexity: "high"
+    language: "en"
+  - id: "infra_006_en"
+    title: "Vault Secrets Management"
+    prompt: "Design secrets management with HashiCorp Vault, rotation, policies, audit"
+    sections: ["Secrets Architecture", "Vault Configuration", "Access Policies", "Rotation Strategies", "Integration Patterns", "Audit", "High Availability", "Backup", "Performance", "Operations"]
+    complexity: "medium"
+    language: "en"
+  - id: "infra_007_en"
+    title: "Multi-Region Disaster Recovery"
+    prompt: "Design multi-region DR with automated failover, replication, recovery"
+    sections: ["DR Strategy", "Multi-Region Setup", "Data Replication", "Failover Automation", "Recovery Procedures", "Testing Framework", "RTO/RPO", "Cost Analysis", "Compliance", "Runbook"]
+    complexity: "high"
+    language: "en"
+  - id: "infra_008_en"
+    title: "Container Security Compliance"
+    prompt: "Implement container security with scanning, runtime protection, compliance"
+    sections: ["Security Framework", "Image Scanning", "Runtime Protection", "Vulnerability Management", "Compliance Automation", "Policy Enforcement", "Incident Response", "Audit", "Guidelines", "Improvement"]
+    complexity: "medium"
+    language: "en"
+  - id: "infra_009_en"
+    title: "Auto-Scaling Cost Optimization"
+    prompt: "Design auto-scaling with cost optimization, resource allocation, performance"
+    sections: ["Scaling Strategy", "Resource Allocation", "Cost Optimization", "Performance Metrics", "Scaling Policies", "Load Prediction", "Resource Monitoring", "Budget Controls", "Reporting", "Optimization"]
+    complexity: "medium"
+    language: "en"
+  - id: "infra_010_en"
+    title: "Service Mesh Security"
+    prompt: "Implement service mesh security with mTLS, authorization, encryption"
+    sections: ["Security Architecture", "mTLS Implementation", "Authorization Policies", "Traffic Encryption", "Certificate Management", "Security Monitoring", "Threat Detection", "Compliance", "Performance", "Operations"]
+    complexity: "high"
+    language: "en" 

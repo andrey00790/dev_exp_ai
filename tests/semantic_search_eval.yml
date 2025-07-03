@@ -1,0 +1,502 @@
+# Набор данных для оценки семантического поиска - 240+ тестовых кейсов (русский + английский)
+# Для оценки Precision@k, MRR, Cosine Similarity
+# Multilingual Semantic Search Evaluation Dataset - 240+ test cases (Russian + English)
+metadata:
+  version: "2.0"
+  total_cases: 240
+  languages: ["ru", "en"]
+  roles: 8
+  cases_per_role: 30  # 15 Russian + 15 English
+  metrics: ["precision@k", "mrr", "cosine_similarity"]
+
+# РАЗРАБОТЧИК / DEVELOPER (30 кейсов)
+developer:
+  # Russian test cases
+  - query: "Реализация аутентификации OAuth 2.0 в REST API"
+    expected: ["oauth2_руководство.md", "rest_аутентификация.md", "jwt_токены.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Версионирование API и обратная совместимость стратегии"
+    expected: ["версионирование_api.md", "обратная_совместимость.md", "дизайн_api.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "ru"
+  - query: "Кеширование Redis для оптимизации базы данных"
+    expected: ["паттерны_redis.md", "оптимизация_бд.md", "стратегии_кеширования.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Мобильная архитектура offline-first с локальным хранилищем"
+    expected: ["офлайн_приложения.md", "локальное_хранилище.md", "синхронизация_данных.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Серверный рендеринг против клиентского производительность"
+    expected: ["ssr_csr.md", "веб_производительность.md", "react_руководство.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "ru"
+  - query: "CI/CD пайплайн для Node.js развертывание автоматизация"
+    expected: ["nodejs_cicd.md", "github_actions.md", "автоматизация_тестирования.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "GraphQL против REST API дизайн соображения"
+    expected: ["graphql_rest.md", "сравнение_api.md", "оптимизация_запросов.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "ru"
+  - query: "Ограничение скорости API эндпоинтов реализация"
+    expected: ["ограничение_скорости.md", "безопасность_api.md", "защита_ddos.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Миграция базы данных без простоев в продакшене"
+    expected: ["миграция_бд.md", "нулевое_время_простоя.md", "версионирование_схемы.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "iOS push уведомления интеграция с APNs"
+    expected: ["ios_уведомления.md", "apns_руководство.md", "мобильные_паттерны.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "ru"
+  - query: "Android WorkManager фоновые задачи"
+    expected: ["android_задачи.md", "workmanager.md", "android_компоненты.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "WebSocket реализация реального времени коммуникации"
+    expected: ["websocket_реализация.md", "коммуникация_реального_времени.md", "socket_io.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Микросервисы коммуникация service mesh"
+    expected: ["коммуникация_микросервисов.md", "service_mesh.md", "istio_конфигурация.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "React управление состоянием Redux Context API"
+    expected: ["react_состояние.md", "redux_context.md", "фронтенд_паттерны.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "ru"
+  - query: "OpenAPI Swagger автоматизация документации"
+    expected: ["openapi_документация.md", "swagger_интеграция.md", "документация_api.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  
+  # English test cases
+  - query: "OAuth 2.0 authentication implementation REST API"
+    expected: ["oauth2_guide.md", "rest_auth.md", "jwt_tokens.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "API versioning backward compatibility strategies"
+    expected: ["api_versioning.md", "compatibility_guide.md", "api_design.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "en"
+  - query: "Redis caching database optimization patterns"
+    expected: ["redis_patterns.md", "db_optimization.md", "cache_strategies.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Mobile offline-first architecture local storage"
+    expected: ["offline_apps.md", "local_storage.md", "data_sync.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "Server-side rendering vs client-side performance"
+    expected: ["ssr_csr.md", "web_performance.md", "react_guide.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "en"
+  - query: "CI/CD pipeline Node.js deployment automation"
+    expected: ["nodejs_cicd.md", "github_actions.md", "testing_automation.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "GraphQL vs REST API design considerations"
+    expected: ["graphql_rest.md", "api_comparison.md", "query_optimization.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "en"
+  - query: "Rate limiting API endpoints implementation"
+    expected: ["rate_limiting.md", "api_security.md", "ddos_protection.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "Database migration zero downtime production"
+    expected: ["db_migration.md", "zero_downtime.md", "schema_versioning.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "iOS push notifications APNs integration"
+    expected: ["ios_notifications.md", "apns_guide.md", "mobile_patterns.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "en"
+  - query: "Android WorkManager background tasks"
+    expected: ["android_tasks.md", "workmanager.md", "android_components.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "WebSocket real-time communication implementation"
+    expected: ["websocket_impl.md", "realtime_comm.md", "socket_io.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Microservices communication service mesh"
+    expected: ["microservices_comm.md", "service_mesh.md", "istio_config.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "React state management Redux Context API"
+    expected: ["react_state.md", "redux_context.md", "frontend_patterns.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "en"
+  - query: "OpenAPI Swagger documentation automation"
+    expected: ["openapi_docs.md", "swagger_integration.md", "api_docs.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+
+# СИСТЕМНЫЙ/БИЗНЕС АНАЛИТИК / SYSTEM/BUSINESS ANALYST (30 кейсов)
+analyst:
+  # Russian test cases
+  - query: "Написание пользовательских историй критерии приемки"
+    expected: ["пользовательские_истории.md", "критерии_приемки.md", "agile_требования.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Анализ заинтересованных сторон карта влияния"
+    expected: ["анализ_стейкхолдеров.md", "карта_влияния.md", "вовлечение.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Расчет ROI технологические инвестиции"
+    expected: ["roi_фреймворк.md", "технические_инвестиции.md", "бизнес_кейс.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "ru"
+  - query: "Gap анализ бизнес процессы методология"
+    expected: ["gap_анализ.md", "анализ_процессов.md", "улучшение.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Матрица трассировки требований создание"
+    expected: ["матрица_трассировки.md", "управление_требованиями.md", "лучшие_практики.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "BPMN моделирование бизнес процессов"
+    expected: ["bpmn_руководство.md", "документация_процессов.md", "инструменты_моделирования.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "ru"
+  - query: "Диаграммы потоков данных системный анализ"
+    expected: ["поток_данных.md", "системный_анализ.md", "моделирование_данных.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Моделирование вариантов использования разработка сценариев"
+    expected: ["моделирование_use_case.md", "разработка_сценариев.md", "uml_диаграммы.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Документирование бизнес правил управление"
+    expected: ["бизнес_правила.md", "управление_правилами.md", "спецификация_логики.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "ru"
+  - query: "Анализ затрат и выгод программные проекты"
+    expected: ["анализ_затрат_выгод.md", "экономика_проектов.md", "оценка.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Выявление требований воркшоп техники"
+    expected: ["выявление.md", "воркшопы.md", "интервью.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  - query: "Карта пути пользователя дизайн опыта"
+    expected: ["карта_пути.md", "ux_дизайн.md", "точки_контакта.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Agile оценка planning poker"
+    expected: ["agile_оценка.md", "planning_poker.md", "story_points.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "ru"
+  - query: "Картирование бизнес способностей оценка"
+    expected: ["картирование_способностей.md", "оценка.md", "корпоративная_модель.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "ru"
+  - query: "Анализ влияния изменений модификации системы"
+    expected: ["анализ_влияния.md", "модификации_системы.md", "управление_изменениями.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "ru"
+  
+  # English test cases
+  - query: "User stories acceptance criteria writing"
+    expected: ["user_stories.md", "acceptance_criteria.md", "agile_requirements.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "Stakeholder analysis influence mapping"
+    expected: ["stakeholder_analysis.md", "influence_mapping.md", "engagement.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "ROI calculation technology investment"
+    expected: ["roi_framework.md", "tech_investment.md", "business_case.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "en"
+  - query: "Gap analysis business process methodology"
+    expected: ["gap_analysis.md", "process_analysis.md", "improvement.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Requirements traceability matrix creation"
+    expected: ["traceability_matrix.md", "requirements_mgmt.md", "best_practices.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "BPMN business process modeling"
+    expected: ["bpmn_guide.md", "process_documentation.md", "modeling_tools.md"]
+    scores: [1.0, 0.8, 0.7]
+    language: "en"
+  - query: "Data flow diagrams system analysis"
+    expected: ["data_flow.md", "system_analysis.md", "data_modeling.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "Use case modeling scenario development"
+    expected: ["use_case_modeling.md", "scenario_dev.md", "uml_diagrams.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Business rules documentation management"
+    expected: ["business_rules.md", "rule_management.md", "logic_spec.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "en"
+  - query: "Cost-benefit analysis software projects"
+    expected: ["cost_benefit.md", "project_economics.md", "valuation.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Requirements elicitation workshop techniques"
+    expected: ["elicitation.md", "workshops.md", "interviews.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+  - query: "User journey mapping experience design"
+    expected: ["journey_mapping.md", "ux_design.md", "touchpoints.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Agile estimation planning poker"
+    expected: ["agile_estimation.md", "planning_poker.md", "story_points.md"]
+    scores: [1.0, 0.9, 0.7]
+    language: "en"
+  - query: "Business capability mapping assessment"
+    expected: ["capability_mapping.md", "assessment.md", "enterprise_model.md"]
+    scores: [1.0, 0.8, 0.8]
+    language: "en"
+  - query: "Change impact analysis system modifications"
+    expected: ["impact_analysis.md", "system_mods.md", "change_mgmt.md"]
+    scores: [1.0, 0.9, 0.8]
+    language: "en"
+
+# СИСТЕМНЫЙ АРХИТЕКТОР (15 кейсов)
+architect:
+  - query: "Паттерн Circuit breaker микросервисы"
+    expected: ["circuit_breaker.md", "паттерны_устойчивости.md", "отказоустойчивость.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "CQRS Event Sourcing архитектурные паттерны"
+    expected: ["cqrs_event_sourcing.md", "событийная_архитектура.md", "распределенные_паттерны.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Высокая доступность отказоустойчивость дизайн"
+    expected: ["высокая_доступность.md", "отказоустойчивость.md", "резервирование.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Горизонтальное вертикальное масштабирование стратегии"
+    expected: ["масштабируемость.md", "горизонтальное_масштабирование.md", "балансировка_нагрузки.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Шардинг базы данных стратегии партиционирования"
+    expected: ["шардинг_бд.md", "партиционирование.md", "распределенная_бд.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "API Gateway паттерны дизайна"
+    expected: ["api_gateway.md", "микросервисы_api.md", "маршрутизация.md"]
+    scores: [1.0, 0.9, 0.7]
+  - query: "Событийная архитектура очереди сообщений"
+    expected: ["событийная_архитектура.md", "очереди_сообщений.md", "асинхронная_коммуникация.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Паттерн Saga распределенные транзакции"
+    expected: ["saga_паттерн.md", "распределенные_транзакции.md", "eventual_consistency.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Распределенное кеширование стратегии Redis"
+    expected: ["распределенное_кеширование.md", "когерентность_кеша.md", "redis_кластер.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Service mesh Istio архитектура"
+    expected: ["service_mesh.md", "istio_реализация.md", "сетевое_взаимодействие_микросервисов.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Domain-driven design ограниченные контексты"
+    expected: ["ddd.md", "ограниченные_контексты.md", "стратегические_паттерны.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Согласованность данных распределенные системы"
+    expected: ["согласованность_данных.md", "cap_теорема.md", "eventual_consistency.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Паттерн Bulkhead изоляция системы"
+    expected: ["bulkhead_паттерн.md", "изоляция.md", "пулы_ресурсов.md"]
+    scores: [1.0, 0.8, 0.7]
+  - query: "Strangler Fig миграция легаси"
+    expected: ["strangler_fig.md", "миграция_легаси.md", "модернизация.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Тестирование производительности планирование мощности"
+    expected: ["тестирование_производительности.md", "планирование_мощности.md", "нагрузочное_тестирование.md"]
+    scores: [1.0, 0.8, 0.8]
+
+# БИЗНЕС АРХИТЕКТОР (15 кейсов)
+business_architect:
+  - query: "Методология картирования корпоративных способностей"
+    expected: ["картирование_способностей.md", "планирование_способностей.md", "оценка.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Моделирование бизнес доменов архитектура"
+    expected: ["моделирование_доменов.md", "декомпозиция.md", "границы.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Владение данными фреймворки управления"
+    expected: ["владение_данными.md", "управление.md", "стюардство.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Архитектура бизнес процессов оптимизация"
+    expected: ["архитектура_процессов.md", "оптимизация.md", "реинжиниринг.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Фреймворки корпоративной архитектуры TOGAF"
+    expected: ["фреймворки_ка.md", "togaf_zachman.md", "выбор_фреймворка.md"]
+    scores: [1.0, 0.9, 0.7]
+  - query: "Бизнес модель canvas цифровая трансформация"
+    expected: ["бизнес_модель.md", "цифровая_трансформация.md", "инновации.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Картирование потока ценности процессы"
+    expected: ["поток_ценности.md", "lean_процессы.md", "анализ_ценности.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Операционная модель организационный дизайн"
+    expected: ["операционная_модель.md", "организационная_структура.md", "управление.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Идентификация бизнес сервисов моделирование"
+    expected: ["моделирование_сервисов.md", "идентификация.md", "архитектура_сервисов.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Цифровая стратегия технологическая дорожная карта"
+    expected: ["цифровая_стратегия.md", "технологическая_дорожная_карта.md", "трансформация.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Корпоративная архитектура данных моделирование"
+    expected: ["архитектура_данных.md", "стандарты_моделирования.md", "мастер_данные.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Архитектура бизнес правил управление"
+    expected: ["архитектура_правил.md", "движок_правил.md", "экстернализация_логики.md"]
+    scores: [1.0, 0.8, 0.7]
+  - query: "Архитектура клиентского пути точки касания"
+    expected: ["архитектура_пути.md", "оптимизация_точек_касания.md", "омниканальность.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Тепловая карта способностей gap анализ"
+    expected: ["тепловая_карта.md", "пробелы_способностей.md", "оценка_зрелости.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Корпоративная информационная архитектура системы"
+    expected: ["информационная_архитектура.md", "поток_информации.md", "паттерны_данных.md"]
+    scores: [1.0, 0.8, 0.8]
+
+# QA/SDET (15 кейсов)
+qa_sdet:
+  - query: "Автоматизация API тестирования REST Assured"
+    expected: ["автоматизация_api.md", "rest_assured.md", "паттерны_api.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Chaos engineering тестирование внедрения сбоев"
+    expected: ["chaos_engineering.md", "внедрение_сбоев.md", "тестирование_устойчивости.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Негативное тестирование граничные случаи сценарии"
+    expected: ["негативное_тестирование.md", "граничные_случаи.md", "тестирование_границ.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Автоматизация регрессионного тестирования стратегии"
+    expected: ["автоматизация_регрессий.md", "сопровождение_тестов.md", "стратегии_регрессий.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Тестирование производительности JMeter LoadRunner"
+    expected: ["производительность_jmeter.md", "loadrunner.md", "дизайн_производительности.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Контрактное тестирование микросервисов PACT"
+    expected: ["контрактное_тестирование.md", "pact_фреймворк.md", "потребительские_контракты.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Тестирование безопасности оценка уязвимостей"
+    expected: ["тестирование_безопасности.md", "оценка_уязвимостей.md", "пентест.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Управление тестовыми данными генерация"
+    expected: ["управление_тестовыми_данными.md", "синтетические_данные.md", "соответствие_приватности.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Непрерывное тестирование CI/CD пайплайны"
+    expected: ["непрерывное_тестирование.md", "тестирование_пайплайнов.md", "shift_left.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Автоматизация мобильного тестирования Appium"
+    expected: ["мобильная_автоматизация.md", "appium_фреймворк.md", "мобильные_стратегии.md"]
+    scores: [1.0, 0.9, 0.7]
+  - query: "Тестирование базы данных валидация данных"
+    expected: ["тестирование_бд.md", "валидация_данных.md", "sql_фреймворки.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Кроссбраузерное тестирование Selenium Grid"
+    expected: ["кроссбраузерное.md", "selenium_grid.md", "совместимость.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Визуальное регрессионное тестирование скриншоты"
+    expected: ["визуальные_регрессии.md", "инструменты_скриншотов.md", "ui_автоматизация.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Управление тестовой средой контейнеризация Docker"
+    expected: ["тестовая_среда.md", "контейнеризованное_тестирование.md", "docker_тестирование.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Мутационное тестирование оценка качества"
+    expected: ["мутационное_тестирование.md", "качество_тестов.md", "анализ_покрытия.md"]
+    scores: [1.0, 0.8, 0.7]
+
+# DEVOPS/SRE/БЕЗОПАСНОСТЬ (15 кейсов)
+devops_sre:
+  - query: "SLI SLO надежность микросервисов"
+    expected: ["sli_slo.md", "метрики_надежности.md", "практики_sre.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Бюджет ошибок анализ скорости выгорания"
+    expected: ["бюджет_ошибок.md", "скорость_выгорания.md", "политика_бюджета.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Реагирование на инциденты анализ post-mortem"
+    expected: ["реагирование_на_инциденты.md", "post_mortem.md", "управление_инцидентами.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "HashiCorp Vault управление секретами"
+    expected: ["vault_секреты.md", "ротация_секретов.md", "политики_vault.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Kubernetes RBAC реализация безопасности"
+    expected: ["k8s_rbac.md", "безопасность_k8s.md", "политики_подов.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Blue-green развертывание стратегии отката"
+    expected: ["blue_green.md", "стратегии_отката.md", "нулевое_время_простоя.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Prometheus Grafana мониторинг наблюдаемости"
+    expected: ["настройка_prometheus.md", "дашборды_grafana.md", "наблюдаемость.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "GitOps ArgoCD непрерывное развертывание"
+    expected: ["gitops_argocd.md", "непрерывное_развертывание.md", "конфигурация_argocd.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Сканирование безопасности контейнеров соответствие"
+    expected: ["безопасность_контейнеров.md", "безопасность_docker.md", "соответствие.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Автоматизация ротации секретов стратегии"
+    expected: ["автоматизация_ротации.md", "управление_учетными_данными.md", "ротация_сертификатов.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Terraform инфраструктура как код"
+    expected: ["terraform_iac.md", "практики_iac.md", "управление_состоянием.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Усиление безопасности кластера Kubernetes"
+    expected: ["усиление_k8s.md", "безопасность_кластера.md", "сетевые_политики.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Автоматизированное резервное копирование аварийное восстановление"
+    expected: ["стратегии_резервного_копирования.md", "аварийное_восстановление.md", "тестирование_резервных_копий.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "ELK стек агрегация логов анализ"
+    expected: ["агрегация_elk.md", "elasticsearch.md", "настройка_kibana.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Zero-trust сетевая безопасность архитектура"
+    expected: ["zero_trust.md", "сетевая_безопасность.md", "микросегментация.md"]
+    scores: [1.0, 0.9, 0.8]
+
+# ПРОДАКТ МЕНЕДЖЕР (15 кейсов)
+product_manager:
+  - query: "Продуктовая дорожная карта выравнивание OKR"
+    expected: ["продуктовая_дорожная_карта.md", "выравнивание_okr.md", "стратегическое_планирование.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Приоритизация функций метод MoSCoW"
+    expected: ["приоритизация_функций.md", "метод_moscow.md", "фреймворки_приоритизации.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "A/B тестирование дизайн экспериментов"
+    expected: ["ab_тестирование.md", "дизайн_экспериментов.md", "статистическая_значимость.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Анализ отзывов пользователей продуктовые инсайты"
+    expected: ["отзывы_пользователей.md", "анализ_отзывов.md", "продуктовые_инсайты.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Продуктовые метрики KPI дашборд"
+    expected: ["продуктовые_метрики.md", "kpi_дашборд.md", "фреймворк_метрик.md"]
+    scores: [1.0, 0.9, 0.7]
+  - query: "Маркетинговые исследования конкурентный анализ"
+    expected: ["маркетинговые_исследования.md", "конкурентный_анализ.md", "рыночная_аналитика.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Запуск продукта go-to-market стратегия"
+    expected: ["запуск_продукта.md", "gtm_стратегия.md", "планирование_запуска.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Разработка пользовательских персон исследования"
+    expected: ["пользовательские_персоны.md", "разработка_персон.md", "пользовательские_исследования.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Управление продуктовым бэклогом Scrum"
+    expected: ["управление_бэклогом.md", "scrum_продукт.md", "приоритизация_бэклога.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Оптимизация клиентского пути точки касания"
+    expected: ["клиентский_путь.md", "оптимизация_пути.md", "анализ_точек_касания.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Продуктовая аналитика Google Analytics"
+    expected: ["продуктовая_аналитика.md", "google_analytics.md", "реализация_аналитики.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Минимально жизнеспособный продукт MVP стратегия"
+    expected: ["mvp_стратегия.md", "lean_startup.md", "валидация_продукта.md"]
+    scores: [1.0, 0.8, 0.7]
+  - query: "Стратегия ценообразования продукта модели"
+    expected: ["стратегия_ценообразования.md", "модели_ценообразования.md", "ценообразование_на_основе_ценности.md"]
+    scores: [1.0, 0.8, 0.8]
+  - query: "Управление жизненным циклом продукта стратегии"
+    expected: ["управление_жизненным_циклом.md", "жизненный_цикл_продукта.md", "стратегии_жизненного_цикла.md"]
+    scores: [1.0, 0.9, 0.8]
+  - query: "Видение продукта заявление о миссии"
+    expected: ["видение_продукта.md", "заявление_о_миссии.md", "фреймворк_видения.md"]
+    scores: [1.0, 0.8, 0.8] 

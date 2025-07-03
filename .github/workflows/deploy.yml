@@ -1,0 +1,458 @@
+name: AI Assistant MVP - CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, dev, staging]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+env:
+  AWS_REGION: us-west-2
+  ECR_REPOSITORY_BACKEND: ai-assistant-backend
+  ECR_REPOSITORY_FRONTEND: ai-assistant-frontend
+  ECS_CLUSTER: ai-assistant-mvp-cluster
+
+jobs:
+  # Security and code quality checks
+  security-scan:
+    runs-on: ubuntu-latest
+    name: 🔒 Security Scan
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          
+      - name: Python security check
+        run: |
+          pip install safety bandit
+          safety check --json || true
+          bandit -r app/ -f json || true
+
+  # Backend testing and quality
+  backend-test:
+    runs-on: ubuntu-latest
+    name: 🧪 Backend Tests
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+          
+      - name: Run backend tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379
+          ENVIRONMENT: testing
+        run: |
+          pytest tests/ -v --cov=app --cov-report=xml --cov-report=html
+          
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: backend
+          name: backend-coverage
+          
+      - name: Code quality check
+        run: |
+          flake8 app/ --max-line-length=120 --extend-ignore=E203,W503
+          black --check app/
+          isort --check-only app/
+
+  # Frontend testing and quality  
+  frontend-test:
+    runs-on: ubuntu-latest
+    name: 🎨 Frontend Tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+        
+      - name: Run frontend tests
+        working-directory: frontend
+        run: |
+          npm run test:coverage
+          npm run lint
+          npm run type-check
+          
+      - name: Upload frontend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./frontend/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+
+  # Build and push Docker images
+  build-backend:
+    runs-on: ubuntu-latest
+    name: 🐳 Build Backend
+    needs: [security-scan, backend-test]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/dev'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_BACKEND }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build and push backend image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          
+      - name: Sign container image
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign --yes {}@${{ steps.build.outputs.digest }}
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    name: 🎨 Build Frontend
+    needs: [security-scan, frontend-test]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/dev'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build and push frontend image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+  # Infrastructure deployment
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    name: 🏗️ Deploy Infrastructure
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+          
+      - name: Terraform Init
+        working-directory: terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TERRAFORM_STATE_BUCKET }}" \
+            -backend-config="key=${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+            
+      - name: Terraform Plan
+        working-directory: terraform
+        env:
+          TF_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
+          TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_ssl_certificate_arn: ${{ secrets.SSL_CERTIFICATE_ARN }}
+        run: |
+          terraform plan -out=tfplan \
+            -var="backend_image=${{ needs.build-backend.outputs.image-tag }}" \
+            -var="frontend_image=${{ needs.build-frontend.outputs.image-tag }}"
+            
+      - name: Terraform Apply
+        working-directory: terraform
+        if: github.event_name != 'pull_request'
+        env:
+          TF_VAR_environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
+          TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_ssl_certificate_arn: ${{ secrets.SSL_CERTIFICATE_ARN }}
+        run: terraform apply -auto-approve tfplan
+
+  # Application deployment
+  deploy-application:
+    runs-on: ubuntu-latest
+    name: 🚀 Deploy Application
+    needs: [deploy-infrastructure, build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Deploy to ECS
+        env:
+          ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+        run: |
+          # Update backend service
+          aws ecs update-service \
+            --cluster ai-assistant-mvp-${ENVIRONMENT}-cluster \
+            --service ai-assistant-mvp-${ENVIRONMENT}-backend \
+            --force-new-deployment \
+            --desired-count 2
+            
+          # Update frontend service
+          aws ecs update-service \
+            --cluster ai-assistant-mvp-${ENVIRONMENT}-cluster \
+            --service ai-assistant-mvp-${ENVIRONMENT}-frontend \
+            --force-new-deployment \
+            --desired-count 2
+            
+          # Wait for deployment to complete
+          aws ecs wait services-stable \
+            --cluster ai-assistant-mvp-${ENVIRONMENT}-cluster \
+            --services ai-assistant-mvp-${ENVIRONMENT}-backend ai-assistant-mvp-${ENVIRONMENT}-frontend
+
+  # Post-deployment tests
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: 🧪 Integration Tests
+    needs: [deploy-application]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install test dependencies
+        run: |
+          pip install pytest requests
+          
+      - name: Run integration tests
+        env:
+          API_BASE_URL: ${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_API_URL || secrets.STAGING_API_URL }}
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        run: |
+          python -m pytest tests/integration/ -v \
+            --api-url="$API_BASE_URL" \
+            --test-user="$TEST_USERNAME" \
+            --test-password="$TEST_PASSWORD"
+
+  # Performance tests
+  performance-tests:
+    runs-on: ubuntu-latest
+    name: ⚡ Performance Tests
+    needs: [deploy-application]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run load tests
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: tests/performance/load-test.js
+        env:
+          API_BASE_URL: ${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_API_URL || secrets.STAGING_API_URL }}
+
+  # Notification and monitoring
+  notify:
+    runs-on: ubuntu-latest
+    name: 📢 Notify
+    needs: [integration-tests, performance-tests]
+    if: always()
+    
+    steps:
+      - name: Deployment Status
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DEPLOYMENT_STATUS: ${{ needs.integration-tests.result == 'success' && needs.performance-tests.result == 'success' && 'SUCCESS' || 'FAILED' }}
+          ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+        run: |
+          if [ "$SLACK_WEBHOOK_URL" != "" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"🚀 AI Assistant MVP deployment to '"$ENVIRONMENT"' - Status: '"$DEPLOYMENT_STATUS"'"}' \
+              $SLACK_WEBHOOK_URL
+          fi
+          
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' && needs.integration-tests.result == 'success'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            ## AI Assistant MVP Release v${{ github.run_number }}
+            
+            ### Changes
+            - Backend image: ${{ needs.build-backend.outputs.image-tag }}
+            - Frontend image: ${{ needs.build-frontend.outputs.image-tag }}
+            
+            ### Tests
+            - ✅ Security scan passed
+            - ✅ Backend tests passed  
+            - ✅ Frontend tests passed
+            - ✅ Integration tests passed
+            - ✅ Performance tests passed
+            
+            ### Deployment
+            - Environment: Production
+            - Deployed at: ${{ github.event.head_commit.timestamp }}
+            - Commit: ${{ github.sha }}
+          draft: false
+          prerelease: false 

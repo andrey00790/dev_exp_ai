@@ -1,0 +1,157 @@
+{
+  "test_timestamp": "2025-06-24T23:18:12.959860",
+  "test_suite": "Comprehensive Load Testing",
+  "tests": {
+    "health_check": {
+      "test_name": "API Load Test - /health",
+      "concurrent_users": 100,
+      "total_requests": 500,
+      "successful_requests": 500,
+      "failed_requests": 0,
+      "avg_response_time": 0.13266926097869874,
+      "min_response_time": 0.002146005630493164,
+      "max_response_time": 1.1922569274902344,
+      "p95_response_time": 0.9137482047080994,
+      "requests_per_second": 372.1406295055786,
+      "error_rate": 0.0,
+      "test_duration": 1.3435781002044678,
+      "memory_usage_start": 49.71875,
+      "memory_usage_end": 133.5,
+      "memory_delta": 83.78125
+    },
+    "budget_status": {
+      "test_name": "API Load Test - /api/v1/budget/status",
+      "concurrent_users": 50,
+      "total_requests": 500,
+      "successful_requests": 0,
+      "failed_requests": 500,
+      "avg_response_time": 0.03632316875457764,
+      "min_response_time": 0.0007281303405761719,
+      "max_response_time": 0.613516092300415,
+      "p95_response_time": 0.3348075389862061,
+      "requests_per_second": 626.7157603256414,
+      "error_rate": 100.0,
+      "test_duration": 0.7978098392486572,
+      "memory_usage_start": 133.515625,
+      "memory_usage_end": 174.40625,
+      "memory_delta": 40.890625
+    },
+    "performance_stats": {
+      "test_name": "API Load Test - /api/v1/performance/cache/stats",
+      "concurrent_users": 25,
+      "total_requests": 125,
+      "successful_requests": 0,
+      "failed_requests": 125,
+      "avg_response_time": 0.03276286697387695,
+      "min_response_time": 0.0006539821624755859,
+      "max_response_time": 0.28984498977661133,
+      "p95_response_time": 0.23589577674865722,
+      "requests_per_second": 333.48280930872767,
+      "error_rate": 100.0,
+      "test_duration": 0.3748319149017334,
+      "memory_usage_start": 174.40625,
+      "memory_usage_end": 194.4375,
+      "memory_delta": 20.03125
+    },
+    "async_tasks": {
+      "test_name": "Async Task Load Test",
+      "concurrent_users": 30,
+      "total_requests": 60,
+      "successful_requests": 60,
+      "failed_requests": 0,
+      "avg_response_time": 0.10496852397918702,
+      "min_response_time": 0.0015869140625,
+      "max_response_time": 0.3691229820251465,
+      "p95_response_time": 0.34882546663284303,
+      "requests_per_second": 95.5658879874593,
+      "error_rate": 0.0,
+      "test_duration": 0.6278390884399414,
+      "memory_usage_start": 194.4375,
+      "memory_usage_end": 218.5,
+      "memory_delta": 24.0625
+    },
+    "websocket_connections": {
+      "test_name": "WebSocket Load Test",
+      "concurrent_users": 20,
+      "total_requests": 0,
+      "successful_requests": 0,
+      "failed_requests": 0,
+      "avg_response_time": 0.0,
+      "min_response_time": 0.0,
+      "max_response_time": 0.0,
+      "p95_response_time": 0.0,
+      "requests_per_second": 0.0,
+      "error_rate": 100.0,
+      "test_duration": 0.046716928482055664,
+      "memory_usage_start": 218.5,
+      "memory_usage_end": 220.65625,
+      "memory_delta": 2.15625
+    }
+  },
+  "performance_summary": {
+    "total_tests": 5,
+    "total_requests": 1185,
+    "successful_requests": 560,
+    "overall_success_rate": 47.257383966244724,
+    "avg_response_time": 0.06134476413726807,
+    "max_response_time": 1.1922569274902344,
+    "total_test_duration": 3.1907758712768555,
+    "max_concurrent_users": 100,
+    "max_requests_per_second": 626.7157603256414
+  },
+  "regressions": {
+    "health_check": {
+      "status": "regression_detected",
+      "issues": [
+        "Response time regression: 0.133s > 0.100s"
+      ],
+      "baseline": {
+        "endpoint": "/health",
+        "max_response_time": 0.1,
+        "min_success_rate": 99.0,
+        "max_memory_usage": 100.0,
+        "max_error_rate": 1.0
+      }
+    },
+    "budget_status": {
+      "status": "regression_detected",
+      "issues": [
+        "Success rate regression: 0.0% < 95.0%",
+        "Error rate regression: 100.0% > 5.0%"
+      ],
+      "baseline": {
+        "endpoint": "/api/v1/budget/status",
+        "max_response_time": 0.2,
+        "min_success_rate": 95.0,
+        "max_memory_usage": 150.0,
+        "max_error_rate": 5.0
+      }
+    },
+    "performance_stats": {
+      "status": "regression_detected",
+      "issues": [
+        "Success rate regression: 0.0% < 95.0%",
+        "Error rate regression: 100.0% > 5.0%"
+      ],
+      "baseline": {
+        "endpoint": "/api/v1/performance/cache/stats",
+        "max_response_time": 0.3,
+        "min_success_rate": 95.0,
+        "max_memory_usage": 120.0,
+        "max_error_rate": 5.0
+      }
+    },
+    "async_tasks": {
+      "status": "performance_acceptable",
+      "message": "No performance regressions detected"
+    }
+  },
+  "critical_issues": [
+    "Response time regression: 0.133s > 0.100s",
+    "Success rate regression: 0.0% < 95.0%",
+    "Error rate regression: 100.0% > 5.0%",
+    "Success rate regression: 0.0% < 95.0%",
+    "Error rate regression: 100.0% > 5.0%"
+  ],
+  "overall_status": "FAIL"
+}

@@ -1,0 +1,104 @@
+# AI Assistant MVP - Grafana Datasources Configuration
+# Configures all monitoring data sources for comprehensive observability
+
+apiVersion: 1
+
+datasources:
+  # Prometheus - Primary metrics source
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      prometheusType: Prometheus
+      prometheusVersion: 2.45.0
+      cacheLevel: 'High'
+      disableRecordingRules: false
+      incrementalQuerying: true
+      queryTimeout: 60s
+      defaultEditor: code
+    secureJsonData: {}
+
+  # Loki - Log aggregation
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: jaeger
+          matcherRegex: 'trace_id=(\w+)'
+          name: TraceID
+          url: '$${__value.raw}'
+        - datasourceUid: jaeger
+          matcherRegex: 'traceID=(\w+)'
+          name: TraceID
+          url: '$${__value.raw}'
+
+  # Jaeger - Distributed tracing
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [
+          { key: 'service.name', value: 'service' }
+        ]
+        mapTagNamesEnabled: true
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        filterBySpanID: false
+      nodeGraph:
+        enabled: true
+      spanBar:
+        type: 'Tag'
+        tag: 'http.method'
+
+  # TestData - For demo dashboards and testing
+  - name: TestData
+    type: testdata
+    access: proxy
+    editable: false
+    isDefault: false
+
+  # Postgres - Direct database queries (if needed)
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: host.docker.internal:5432
+    database: ai_assistant
+    user: postgres
+    editable: false
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: false
+    secureJsonData:
+      password: postgres
+
+  # Redis insights (via Prometheus)
+  - name: Redis
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    editable: false
+    jsonData:
+      httpMethod: POST
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: jaeger
+
+# Additional datasource configurations for production
+deleteDatasources:
+  - name: TestData-old
+    orgId: 1 

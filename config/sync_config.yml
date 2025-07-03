@@ -1,0 +1,270 @@
+# Конфигурация синхронизации данных
+# Автоматическая загрузка и обновление данных из различных источников
+
+sync_jobs:
+  # Confluence - основная база знаний
+  - source_type: "confluence"
+    source_name: "main_confluence"
+    enabled: true
+    schedule: "0 2 * * *"  # Каждый день в 2:00
+    incremental: true
+    config:
+      url: "https://your-company.atlassian.net"
+      username: "ai-assistant@company.com"
+      api_token: "${CONFLUENCE_API_TOKEN}"
+      spaces:
+        - "TECH"      # Техническая документация
+        - "PROJ"      # Проектная документация
+        - "ARCH"      # Архитектура
+        - "API"       # API документация
+      page_filters:
+        - "updated >= -7d"  # Только обновленные за последнюю неделю
+      max_pages_per_run: 500
+
+  # GitLab - репозитории с кодом и документацией
+  - source_type: "gitlab"
+    source_name: "main_gitlab"
+    enabled: true
+    schedule: "0 3 * * *"  # Каждый день в 3:00
+    incremental: true
+    config:
+      url: "https://gitlab.company.com"
+      token: "${GITLAB_API_TOKEN}"
+      groups:
+        - "backend-team"
+        - "frontend-team"
+        - "devops-team"
+        - "architecture"
+      file_extensions:
+        - ".md"
+        - ".rst"
+        - ".txt"
+        - ".py"
+        - ".js"
+        - ".yaml"
+        - ".yml"
+      exclude_paths:
+        - "node_modules/"
+        - ".git/"
+        - "venv/"
+        - "__pycache__/"
+      max_file_size_mb: 5
+
+  # Jira - задачи, требования, баги
+  - source_type: "jira"
+    source_name: "main_jira"
+    enabled: true
+    schedule: "0 4 * * *"  # Каждый день в 4:00
+    incremental: true
+    config:
+      url: "https://your-company.atlassian.net"
+      username: "ai-assistant@company.com"
+      api_token: "${JIRA_API_TOKEN}"
+      projects:
+        - "PROJ"      # Основной проект
+        - "TECH"      # Технические задачи
+        - "ARCH"      # Архитектурные задачи
+        - "BUG"       # Баги
+      issue_types:
+        - "Story"
+        - "Task"
+        - "Bug"
+        - "Epic"
+        - "Requirement"
+      jql_filter: "updated >= -7d"  # Обновленные за неделю
+      include_comments: true
+      include_attachments: false
+
+  # Локальные файлы для обучения
+  - source_type: "local_files"
+    source_name: "bootstrap"
+    enabled: true
+    schedule: "*/30 * * * *"  # Каждые 30 минут
+    incremental: false  # Полная синхронизация
+    config:
+      bootstrap_dir: "/app/bootstrap"
+      supported_formats:
+        - ".pdf"
+        - ".txt"
+        - ".md"
+        - ".docx"
+        - ".epub"
+      watch_changes: true
+      max_file_size_mb: 50
+      encoding_detection: true
+
+  # Дополнительный Confluence (если есть несколько инстансов)
+  - source_type: "confluence"
+    source_name: "dev_confluence"
+    enabled: false  # Отключен по умолчанию
+    schedule: "0 5 * * *"  # Каждый день в 5:00
+    incremental: true
+    config:
+      url: "https://dev.atlassian.net"
+      username: "dev-bot@company.com"
+      api_token: "${DEV_CONFLUENCE_API_TOKEN}"
+      spaces:
+        - "DEV"
+        - "TEST"
+
+# Глобальные настройки синхронизации
+global_settings:
+  # Максимальное количество одновременных задач
+  max_concurrent_jobs: 3
+  
+  # Таймаут для задач (в минутах)
+  job_timeout_minutes: 120
+  
+  # Повторные попытки при ошибках
+  retry_failed_jobs: true
+  retry_delay_minutes: 15
+  max_retries: 3
+  
+  # Очистка старых данных
+  cleanup_old_data: true
+  keep_history_days: 30
+  
+  # Уведомления
+  notifications:
+    enabled: true
+    email_on_failure: true
+    email_recipients:
+      - "admin@company.com"
+      - "devops@company.com"
+    slack_webhook: "${SLACK_WEBHOOK_URL}"
+  
+  # Мониторинг
+  monitoring:
+    enabled: true
+    metrics_endpoint: "/metrics"
+    health_check_interval_minutes: 5
+  
+  # Производительность
+  performance:
+    batch_size: 50
+    max_workers: 10
+    timeout_seconds: 300
+    rate_limit_requests_per_minute: 100
+  
+  # Качество данных
+  data_quality:
+    min_content_length: 50
+    skip_binary_files: true
+    detect_language: true
+    filter_duplicates: true
+    content_similarity_threshold: 0.95
+
+# Настройки источников для поиска
+search_sources:
+  # Пользователи могут выбирать источники для поиска
+  user_selectable: true
+  
+  # Источники по умолчанию для новых пользователей
+  default_enabled:
+    - "confluence_main"
+    - "gitlab_main"
+    - "jira_main"
+    - "local_files_bootstrap"
+  
+  # Веса источников для ранжирования результатов
+  source_weights:
+    confluence_main: 1.0
+    gitlab_main: 0.8
+    jira_main: 0.6
+    local_files_bootstrap: 1.2  # Локальные файлы имеют больший вес
+
+# Настройки источников для генерации
+generation_sources:
+  # Для генерации используются все источники по умолчанию
+  use_all_sources: true
+  
+  # Источники можно исключить для специфических случаев
+  allow_source_exclusion: true
+  
+  # Приоритет источников для контекста
+  context_priority:
+    - "local_files_bootstrap"  # Корпоративные стандарты
+    - "confluence_main"        # Документация
+    - "gitlab_main"           # Код и архитектура
+    - "jira_main"             # Требования
+  
+  # Максимальное количество документов для контекста
+  max_context_documents: 20
+  
+  # Фильтры по типам документов для разных видов генерации
+  document_type_filters:
+    rfc:
+      - "confluence_main"
+      - "local_files_bootstrap"
+    architecture:
+      - "confluence_main"
+      - "gitlab_main"
+      - "local_files_bootstrap"
+    documentation:
+      - "confluence_main"
+      - "gitlab_main"
+      - "jira_main"
+
+# Настройки обработки контента
+content_processing:
+  # Разбивка на чанки
+  chunking:
+    chunk_size: 1000
+    chunk_overlap: 200
+    split_on_sentences: true
+  
+  # Векторизация
+  embeddings:
+    model: "sentence-transformers/all-MiniLM-L6-v2"
+    batch_size: 32
+    normalize: true
+  
+  # Очистка текста
+  text_cleaning:
+    remove_html: true
+    remove_urls: true
+    normalize_whitespace: true
+    min_word_count: 10
+  
+  # Извлечение метаданных
+  metadata_extraction:
+    extract_title: true
+    extract_author: true
+    extract_dates: true
+    extract_tags: true
+    extract_language: true
+
+# Настройки хранения
+storage:
+  # База данных
+  database:
+    connection_pool_size: 20
+    max_overflow: 30
+    pool_timeout: 30
+    
+  # Векторное хранилище
+  vector_store:
+    collection_prefix: "ai_assistant"
+    vector_size: 384
+    distance_metric: "cosine"
+    index_type: "HNSW"
+    
+  # Кэширование
+  cache:
+    enabled: true
+    ttl_hours: 24
+    max_size_mb: 1000
+
+# Логирование
+logging:
+  level: "INFO"
+  format: "json"
+  file: "/app/logs/sync.log"
+  rotation: "daily"
+  retention_days: 30
+  
+  # Структурированное логирование
+  structured:
+    enabled: true
+    include_context: true
+    include_performance: true 

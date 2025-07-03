@@ -1,0 +1,27 @@
+apiVersion: v2
+name: ai-assistant
+description: AI Assistant MVP Helm Chart for Kubernetes deployment
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - ai
+  - assistant
+  - llm
+  - rag
+  - semantic-search
+home: https://github.com/company/ai-assistant
+sources:
+  - https://github.com/company/ai-assistant
+maintainers:
+  - name: AI Assistant Team
+    email: team@company.com
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: "17.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled 

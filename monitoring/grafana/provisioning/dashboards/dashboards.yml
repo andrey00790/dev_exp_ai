@@ -1,0 +1,50 @@
+# AI Assistant MVP - Grafana Dashboard Provisioning
+# Configures automatic dashboard loading and organization
+
+apiVersion: 1
+
+providers:
+  # Main application dashboards
+  - name: 'ai-assistant-application'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/application
+
+  # Infrastructure dashboards
+  - name: 'ai-assistant-infrastructure'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/infrastructure
+
+  # Business metrics dashboards
+  - name: 'ai-assistant-business'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/business
+
+  # Security monitoring dashboards
+  - name: 'ai-assistant-security'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/security
+
+  # Performance monitoring dashboards
+  - name: 'ai-assistant-performance'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/performance 

@@ -1,0 +1,64 @@
+# AI Assistant MVP - Production Backend Dockerfile
+# Multi-stage build for optimal security and performance
+
+# Build stage
+FROM python:3.11-slim
+
+# Build arguments
+ARG BUILD_DATE
+ARG VERSION="2.1.0"
+ARG VCS_REF
+
+# Labels
+LABEL maintainer="AI Assistant Team" \
+      org.opencontainers.image.title="AI Assistant MVP Backend" \
+      org.opencontainers.image.description="Production backend for AI Assistant MVP" \
+      org.opencontainers.image.version=${VERSION} \
+      org.opencontainers.image.created=${BUILD_DATE} \
+      org.opencontainers.image.revision=${VCS_REF} \
+      org.opencontainers.image.source="https://github.com/ai-assistant/mvp"
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    libpq-dev \
+    python3-dev \
+    libmagic1 \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory and user
+RUN useradd --create-home --shell /bin/bash app
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data && \
+    chown -R app:app /app
+
+# Switch to non-root user
+USER app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Run the production application
+CMD ["python3", "-m", "uvicorn", "app.main_production:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"] 

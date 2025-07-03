@@ -1,3 +1,147 @@
+# === CORE WEB FRAMEWORK ===
+fastapi==0.104.1
+fastapi-websocket-pubsub==1.0.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.19
+
+# === HTTP & NETWORKING ===
+httpx==0.25.2
+aiohttp==3.10.11
+requests==2.32.4
+
+# === DATA VALIDATION ===
+# Updated to compatible versions
+pydantic[email]>=2.5.0,<3.0.0
+pydantic-settings>=2.1.0
+
+# === DATABASE ===
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.23
+alembic==1.13.1
+psycopg2-binary>=2.9.0
+
+# === VECTOR DATABASE ===
+qdrant-client==1.6.9
+sentence-transformers==4.1.0
+
+# === LLM & AI ===
+openai==1.3.7
+ollama==0.1.7
+transformers==4.50.0
+torch>=1.13.0
+tiktoken
+
+# === DOCUMENT PROCESSING ===
+PyPDF2==3.0.1
+pdfplumber==0.9.0
+python-docx==1.1.0
+ebooklib==0.18
+python-magic==0.4.27
+chardet==5.2.0
+
+# === DATA SOURCES INTEGRATION ===
+atlassian-python-api==3.41.8
+python-gitlab==4.2.0
+PyGithub==1.59.1
+docker
+
+# === VK TEAMS BOT INTEGRATION ===
+vk-teams-async-bot==0.2.7
+
+# === VK OAUTH INTEGRATION ===
+requests-oauth2client==1.7.0
+social-auth-core==4.5.4
+social-auth-app-django==5.4.1
+
+# === NEW DATASOURCES ===
+ydb==3.11.1
+clickhouse-connect==0.7.19
+asyncio-mqtt==0.16.2
+
+# === BACKGROUND TASKS ===
+celery==5.3.4
+redis==5.0.1
+apscheduler==3.11.0
+
+# === CACHING ===
+aioredis>=2.0.1,<3.0.0
+
+# === MONITORING & LOGGING ===
+structlog==23.2.0
+prometheus-client==0.19.0
+
+# === CONFIGURATION ===
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# === TESTING ===
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-mock==3.12.0
+pytest-cov==4.1.0
+pytest-httpx==0.27.0
+Faker==25.2.0
+
+# === CODE QUALITY ===
+black==24.3.0
+flake8==6.1.0
+mypy==1.7.1
+isort==5.12.0
+
+# === UTILITIES ===
+click==8.1.7
+schedule==1.2.0
+python-crontab==3.0.0
+Jinja2==3.1.2
+MarkupSafe==2.1.3
+
+# === SECURITY ===
+cryptography>=41.0.0,<43.0.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+slowapi
+
+# === WEB SCRAPING ===
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# === DATA SCIENCE & ANALYTICS ===
+pandas==2.1.3
+numpy==1.24.4
+matplotlib==3.8.2
+seaborn==0.13.0
+scikit-learn==1.4.2
+plotly>=5.10.0
+
+# === EMAIL & NOTIFICATIONS ===
+aiosmtplib==3.0.1
+emails==0.6
+
+# === FILE STORAGE ===
+minio==7.2.0
+
+# === SERIALIZATION ===
+orjson==3.9.10
+
+# === DATE & TIME ===
+python-dateutil==2.8.2
+
+# === ENVIRONMENT DETECTION ===
+distro==1.8.0
+
+# === ML UTILITIES ===
+datasets>=2.3.0
+evaluate>=0.2.0
+huggingface-hub>=0.8.0
+
+# === PERFORMANCE & OPTIMIZATION ===
+numba>=0.56.0
+joblib>=1.1.0
+psutil==5.9.6
+# Updated for Python 3.11 compatibility
+redis>=4.0.0
+email-validator>=2.0.0
+=======
 PyYAML
 GitPython
 pdfminer.six

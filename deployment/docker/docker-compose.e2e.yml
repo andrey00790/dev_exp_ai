@@ -1,0 +1,205 @@
+version: '3.8'
+
+services:
+  # PostgreSQL для тестов
+  e2e_postgres:
+    image: postgres:15
+    container_name: e2e_postgres
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - e2e_postgres_data:/var/lib/postgresql/data
+    networks:
+      - e2e_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Qdrant для vector search тестов
+  e2e_qdrant:
+    image: qdrant/qdrant:latest
+    container_name: e2e_qdrant
+    ports:
+      - "6334:6333"
+      - "6335:6334"
+    volumes:
+      - e2e_qdrant_data:/qdrant/storage
+    networks:
+      - e2e_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis для кэширования
+  e2e_redis:
+    image: redis:7-alpine
+    container_name: e2e_redis
+    ports:
+      - "6380:6379"
+    networks:
+      - e2e_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Jira для интеграционных тестов
+  e2e_jira:
+    image: atlassian/jira-software:9.4
+    container_name: e2e_jira
+    environment:
+      - ATL_TOMCAT_MGMT_PORT=8006
+      - ATL_TOMCAT_PORT=8080
+      - ATL_TOMCAT_CONTEXTPATH=
+      - JVM_MINIMUM_MEMORY=1024m
+      - JVM_MAXIMUM_MEMORY=2048m
+    ports:
+      - "8081:8080"
+    volumes:
+      - e2e_jira_data:/var/atlassian/application-data/jira
+    networks:
+      - e2e_network
+    depends_on:
+      - e2e_postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  # Confluence для интеграционных тестов
+  e2e_confluence:
+    image: atlassian/confluence:8.5
+    container_name: e2e_confluence
+    environment:
+      - ATL_TOMCAT_MGMT_PORT=8001
+      - ATL_TOMCAT_PORT=8090
+      - ATL_TOMCAT_CONTEXTPATH=
+      - JVM_MINIMUM_MEMORY=1024m
+      - JVM_MAXIMUM_MEMORY=2048m
+    ports:
+      - "8091:8090"
+    volumes:
+      - e2e_confluence_data:/var/atlassian/application-data/confluence
+    networks:
+      - e2e_network
+    depends_on:
+      - e2e_postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  # GitLab для интеграционных тестов
+  e2e_gitlab:
+    image: gitlab/gitlab-ce:16.5.0-ce.0
+    container_name: e2e_gitlab
+    hostname: 'gitlab.test.local'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.test.local:8089'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        # Disable HTTPS
+        nginx['redirect_http_to_https'] = false
+        # Reduce memory usage
+        postgresql['shared_buffers'] = "128MB"
+        postgresql['max_connections'] = 100
+        sidekiq['max_concurrency'] = 10
+    ports:
+      - "8089:8089"
+      - "2224:22"
+    volumes:
+      - e2e_gitlab_config:/etc/gitlab
+      - e2e_gitlab_logs:/var/log/gitlab
+      - e2e_gitlab_data:/var/opt/gitlab
+    networks:
+      - e2e_network
+    shm_size: '256m'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/-/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 180s
+
+  # Elasticsearch для поиска
+  e2e_elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: e2e_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    volumes:
+      - e2e_elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - e2e_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Основное приложение для E2E тестов
+  e2e_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: e2e_app
+    environment:
+      - DATABASE_URL=postgresql://testuser:testpass@e2e_postgres:5432/testdb
+      - QDRANT_HOST=e2e_qdrant
+      - QDRANT_PORT=6333
+      - REDIS_URL=redis://e2e_redis:6379
+      - JIRA_URL=http://e2e_jira:8080
+      - CONFLUENCE_URL=http://e2e_confluence:8090
+      - GITLAB_URL=http://e2e_gitlab:8089
+      - ELASTICSEARCH_URL=http://e2e_elasticsearch:9200
+      - ENVIRONMENT=test
+    ports:
+      - "8001:8000"
+    depends_on:
+      e2e_postgres:
+        condition: service_healthy
+      e2e_qdrant:
+        condition: service_healthy
+      e2e_redis:
+        condition: service_healthy
+    networks:
+      - e2e_network
+    volumes:
+      - ./test-data:/app/test-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  e2e_postgres_data:
+  e2e_qdrant_data:
+  e2e_jira_data:
+  e2e_confluence_data:
+  e2e_gitlab_config:
+  e2e_gitlab_logs:
+  e2e_gitlab_data:
+  e2e_elasticsearch_data:
+
+networks:
+  e2e_network:
+    driver: bridge 

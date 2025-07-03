@@ -1,0 +1,150 @@
+# Dataset Configuration for E2E Model Training
+metadata:
+  version: "1.0"
+  description: "E2E dataset for model training and evaluation"
+  languages: ["ru", "en"]
+  total_documents: 500
+  categories: ["technical", "business", "architecture", "development"]
+
+# Источники данных для обучения
+data_sources:
+  confluence:
+    enabled: true
+    spaces: ["TECH", "ARCH", "DEV", "TESTSPACE"]
+    content_types: ["pages", "blog_posts", "comments"]
+    languages: ["ru", "en"]
+    
+  jira:
+    enabled: true
+    projects: ["TEST", "API", "ARCH", "DEV"]
+    issue_types: ["Story", "Task", "Bug", "Epic"]
+    include_comments: true
+    languages: ["ru", "en"]
+    
+  gitlab:
+    enabled: true
+    projects: ["api-gateway", "auth-service", "microservices-demo"]
+    include_files: ["*.md", "*.txt", "docs/*"]
+    include_issues: true
+    include_merge_requests: true
+    languages: ["ru", "en"]
+
+# Синтетические данные для обучения
+synthetic_data:
+  technical_docs:
+    - category: "authentication"
+      language: "ru"
+      count: 50
+      topics: ["OAuth 2.0", "JWT", "SAML", "аутентификация", "авторизация"]
+      
+    - category: "authentication" 
+      language: "en"
+      count: 50
+      topics: ["OAuth 2.0", "JWT", "SAML", "authentication", "authorization"]
+      
+    - category: "microservices"
+      language: "ru"
+      count: 40
+      topics: ["микросервисы", "контейнеры", "Docker", "Kubernetes", "архитектура"]
+      
+    - category: "microservices"
+      language: "en" 
+      count: 40
+      topics: ["microservices", "containers", "Docker", "Kubernetes", "architecture"]
+
+# Обучающие пары вопрос-ответ
+training_pairs:
+  semantic_search:
+    - query: "Как реализовать OAuth 2.0 аутентификацию?"
+      language: "ru"
+      expected_docs: ["oauth2_guide_ru.md", "authentication_patterns_ru.md"]
+      relevance_scores: [0.95, 0.85]
+      
+    - query: "How to implement OAuth 2.0 authentication?"
+      language: "en"
+      expected_docs: ["oauth2_guide_en.md", "authentication_patterns_en.md"]
+      relevance_scores: [0.95, 0.85]
+      
+    - query: "Микросервисы архитектура лучшие практики"
+      language: "ru"
+      expected_docs: ["microservices_architecture_ru.md", "patterns_ru.md"]
+      relevance_scores: [0.90, 0.80]
+      
+    - query: "Microservices architecture best practices"
+      language: "en"
+      expected_docs: ["microservices_architecture_en.md", "patterns_en.md"]
+      relevance_scores: [0.90, 0.80]
+
+# Конфигурация модели
+model_config:
+  embeddings:
+    model_name: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    dimensions: 384
+    batch_size: 32
+    max_sequence_length: 512
+    
+  training:
+    epochs: 10
+    learning_rate: 0.00005
+    warmup_steps: 100
+    evaluation_steps: 500
+    save_steps: 1000
+    
+  fine_tuning:
+    enabled: true
+    base_model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    target_languages: ["ru", "en"]
+    domain_adaptation: true
+
+# Метрики качества для отслеживания
+quality_metrics:
+  semantic_search:
+    precision_at_1: 0.80
+    precision_at_3: 0.75
+    precision_at_5: 0.70
+    mrr: 0.65
+    cosine_similarity: 0.75
+    
+  by_language:
+    ru:
+      precision_at_3: 0.70
+      mrr: 0.60
+    en:
+      precision_at_3: 0.75
+      mrr: 0.65
+      
+  rfc_generation:
+    section_coverage: 0.90
+    technical_depth: 0.75
+    markdown_quality: 0.85
+
+# Конфигурация обратной связи
+feedback_config:
+  collection:
+    enabled: true
+    store_in_postgres: true
+    table_name: "model_feedback"
+    
+  retraining:
+    trigger_threshold: 100  # новых отзывов
+    min_quality_drop: 0.05  # падение качества на 5%
+    schedule: "weekly"
+    
+  validation:
+    test_set_size: 0.2
+    validation_split: 0.1
+    cross_validation_folds: 5
+
+# Экспериментальные функции
+experimental:
+  active_learning:
+    enabled: true
+    uncertainty_threshold: 0.3
+    
+  domain_adaptation:
+    enabled: true
+    target_domains: ["fintech", "healthcare", "ecommerce"]
+    
+  multilingual_alignment:
+    enabled: true
+    language_pairs: [["ru", "en"]]

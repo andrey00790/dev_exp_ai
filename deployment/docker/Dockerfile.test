@@ -1,0 +1,36 @@
+FROM python:3.11-slim
+
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    curl \
+    postgresql-client \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создаем рабочую директорию
+WORKDIR /app
+
+# Копируем requirements
+COPY requirements.txt .
+COPY requirements-test.txt .
+
+# Устанавливаем Python зависимости
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-test.txt
+
+# Копируем код приложения
+COPY . .
+
+# Создаем директории для логов и данных
+RUN mkdir -p /app/logs /app/test-data
+
+# Устанавливаем переменные окружения
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Скрипт для ожидания готовности сервисов
+COPY scripts/wait-for-services.sh /wait-for-services.sh
+RUN chmod +x /wait-for-services.sh
+
+# Команда по умолчанию
+CMD ["/wait-for-services.sh", "python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"] 

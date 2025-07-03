@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/chat/completions"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "chatcmpl-{{randomValue type='UUID'}}",
+      "object": "chat.completion",
+      "created": {{now}},
+      "model": "gpt-4",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "# Mock RFC Document\n\n## Summary\nThis is a mock RFC generated for testing purposes.\n\n## Technical Specification\nMock technical details for {{jsonPath request.body '$.messages[0].content'}}.\n\n## Implementation Plan\n1. Phase 1: Design\n2. Phase 2: Development\n3. Phase 3: Testing\n4. Phase 4: Deployment\n\n## Conclusion\nThis RFC provides a comprehensive solution for the requested feature."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 100,
+        "completion_tokens": 150,
+        "total_tokens": 250
+      }
+    }
+  }
+} 

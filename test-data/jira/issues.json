@@ -1,0 +1,5816 @@
+{
+  "metadata": {
+    "total_issues": 200,
+    "projects": [
+      "API",
+      "ARCH",
+      "DEV",
+      "SEC",
+      "OPS"
+    ],
+    "generated_at": "2025-07-03T00:13:42.341421",
+    "data_volume": "large_scale_e2e_testing"
+  },
+  "issues": [
+    {
+      "key": "API-1000",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-01-01T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1001",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-02-02T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1002",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-03-03T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1003",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-04-04T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1004",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-05-05T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1005",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-06-06T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1006",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-07-07T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1007",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-08-08T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1008",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-09-09T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1009",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-10-10T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1010",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-11-11T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1011",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-12-12T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1012",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-01-13T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1013",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-02-14T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1014",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-03-15T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1015",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-04-16T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1016",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-05-17T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1017",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-06-18T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1018",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-07-19T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1019",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-08-20T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1020",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-09-21T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-21T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1021",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-10-22T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 5,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-22T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1022",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-11-23T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-23T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1023",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-12-24T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-24T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1024",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-01-25T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-25T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1025",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-02-26T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-26T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1026",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-03-27T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 3,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-27T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1027",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-04-28T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-28T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1028",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-05-01T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-29T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1029",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-06-02T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-30T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1030",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-07-03T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1031",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-08-04T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1032",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-09-05T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1033",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-10-06T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1034",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-11-07T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1035",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-12-08T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1036",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-01-09T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1037",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-02-10T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1038",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-03-11T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1039",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-04-12T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1040",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-05-13T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1041",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-06-14T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1042",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-07-15T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1043",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-08-16T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1044",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-09-17T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1045",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-10-18T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1046",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-11-19T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1047",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-12-20T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1048",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-01-21T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1049",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-02-22T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1050",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-03-23T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-21T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1051",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-04-24T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 5,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-22T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1052",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-05-25T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-23T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1053",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-06-26T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-24T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1054",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-07-27T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-25T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1055",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-08-28T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-26T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1056",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-09-01T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 3,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-27T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1057",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-10-02T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-28T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1058",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-11-03T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-29T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1059",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-12-04T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-30T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1060",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-01-05T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1061",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-02-06T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1062",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-03-07T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1063",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-04-08T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1064",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-05-09T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1065",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-06-10T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1066",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-07-11T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1067",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-08-12T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1068",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-09-13T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1069",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-10-14T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1070",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-11-15T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1071",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-12-16T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1072",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-01-17T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1073",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-02-18T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1074",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-03-19T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1075",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-04-20T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1076",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-05-21T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1077",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-06-22T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1078",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-07-23T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1079",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-08-24T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1080",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-09-25T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-21T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1081",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-10-26T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 5,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-22T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1082",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-11-27T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-23T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1083",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-12-28T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-24T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1084",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-01-01T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-25T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1085",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-02-02T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-26T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1086",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-03-03T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 3,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-27T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1087",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-04-04T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-28T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1088",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-05-05T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-29T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1089",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-06-06T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-30T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1090",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-07-07T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1091",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-08-08T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1092",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-09-09T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1093",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-10-10T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1094",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-11-11T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1095",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-12-12T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1096",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-01-13T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1097",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-02-14T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1098",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-03-15T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1099",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-04-16T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1100",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-05-17T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1101",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-06-18T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1102",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-07-19T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1103",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-08-20T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1104",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-09-21T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1105",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-10-22T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1106",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-11-23T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1107",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-12-24T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1108",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-01-25T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1109",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-02-26T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1110",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-03-27T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-21T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1111",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-04-28T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 5,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-22T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1112",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-05-01T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-23T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1113",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-06-02T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-24T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1114",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-07-03T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-25T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1115",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-08-04T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-26T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1116",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-09-05T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 3,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-27T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1117",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-10-06T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-28T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1118",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-11-07T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-29T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1119",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-12-08T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-30T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1120",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-01-09T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1121",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-02-10T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1122",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-03-11T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1123",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-04-12T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1124",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-05-13T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1125",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-06-14T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1126",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-07-15T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1127",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-08-16T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1128",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-09-17T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1129",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-10-18T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1130",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-11-19T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1131",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-12-20T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1132",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-01-21T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1133",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-02-22T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1134",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-03-23T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1135",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-04-24T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1136",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-05-25T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1137",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-06-26T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1138",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-07-27T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1139",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-08-28T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1140",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-09-01T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-21T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1141",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-10-02T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 5,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-22T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1142",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-11-03T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-23T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1143",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-12-04T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-24T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1144",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-01-05T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-25T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1145",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-02-06T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-26T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1146",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-03-07T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 3,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-27T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1147",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-04-08T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-28T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1148",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-05-09T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-29T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1149",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-06-10T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-30T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1150",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-07-11T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1151",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-08-12T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1152",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-09-13T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1153",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-10-14T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1154",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-11-15T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1155",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-12-16T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1156",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-01-17T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1157",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-02-18T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1158",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-03-19T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1159",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-04-20T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1160",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-05-21T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1161",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-06-22T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1162",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-07-23T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1163",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-08-24T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1164",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-09-25T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1165",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-10-26T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1166",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-11-27T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1167",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-12-28T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1168",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-01-01T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1169",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-02-02T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1170",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-03-03T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-21T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1171",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-04-04T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 5,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-22T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1172",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-05-05T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-23T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1173",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-06-06T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-24T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1174",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-07-07T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-25T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1175",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-08-08T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-26T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1176",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-09-09T08:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 3,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-27T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1177",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-10-10T09:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-28T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1178",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-11-11T10:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-29T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1179",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-12-12T11:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-30T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1180",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-01-13T12:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1181",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-02-14T13:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 2,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-02T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1182",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-03-15T14:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-03T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1183",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-04-16T15:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1184",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-05-17T16:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1185",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-06-18T17:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-06T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1186",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-07-19T18:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": 1,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-07T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1187",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-08-20T19:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-08T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1188",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-09-21T20:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-09T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1189",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-10-22T21:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-10T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1190",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Low",
+      "reporter": "user1@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-11-23T22:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-11T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1191",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "Medium",
+      "reporter": "user2@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-12-24T23:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": 13,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-12T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1192",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "High",
+      "reporter": "user3@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-01-25T00:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-13T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1193",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "reporter": "user4@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-02-26T01:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-14T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1194",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: High.",
+      "status": "Code Review",
+      "priority": "Blocker",
+      "reporter": "user5@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-03-27T02:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-15T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "API-1195",
+      "project": "API",
+      "issue_type": "Epic",
+      "summary": "API Platform Enhancement Initiative",
+      "description": "Major initiative to enhance the platform capabilities and user experience. Priority level: 1/5. Estimated complexity: Low.",
+      "status": "Testing",
+      "priority": "Low",
+      "reporter": "user6@company.com",
+      "assignee": "developer1@company.com",
+      "created": "2024-04-28T03:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "epic",
+        "major-initiative",
+        "frontend"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Working on this issue, should have an update by EOD.",
+          "created": "2024-06-16T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "ARCH-1196",
+      "project": "ARCH",
+      "issue_type": "Story",
+      "summary": "Add rate limiting to API endpoints",
+      "description": "As a user, I want to access new functionality so that I can accomplish my goals more efficiently. Priority level: 2/5. Estimated complexity: Medium.",
+      "status": "Done",
+      "priority": "Medium",
+      "reporter": "user7@company.com",
+      "assignee": "developer2@company.com",
+      "created": "2024-05-01T04:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "story",
+        "feature",
+        "testing"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": 8,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Found the root cause, implementing fix now.",
+          "created": "2024-06-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "DEV-1197",
+      "project": "DEV",
+      "issue_type": "Task",
+      "summary": "Set up monitoring dashboards",
+      "description": "Technical task to improve system capabilities and maintainability. Priority level: 3/5. Estimated complexity: High.",
+      "status": "Closed",
+      "priority": "High",
+      "reporter": "user8@company.com",
+      "assignee": "developer3@company.com",
+      "created": "2024-06-02T05:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "task",
+        "maintenance",
+        "api"
+      ],
+      "components": [
+        "Component-3"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer3@company.com",
+          "body": "Code review completed, ready for testing.",
+          "created": "2024-06-18T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "SEC-1198",
+      "project": "SEC",
+      "issue_type": "Bug",
+      "summary": "UI rendering error on mobile",
+      "description": "Issue found in production that affects user experience and needs immediate attention. Priority level: 4/5. Estimated complexity: Low.",
+      "status": "To Do",
+      "priority": "Critical",
+      "reporter": "user9@company.com",
+      "assignee": "developer4@company.com",
+      "created": "2024-07-03T06:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "bug",
+        "urgent",
+        "testing"
+      ],
+      "components": [
+        "Component-1"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer1@company.com",
+          "body": "Deployed to staging environment for testing.",
+          "created": "2024-06-19T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "OPS-1199",
+      "project": "OPS",
+      "issue_type": "Improvement",
+      "summary": "Enhance security monitoring",
+      "description": "Enhancement to existing functionality to improve performance and usability. Priority level: 5/5. Estimated complexity: Medium.",
+      "status": "In Progress",
+      "priority": "Blocker",
+      "reporter": "user10@company.com",
+      "assignee": "developer5@company.com",
+      "created": "2024-08-04T07:00:00Z",
+      "updated": "2024-06-10T10:00:00Z",
+      "labels": [
+        "improvement",
+        "enhancement",
+        "performance"
+      ],
+      "components": [
+        "Component-2"
+      ],
+      "story_points": null,
+      "comments": [
+        {
+          "author": "developer2@company.com",
+          "body": "Issue resolved and verified in production.",
+          "created": "2024-06-20T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}

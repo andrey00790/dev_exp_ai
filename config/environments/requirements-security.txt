@@ -1,0 +1,73 @@
+# Security Dependencies for AI Assistant MVP
+# These dependencies provide security features and vulnerability protection
+
+# Authentication & Authorization
+PyJWT==2.8.0                    # JSON Web Token implementation
+passlib[bcrypt]==1.7.4          # Password hashing library
+python-multipart==0.0.6         # Form parsing (required for OAuth2)
+cryptography==41.0.7            # Cryptographic recipes and primitives
+
+# Security Headers & Protection
+secure==0.3.0                   # Security headers middleware
+python-jose[cryptography]==3.3.0  # JOSE implementation for JWT
+
+# Input Validation & Sanitization
+bleach==6.1.0                   # HTML sanitization
+validators==0.22.0              # Data validation
+email-validator==2.1.0          # Email validation
+
+# Rate Limiting & Throttling
+slowapi==0.1.9                  # Rate limiting for FastAPI
+limits==3.6.0                   # Rate limiting utilities
+
+# CORS & Cross-Origin Protection
+fastapi-cors==0.0.6             # Enhanced CORS handling
+
+# SQL Injection Protection
+sqlalchemy==2.0.23              # ORM with SQL injection protection
+alembic==1.12.1                 # Database migration tool
+
+# XSS Protection
+markupsafe==2.1.3               # String escaping utilities
+
+# CSRF Protection
+itsdangerous==2.1.2             # Secure token generation
+
+# Security Scanning & Monitoring
+bandit==1.7.5                   # Security linter for Python
+safety==2.3.5                   # Dependency vulnerability scanner
+
+# Secrets Management
+python-dotenv==1.0.0            # Environment variable management
+keyring==24.3.0                 # Secure credential storage
+
+# Network Security
+requests[security]==2.31.0      # HTTP library with security features
+urllib3[secure]==2.0.7          # Enhanced urllib3 with security
+
+# Logging & Audit
+structlog==23.2.0               # Structured logging
+python-json-logger==2.0.7       # JSON logging formatter
+
+# API Security
+fastapi-limiter==0.1.5          # API rate limiting
+fastapi-users[fastapi]==12.1.2  # User management with security
+
+# Content Security
+python-magic==0.4.27            # File type detection
+pillow==10.1.0                  # Image processing with security patches
+
+# Development Security Tools (optional)
+pre-commit==3.5.0               # Git pre-commit hooks
+black==23.11.0                  # Code formatter
+flake8==6.1.0                   # Code linter
+mypy==1.7.1                     # Type checker
+
+# Production Security
+gunicorn==21.2.0                # WSGI server with security features
+uvicorn[standard]==0.24.0       # ASGI server
+
+# Environment-specific versions
+# Use these for production environments
+certifi==2023.11.17             # Root certificates bundle
+setuptools>=65.5.1              # Secure setuptools version 

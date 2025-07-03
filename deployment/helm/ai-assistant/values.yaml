@@ -1,0 +1,229 @@
+# AI Assistant MVP - Helm Values
+# Конфигурация для Kubernetes деплоя
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Application settings
+app:
+  name: ai-assistant
+  namespace: ai-assistant
+  
+  # Image settings
+  image:
+    repository: ai-assistant
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  # Service settings
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  
+  # Deployment settings
+  replicaCount: 2
+  
+  # Resources
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  
+  # Environment variables
+  env:
+    ENVIRONMENT: production
+    LOG_LEVEL: INFO
+    
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Frontend settings
+frontend:
+  enabled: true
+  
+  image:
+    repository: ai-assistant-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  
+  replicaCount: 2
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Ingress settings
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: ai-assistant.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: app
+  tls:
+    - secretName: ai-assistant-tls
+      hosts:
+        - ai-assistant.example.com
+
+# PostgreSQL settings (using Bitnami chart)
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres123"
+    username: "ai_user"
+    password: "ai_password"
+    database: "ai_assistant"
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# Redis settings (using Bitnami chart)
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "redis123"
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Qdrant vector database
+qdrant:
+  enabled: true
+  
+  image:
+    repository: qdrant/qdrant
+    tag: "v1.7.4"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 6333
+    grpcPort: 6334
+  
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: ""
+  
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+
+# Monitoring
+monitoring:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      
+  grafana:
+    enabled: true
+    adminPassword: "admin123"
+
+# Autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Security
+security:
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+# Network policies
+networkPolicy:
+  enabled: true
+
+# Service mesh (Istio)
+istio:
+  enabled: false
+  
+# ConfigMaps and Secrets
+config:
+  # Application config
+  app:
+    debug: false
+    logLevel: "INFO"
+    maxWorkers: 4
+  
+  # Database config
+  database:
+    maxConnections: 20
+    poolSize: 10
+  
+  # AI/LLM config
+  llm:
+    defaultModel: "llama2"
+    maxTokens: 4096
+    temperature: 0.7 

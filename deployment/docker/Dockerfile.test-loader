@@ -1,0 +1,42 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    postgresql-client \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование файлов требований
+COPY requirements.txt .
+COPY config/environments/requirements-dev.txt ./requirements-dev.txt
+
+# Установка Python зависимостей
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-dev.txt
+
+# Копирование исходного кода
+COPY . .
+
+# Создание директорий для логов и данных
+RUN mkdir -p /app/logs /app/test-data
+
+# Копирование скриптов тестовых данных
+COPY tests/e2e/scripts/ /app/scripts/
+COPY test-data/ /app/test-data/
+
+# Установка переменных окружения
+ENV PYTHONPATH=/app
+ENV ENVIRONMENT=test
+
+# Скрипт для загрузки тестовых данных
+COPY deployment/docker/scripts/load-test-data.py /app/load-test-data.py
+
+# Делаем скрипт исполняемым
+RUN chmod +x /app/load-test-data.py
+
+# Команда по умолчанию
+CMD ["python", "/app/load-test-data.py"] 

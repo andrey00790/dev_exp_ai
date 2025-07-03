@@ -1,0 +1,52 @@
+{
+  "name": "notification-service",
+  "description": "Notification Service microservice",
+  "default_branch": "main",
+  "visibility": "internal",
+  "languages": "JavaScript",
+  "issues": [
+    {
+      "iid": 1,
+      "title": "Enhancement request 1",
+      "state": "open",
+      "labels": [
+        "enhancement",
+        "feature"
+      ]
+    },
+    {
+      "iid": 2,
+      "title": "Enhancement request 2",
+      "state": "closed",
+      "labels": [
+        "enhancement",
+        "feature"
+      ]
+    },
+    {
+      "iid": 3,
+      "title": "Enhancement request 3",
+      "state": "open",
+      "labels": [
+        "enhancement",
+        "feature"
+      ]
+    }
+  ],
+  "merge_requests": [
+    {
+      "iid": 1,
+      "title": "Feature implementation 1",
+      "state": "merged",
+      "source_branch": "feature/impl-1",
+      "target_branch": "main"
+    },
+    {
+      "iid": 2,
+      "title": "Feature implementation 2",
+      "state": "merged",
+      "source_branch": "feature/impl-2",
+      "target_branch": "main"
+    }
+  ]
+}

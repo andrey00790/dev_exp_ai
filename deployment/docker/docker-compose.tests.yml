@@ -1,0 +1,342 @@
+version: '3.8'
+
+services:
+  # PostgreSQL для тестов (с поддержкой множественных БД)
+  test-postgres:
+    image: postgres:15-alpine
+    container_name: ai-test-postgres
+    environment:
+      POSTGRES_DB: ai_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_MULTIPLE_DATABASES: ai_test,jira_test,confluence_test,gitlab_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+      - ../../tools/scripts/init_enhanced_etl_schema.sql:/docker-entrypoint-initdb.d/01-init-schema.sql
+      - ../../tests/e2e/scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/02-init-multiple-databases.sh
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d ai_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis для тестов
+  test-redis:
+    image: redis:7-alpine
+    container_name: ai-test-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - test_redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Qdrant для тестов
+  test-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai-test-qdrant
+    ports:
+      - "6335:6333"
+      - "6336:6334"
+    volumes:
+      - test_qdrant_data:/qdrant/storage
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Основное приложение для тестов
+  test-app:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.test
+    container_name: ai-test-app
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://test_user:test_password@test-postgres:5432/ai_test
+      - REDIS_URL=redis://test-redis:6379/0
+      - QDRANT_URL=http://test-qdrant:6333
+      - SECRET_KEY=test-secret-key-not-for-production
+      - LOG_LEVEL=INFO
+      - DEBUG=false
+      - ENVIRONMENT=test
+      - TESTING=true
+    volumes:
+      - ../../logs:/app/logs
+      - ../../test-data:/app/test-data
+    depends_on:
+      test-postgres:
+        condition: service_healthy
+      test-redis:
+        condition: service_healthy
+      test-qdrant:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Jira для E2E тестов (профиль e2e)
+  test-jira:
+    image: atlassian/jira-software:9.4
+    container_name: ai-test-jira
+    depends_on:
+      test-postgres:
+        condition: service_healthy
+    environment:
+      ATL_JDBC_URL: jdbc:postgresql://test-postgres:5432/jira_test
+      ATL_JDBC_USER: test_user
+      ATL_JDBC_PASSWORD: test_password
+      ATL_DB_TYPE: postgres72
+      JVM_MINIMUM_MEMORY: 1g
+      JVM_MAXIMUM_MEMORY: 2g
+      ATL_PROXY_NAME: localhost
+      ATL_PROXY_PORT: 8082
+      ATL_TOMCAT_SCHEME: http
+      ATL_TOMCAT_SECURE: 'false'
+    ports:
+      - "8082:8080"
+    volumes:
+      - test_jira_data:/var/atlassian/application-data/jira
+      - ../../test-data/jira:/opt/test-data:ro
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    profiles:
+      - e2e
+
+  # Confluence для E2E тестов (профиль e2e)
+  test-confluence:
+    image: atlassian/confluence:8.5
+    container_name: ai-test-confluence
+    depends_on:
+      test-postgres:
+        condition: service_healthy
+    environment:
+      ATL_JDBC_URL: jdbc:postgresql://test-postgres:5432/confluence_test
+      ATL_JDBC_USER: test_user
+      ATL_JDBC_PASSWORD: test_password
+      ATL_DB_TYPE: postgresql
+      JVM_MINIMUM_MEMORY: 1g
+      JVM_MAXIMUM_MEMORY: 2g
+      ATL_PROXY_NAME: localhost
+      ATL_PROXY_PORT: 8083
+      ATL_TOMCAT_SCHEME: http
+      ATL_TOMCAT_SECURE: 'false'
+    ports:
+      - "8083:8090"
+    volumes:
+      - test_confluence_data:/var/atlassian/application-data/confluence
+      - ../../test-data/confluence:/opt/test-data:ro
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    profiles:
+      - e2e
+
+  # GitLab для E2E тестов (профиль e2e)
+  test-gitlab:
+    image: gitlab/gitlab-ce:16.6.0-ce.0
+    container_name: ai-test-gitlab
+    hostname: 'localhost'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8084'
+        gitlab_rails['initial_root_password'] = 'testpassword123'
+        gitlab_rails['initial_shared_runners_registration_token'] = 'test-token'
+        postgresql['enable'] = false
+        gitlab_rails['db_adapter'] = 'postgresql'
+        gitlab_rails['db_encoding'] = 'utf8'
+        gitlab_rails['db_host'] = 'test-postgres'
+        gitlab_rails['db_port'] = 5432
+        gitlab_rails['db_database'] = 'gitlab_test'
+        gitlab_rails['db_username'] = 'test_user'
+        gitlab_rails['db_password'] = 'test_password'
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        prometheus_monitoring['enable'] = false
+        alertmanager['enable'] = false
+        node_exporter['enable'] = false
+        redis_exporter['enable'] = false
+        postgres_exporter['enable'] = false
+        pgbouncer_exporter['enable'] = false
+        gitlab_exporter['enable'] = false
+        grafana['enable'] = false
+        sidekiq['max_concurrency'] = 5
+    ports:
+      - "8084:80"
+      - "2223:22"
+    volumes:
+      - test_gitlab_config:/etc/gitlab
+      - test_gitlab_logs:/var/log/gitlab
+      - test_gitlab_data:/var/opt/gitlab
+      - ../../test-data/gitlab:/opt/test-data:ro
+    depends_on:
+      test-postgres:
+        condition: service_healthy
+    networks:
+      - test-network
+    shm_size: '256m'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/-/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 180s
+    profiles:
+      - e2e
+
+  # Elasticsearch для поиска тестов (профиль e2e)
+  test-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: ai-test-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9201:9200"
+    volumes:
+      - test_es_data:/usr/share/elasticsearch/data
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    profiles:
+      - e2e
+
+  # ClickHouse для тестирования новых DataSources (профиль e2e)
+  test-clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: ai-test-clickhouse
+    ports:
+      - "8125:8123"  # HTTP interface
+      - "9001:9000"  # Native interface
+    environment:
+      CLICKHOUSE_DB: test_db
+      CLICKHOUSE_USER: test_user
+      CLICKHOUSE_PASSWORD: test_password
+    volumes:
+      - test_clickhouse_data:/var/lib/clickhouse
+      - ../../test-data/clickhouse:/opt/test-data:ro
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - e2e
+
+  # YDB для тестирования новых DataSources (профиль e2e)
+  test-ydb:
+    image: yandex/ydb:latest
+    container_name: ai-test-ydb
+    hostname: localhost
+    ports:
+      - "2136:2136"  # gRPC
+      - "8766:8765"  # Web UI
+    environment:
+      YDB_DEFAULT_LOG_LEVEL: NOTICE
+      YDB_USE_IN_MEMORY_PDISKS: true
+    volumes:
+      - test_ydb_data:/ydb_data
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - e2e
+
+  # Test Data Loader для загрузки тестовых данных (профиль tools)
+  test-data-loader:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.test-loader
+    container_name: ai-test-data-loader
+    depends_on:
+      test-app:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://test_user:test_password@test-postgres:5432/ai_test
+      REDIS_URL: redis://test-redis:6379/0
+      QDRANT_URL: http://test-qdrant:6333
+      JIRA_URL: http://test-jira:8080
+      CONFLUENCE_URL: http://test-confluence:8090
+      GITLAB_URL: http://test-gitlab
+      ELASTICSEARCH_URL: http://test-elasticsearch:9200
+      CLICKHOUSE_URL: http://test-clickhouse:8123
+      YDB_ENDPOINT: grpc://test-ydb:2136
+    volumes:
+      - ../../test-data:/app/test-data
+      - ../../tests/e2e/scripts:/app/scripts
+    networks:
+      - test-network
+    profiles:
+      - tools
+
+  # Mock External Services для тестов (профиль mocks)
+  mock-services:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.mocks
+    container_name: ai-test-mocks
+    ports:
+      - "9998:8000"  # Mock API server
+    environment:
+      - MOCK_MODE=testing
+    networks:
+      - test-network
+    profiles:
+      - mocks
+
+volumes:
+  test_postgres_data:
+  test_redis_data:
+  test_qdrant_data:
+  test_jira_data:
+  test_confluence_data:
+  test_gitlab_config:
+  test_gitlab_logs:
+  test_gitlab_data:
+  test_es_data:
+  test_clickhouse_data:
+  test_ydb_data:
+
+networks:
+  test-network:
+    driver: bridge 
