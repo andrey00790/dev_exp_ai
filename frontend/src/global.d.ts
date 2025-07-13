@@ -1,106 +1,71 @@
 // Context7 pattern: Global type definitions for browser APIs and MUI compatibility
 
-// Speech Recognition API types
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-  message: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onstart: () => void;
-  onend: () => void;
-  start(): void;
-  stop(): void;
-  abort(): void;
-}
-
-interface SpeechRecognitionResultList {
-  readonly length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognitionResult {
-  readonly length: number;
-  item(index: number): SpeechRecognitionAlternative;
-  [index: number]: SpeechRecognitionAlternative;
-  isFinal: boolean;
-}
-
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
-}
-
-// Service Worker types
-interface ExtendableEvent extends Event {
-  waitUntil(promise: Promise<any>): void;
-}
-
-interface FetchEvent extends ExtendableEvent {
-  request: Request;
-  respondWith(response: Promise<Response> | Response): void;
-}
-
-interface PushEvent extends ExtendableEvent {
-  data: any;
-}
-
-interface SyncEvent extends ExtendableEvent {
-  tag: string;
-}
-
-interface NotificationEvent extends ExtendableEvent {
-  notification: Notification;
-  action: string;
-}
-
-// Global extensions
+// Enhanced window interface with additional browser APIs
 declare global {
   interface Window {
-    SpeechRecognition: {
-      new(): SpeechRecognition;
-    };
-    webkitSpeechRecognition: {
-      new(): SpeechRecognition;
-    };
-  }
-
-  interface ServiceWorkerGlobalScope {
-    skipWaiting(): Promise<void>;
-    clients: Clients;
-    registration: ServiceWorkerRegistration;
-  }
-
-  // Headers API fix
-  interface HeadersInit {
-    [key: string]: string | undefined;
-    Authorization?: string;
+    // Add other necessary browser APIs here
+    gtag?: (...args: any[]) => void;
+    dataLayer?: any[];
   }
 }
 
-// MUI Grid compatibility
-declare module '@mui/material/Grid' {
-  interface GridProps {
-    item?: boolean;
-    container?: boolean;
-    xs?: boolean | number;
-    sm?: boolean | number;
-    md?: boolean | number;
-    lg?: boolean | number;
-    xl?: boolean | number;
-    spacing?: number;
+// MUI theme augmentation for TypeScript support
+declare module '@mui/material/styles' {
+  interface Palette {
+    gradient: {
+      primary: string;
+      secondary: string;
+    };
   }
+  
+  interface PaletteOptions {
+    gradient?: {
+      primary?: string;
+      secondary?: string;
+    };
+  }
+}
+
+// Module declarations for assets
+declare module '*.svg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.png' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.jpg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.jpeg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.gif' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.webp' {
+  const content: string;
+  export default content;
+}
+
+// CSS modules support
+declare module '*.module.css' {
+  const classes: { [key: string]: string };
+  export default classes;
+}
+
+declare module '*.module.scss' {
+  const classes: { [key: string]: string };
+  export default classes;
 }
 
 export {}; 

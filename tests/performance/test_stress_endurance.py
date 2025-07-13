@@ -10,7 +10,7 @@ import random
 import statistics
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -495,7 +495,7 @@ class StressEnduranceTester:
 
         report_lines = [
             "# 🔥 Stress & Endurance Test Report",
-            f"**Generated**: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC",
+            f"**Generated**: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC",
             f"**Tests Completed**: {len(self.results)}",
             "",
             "## 📊 Executive Summary",

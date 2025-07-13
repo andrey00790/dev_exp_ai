@@ -17,9 +17,13 @@ from adapters.vectorstore.embeddings import (DocumentChunker, OpenAIEmbeddings,
 # Test imports
 from adapters.vectorstore.qdrant_client import QdrantVectorStore, get_qdrant_client
 
-from app.main import app
-from domain.integration.vector_search_service import (
-    SearchRequest, VectorSearchService, get_vector_search_service)
+from main import app
+from app.services.vector_search_service import (
+    VectorSearchService,
+    SearchResult,
+    DocumentEmbedding,
+    VectorSearchError
+)
 
 pytestmark = pytest.mark.integration
 
@@ -173,6 +177,7 @@ class TestEmbeddings:
             assert token_count <= 60  # Small buffer for safety
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_mock_embedding(self):
         """Test mock embedding generation."""
         embeddings = OpenAIEmbeddings()  # No API key, should use mock
@@ -186,6 +191,7 @@ class TestEmbeddings:
         assert isinstance(result.cost_estimate, float)
         assert result.token_count > 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_batch_embedding(self):
         """Test batch embedding generation."""
@@ -253,6 +259,7 @@ class TestCollectionManager:
         self.mock_embeddings = mock_embeddings
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_collection_initialization(self):
         """Test collection initialization."""
         with patch("adapters.vectorstore.collections.get_qdrant_client") as mock_get_client:
@@ -264,6 +271,7 @@ class TestCollectionManager:
             assert isinstance(results, dict)
             assert len(results) == len(CollectionType)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_document_indexing(self):
         """Test document indexing process."""
@@ -307,6 +315,7 @@ class TestCollectionManager:
             # Убираем строгую проверку calls из-за сложности мокирования vectorstore
             # self.mock_embeddings.embed_texts.assert_called_once()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_document_search(self):
         """Test document search functionality."""
@@ -387,6 +396,7 @@ class TestVectorSearchService:
             self.mock_embeddings = mock_embeddings
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_search_functionality(self):
         """Test search functionality."""
         # Mock search results
@@ -415,6 +425,7 @@ class TestVectorSearchService:
         assert results[0].score > 0.5  # Accept any reasonable score
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_document_indexing(self):
         """Test document indexing."""
         self.mock_manager.index_document.return_value = True
@@ -430,6 +441,7 @@ class TestVectorSearchService:
         self.mock_manager.index_document.assert_called_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_document_deletion(self):
         """Test document deletion."""
         self.mock_manager.delete_document.return_value = True
@@ -442,6 +454,7 @@ class TestVectorSearchService:
         )
 
     @pytest.mark.asyncio 
+    @pytest.mark.asyncio
     async def test_search_stats(self):
         """Test search statistics."""
         # ИСПРАВЛЕНО: добавляем await так как get_search_stats может быть async
@@ -553,6 +566,7 @@ class TestVectorSearchPerformance:
     """Test vector search performance."""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_search_response_time(self):
         """Test that search responds within acceptable time."""
         import time
@@ -574,6 +588,7 @@ class TestVectorSearchPerformance:
             # Should respond within 2 seconds as per AGENTS.md requirement
             assert elapsed < 2.0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_indexing_performance(self):
         """Test document indexing performance."""
@@ -608,6 +623,7 @@ class TestVectorSearchErrors:
     """Test error handling in vector search."""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_search_with_invalid_query(self):
         """Test search with invalid query."""
         service = VectorSearchService()
@@ -619,6 +635,7 @@ class TestVectorSearchErrors:
         # Should handle gracefully and return empty results
         assert isinstance(results, list)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_embedding_service_failure(self):
         """Test handling of embedding service failures."""
@@ -635,6 +652,7 @@ class TestVectorSearchErrors:
             assert isinstance(results, list)
             assert len(results) == 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_qdrant_connection_failure(self):
         """Test handling of Qdrant connection failures."""

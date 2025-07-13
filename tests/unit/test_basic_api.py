@@ -17,7 +17,7 @@ import json
 def test_import_main_app():
     """Тест импорта основного приложения"""
     try:
-        from app.main import app
+        from main import app
 
         assert app is not None
         assert hasattr(app, "routes")
@@ -28,7 +28,7 @@ def test_import_main_app():
 def test_app_creation():
     """Тест создания FastAPI приложения"""
     try:
-        from app.main import create_app
+        from main import create_application as create_app
 
         app = create_app()
         assert app is not None
@@ -41,7 +41,7 @@ def test_app_creation():
 def test_root_endpoint():
     """Тест корневого endpoint'а - ИСПРАВЛЕНО: гибкие assertions"""
     try:
-        from app.main import app
+        from main import app
 
         client = TestClient(app)
         response = client.get("/")
@@ -62,7 +62,7 @@ def test_root_endpoint():
 def test_health_endpoint():
     """Тест endpoint'а проверки здоровья"""
     try:
-        from app.main import app
+        from main import app
 
         client = TestClient(app)
         response = client.get("/health")
@@ -77,7 +77,7 @@ def test_health_endpoint():
 def test_api_docs_endpoint():
     """Тест доступности документации API"""
     try:
-        from app.main import app
+        from main import app
 
         client = TestClient(app)
         response = client.get("/docs")
@@ -91,7 +91,7 @@ def test_api_docs_endpoint():
 def test_openapi_schema():
     """Тест схемы OpenAPI"""
     try:
-        from app.main import app
+        from main import app
 
         client = TestClient(app)
         response = client.get("/openapi.json")
@@ -122,7 +122,7 @@ class TestUserManagementAPI:
     def test_create_user_endpoint(self):
         """Тест создания пользователя"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             user_data = {"username": "test_user", "email": "test@example.com"}
@@ -138,7 +138,7 @@ class TestUserManagementAPI:
     def test_get_user_settings_endpoint(self):
         """Тест получения настроек пользователя"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             response = client.get("/api/v1/users/current/settings")
@@ -156,7 +156,7 @@ class TestConfigurationAPI:
     def test_jira_configuration_endpoint(self):
         """Тест endpoint'а конфигурации Jira"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             jira_config = {
@@ -177,7 +177,7 @@ class TestConfigurationAPI:
     def test_confluence_configuration_endpoint(self):
         """Тест endpoint'а конфигурации Confluence"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             confluence_config = {
@@ -203,7 +203,7 @@ class TestSyncAPI:
     def test_sync_task_endpoint(self):
         """Тест endpoint'а создания задачи синхронизации"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             sync_request = {"sources": ["jira", "confluence"], "task_type": "manual"}
@@ -222,7 +222,7 @@ class TestExistingAPI:
     def test_generate_endpoint_exists(self):
         """Тест существования endpoint'а генерации - ИСПРАВЛЕНО: graceful handling"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             # Проверяем, что endpoint существует (может вернуть 422 из-за неправильных данных)
@@ -243,7 +243,7 @@ class TestExistingAPI:
     def test_search_endpoint_exists(self):
         """Тест существования endpoint'а поиска"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             # Проверяем, что endpoint существует
@@ -257,7 +257,7 @@ class TestExistingAPI:
     def test_vector_search_endpoint_exists(self):
         """Тест существования endpoint'а векторного поиска"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             # Проверяем, что endpoint существует
@@ -271,7 +271,7 @@ class TestExistingAPI:
     def test_feedback_endpoint_exists(self):
         """Тест существования endpoint'а обратной связи"""
         try:
-            from app.main import app
+            from main import app
 
             client = TestClient(app)
             # Проверяем, что endpoint существует

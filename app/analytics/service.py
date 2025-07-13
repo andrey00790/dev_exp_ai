@@ -13,7 +13,7 @@ Provides comprehensive analytics capabilities including:
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import HTTPException
@@ -518,7 +518,7 @@ class AnalyticsService:
             "top_features": top_features,
             "usage_trends": usage_trends,
             "error_analytics": error_analytics,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "async_optimized": True,
         }
 
@@ -592,7 +592,7 @@ class AnalyticsService:
                 "cost_by_service": cost_by_service,
                 "cost_trends": cost_trends,
                 "optimization_opportunities": optimization_opportunities,
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
@@ -649,7 +649,7 @@ class AnalyticsService:
                 "slowest_endpoints": slowest_endpoints,
                 "error_rates": error_rates,
                 "performance_insights": performance_insights,
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
@@ -740,7 +740,7 @@ class AnalyticsService:
                 "aggregator_stats": aggregator_stats,
                 "insights_stats": insights_stats,
                 "async_patterns_enabled": True,
-                "collected_at": datetime.utcnow().isoformat(),
+                "collected_at": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:

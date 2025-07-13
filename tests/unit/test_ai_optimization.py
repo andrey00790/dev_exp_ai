@@ -25,6 +25,7 @@ class TestAIOptimizationService:
         return AIOptimizationService()
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_measure_model_performance(self, service):
         """Test model performance measurement"""
         metrics = await service._measure_model_performance(ModelType.CODE_REVIEW)
@@ -38,6 +39,7 @@ class TestAIOptimizationService:
         assert metrics.cpu_usage_percent > 0
         assert 0 <= metrics.quality_score <= 10
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_fine_tune_model(self, service):
         """Test model fine-tuning"""
@@ -58,6 +60,7 @@ class TestAIOptimizationService:
         assert result.after_metrics.quality_score >= result.before_metrics.quality_score
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_optimize_performance(self, service):
         """Test performance optimization"""
         result = await service.optimize_model(
@@ -74,6 +77,7 @@ class TestAIOptimizationService:
         assert result.improvement_percent["throughput"] > 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_optimize_costs(self, service):
         """Test cost optimization"""
         result = await service.optimize_model(
@@ -89,6 +93,7 @@ class TestAIOptimizationService:
         assert result.improvement_percent["cost"] > 0  # Lower cost is better
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_improve_quality(self, service):
         """Test quality improvement"""
         result = await service.optimize_model(
@@ -102,6 +107,7 @@ class TestAIOptimizationService:
         assert result.improvement_percent["accuracy"] >= 0
         assert result.improvement_percent["quality"] >= 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_benchmark_models(self, service):
         """Test model benchmarking"""
@@ -121,6 +127,7 @@ class TestAIOptimizationService:
             assert "cpu_usage_percent" in metrics
             assert "quality_score" in metrics
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_get_optimization_recommendations(self, service):
         """Test optimization recommendations"""
@@ -253,6 +260,7 @@ class TestAIOptimizationAPI:
         with patch("app.api.v1.ai.ai_optimization.ai_optimization_service") as mock:
             yield mock
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_optimize_endpoint(self, mock_service, mock_user):
         """Test optimize endpoint"""

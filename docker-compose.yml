@@ -1,0 +1,605 @@
+services:
+  #################################################################
+  # CORE SERVICES (DEFAULT PROFILE)
+  #################################################################
+  
+  # AI Assistant Application
+  app:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile
+    container_name: ai-assistant-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://ai_user:ai_password_dev@postgres:5432/ai_assistant
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_URL=http://qdrant:6333
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-not-for-production}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - DEBUG=${DEBUG:-true}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./test-data:/app/test-data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    networks:
+      - ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-assistant-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ai_assistant}
+      POSTGRES_USER: ${POSTGRES_USER:-ai_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ai_password_dev}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./tools/scripts/init_enhanced_etl_schema.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ai_user} -d ${POSTGRES_DB:-ai_assistant}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ai-assistant-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --appendonly yes --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy allkeys-lru
+    networks:
+      - ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai-assistant-qdrant
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    networks:
+      - ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'Qdrant is running' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  #################################################################
+  # ADMIN TOOLS (PROFILE: admin)
+  #################################################################
+
+  # Database Administration
+  adminer:
+    image: adminer:latest
+    container_name: ai-assistant-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - admin
+
+  # Redis Administration
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ai-assistant-redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - admin
+
+  #################################################################
+  # LLM SERVICES (PROFILE: llm)
+  #################################################################
+
+  # Local LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-assistant-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./data/ollama:/root/.ollama
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - llm
+
+  #################################################################
+  # FRONTEND (PROFILE: frontend)
+  #################################################################
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-assistant-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+      - NODE_ENV=development
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    depends_on:
+      - app
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - frontend
+
+  #################################################################
+  # MONITORING (PROFILE: monitoring)
+  #################################################################
+
+  # Prometheus Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-assistant-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai-assistant-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  #################################################################
+  # E2E TESTING (PROFILE: e2e)
+  #################################################################
+
+  # E2E Test Database
+  e2e-postgres:
+    image: postgres:15-alpine
+    container_name: ai-assistant-e2e-postgres
+    environment:
+      POSTGRES_DB: ai_assistant_e2e
+      POSTGRES_USER: ai_user_e2e
+      POSTGRES_PASSWORD: ai_password_e2e
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/e2e/postgres:/var/lib/postgresql/data
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_user_e2e -d ai_assistant_e2e"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - e2e
+
+  # E2E Test Vector DB
+  e2e-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai-assistant-e2e-qdrant
+    ports:
+      - "6335:6333"
+    volumes:
+      - ./data/e2e/qdrant:/qdrant/storage
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'Qdrant is running' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    profiles:
+      - e2e
+
+  # E2E Test Redis
+  e2e-redis:
+    image: redis:7-alpine
+    container_name: ai-assistant-e2e-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./data/e2e/redis:/data
+    command: redis-server --appendonly yes
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - e2e
+
+  # E2E Test App
+  e2e-app:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile
+    container_name: ai-assistant-e2e-app
+    environment:
+      - DATABASE_URL=postgresql://ai_user_e2e:ai_password_e2e@e2e-postgres:5432/ai_assistant_e2e
+      - QDRANT_URL=http://e2e-qdrant:6333
+      - REDIS_URL=redis://e2e-redis:6379/0
+      - ENVIRONMENT=e2e
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - SECRET_KEY=e2e-test-secret-key
+    ports:
+      - "8001:8000"
+    depends_on:
+      e2e-postgres:
+        condition: service_healthy
+      e2e-qdrant:
+        condition: service_healthy
+      e2e-redis:
+        condition: service_healthy
+    networks:
+      - ai-network
+    volumes:
+      - ./test-data:/app/test-data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - e2e
+
+  # Jira Mock for E2E
+  e2e-jira:
+    image: atlassian/jira-software:9.4
+    container_name: ai-assistant-e2e-jira
+    environment:
+      - ATL_TOMCAT_MGMT_PORT=8006
+      - ATL_TOMCAT_PORT=8080
+      - JVM_MINIMUM_MEMORY=1024m
+      - JVM_MAXIMUM_MEMORY=2048m
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./data/e2e/jira:/var/atlassian/application-data/jira
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    profiles:
+      - e2e
+
+  # Confluence Mock for E2E
+  e2e-confluence:
+    image: atlassian/confluence:8.5
+    container_name: ai-assistant-e2e-confluence
+    environment:
+      - ATL_TOMCAT_MGMT_PORT=8001
+      - ATL_TOMCAT_PORT=8090
+      - JVM_MINIMUM_MEMORY=1024m
+      - JVM_MAXIMUM_MEMORY=2048m
+    ports:
+      - "8083:8090"
+    volumes:
+      - ./data/e2e/confluence:/var/atlassian/application-data/confluence
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    profiles:
+      - e2e
+
+  # GitLab Mock for E2E
+  e2e-gitlab:
+    image: gitlab/gitlab-ce:16.5.0-ce.0
+    container_name: ai-assistant-e2e-gitlab
+    hostname: 'gitlab.test.local'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.test.local:8084'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        nginx['redirect_http_to_https'] = false
+        postgresql['shared_buffers'] = "128MB"
+        postgresql['max_connections'] = 100
+        sidekiq['max_concurrency'] = 10
+    ports:
+      - "8084:8084"
+      - "2224:22"
+    volumes:
+      - ./data/e2e/gitlab/config:/etc/gitlab
+      - ./data/e2e/gitlab/logs:/var/log/gitlab
+      - ./data/e2e/gitlab/data:/var/opt/gitlab
+    networks:
+      - ai-network
+    shm_size: '256m'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/-/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 180s
+    profiles:
+      - e2e
+
+  # Playwright Test Runner
+  e2e-playwright:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.playwright
+    container_name: ai-assistant-e2e-playwright
+    environment:
+      - BASE_URL=http://e2e-app:8000
+      - JIRA_URL=http://e2e-jira:8080
+      - CONFLUENCE_URL=http://e2e-confluence:8090
+      - GITLAB_URL=http://e2e-gitlab:8084
+    volumes:
+      - ./tests/e2e:/tests/e2e
+      - ./test-results:/test-results
+    depends_on:
+      e2e-app:
+        condition: service_healthy
+    networks:
+      - ai-network
+    command: ["npx", "playwright", "test"]
+    profiles:
+      - e2e
+
+  #################################################################
+  # LOAD TESTING (PROFILE: load)
+  #################################################################
+
+  # Load Test Database
+  load-postgres:
+    image: postgres:15-alpine
+    container_name: ai-assistant-load-postgres
+    environment:
+      POSTGRES_DB: ai_assistant_load
+      POSTGRES_USER: ai_user_load
+      POSTGRES_PASSWORD: ai_password_load
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./data/load/postgres:/var/lib/postgresql/data
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_user_load -d ai_assistant_load"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Optimized for load testing
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=512MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+    profiles:
+      - load
+
+  # Load Test Redis
+  load-redis:
+    image: redis:7-alpine
+    container_name: ai-assistant-load-redis
+    ports:
+      - "6381:6379"
+    volumes:
+      - ./data/load/redis:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+      --maxclients 1000
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - load
+
+  # Load Test App
+  load-app:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile
+    container_name: ai-assistant-load-app
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://ai_user_load:ai_password_load@load-postgres:5432/ai_assistant_load
+      - REDIS_URL=redis://load-redis:6379/0
+      - ENVIRONMENT=load_test
+      - DEBUG=false
+      - SECRET_KEY=load-test-secret-key-12345
+      - LOG_LEVEL=WARNING
+      - SKIP_QDRANT=true
+      - SKIP_EXTERNAL_APIs=true
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      load-postgres:
+        condition: service_healthy
+      load-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - load
+
+  # Nginx Load Balancer for Load Tests
+  load-nginx:
+    image: nginx:alpine
+    container_name: ai-assistant-load-nginx
+    ports:
+      - "8085:80"
+    volumes:
+      - ./nginx/nginx-load-test.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - load-app
+    networks:
+      - ai-network
+    restart: unless-stopped
+    profiles:
+      - load
+
+  # Locust Load Testing Tool
+  locust:
+    image: locustio/locust:latest
+    container_name: ai-assistant-locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./tests/performance:/mnt/locust
+    command: ["-f", "/mnt/locust/locustfile.py", "--host=http://load-app:8000"]
+    depends_on:
+      load-app:
+        condition: service_healthy
+    networks:
+      - ai-network
+    profiles:
+      - load
+
+  #################################################################
+  # BOOTSTRAP/ETL (PROFILE: bootstrap)
+  #################################################################
+
+  # Bootstrap Data Loader
+  bootstrap:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.bootstrap
+    container_name: ai-assistant-bootstrap
+    environment:
+      - DATABASE_URL=postgresql://ai_user:ai_password_dev@postgres:5432/ai_assistant
+      - QDRANT_URL=http://qdrant:6333
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=bootstrap
+      - LOG_LEVEL=INFO
+      - PYTHONPATH=/app
+    volumes:
+      - ./local:/app/local
+      - ./test-data:/app/test-data
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ai-network
+    command: ["python", "/app/local/bootstrap_fetcher.py"]
+    profiles:
+      - bootstrap
+
+networks:
+  ai-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16 

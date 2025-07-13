@@ -34,6 +34,7 @@ class TestWithTimeout:
     """Test the with_timeout utility function"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_successful_operation(self):
         """Test that successful operations work normally"""
 
@@ -44,6 +45,7 @@ class TestWithTimeout:
         result = await with_timeout(quick_operation(), 1.0)
         assert result == "success"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_timeout_operation(self):
         """Test that slow operations timeout correctly"""
@@ -58,6 +60,7 @@ class TestWithTimeout:
         assert "timed out after 0.5s" in str(exc_info.value)
         assert exc_info.value.timeout_duration == 0.5
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_custom_timeout_message(self):
         """Test custom timeout messages"""
@@ -81,6 +84,7 @@ class TestSafeGather:
     """Test the safe_gather utility function"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_successful_gather(self):
         """Test gathering successful operations"""
 
@@ -92,6 +96,7 @@ class TestSafeGather:
 
         assert results == [2, 4, 6]
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_gather_with_exceptions(self):
         """Test gathering with some operations failing"""
@@ -113,6 +118,7 @@ class TestSafeGather:
         assert isinstance(results[1], ValueError)
         assert results[2] == 6
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_gather_with_concurrency_limit(self):
         """Test concurrency limiting in gather"""
@@ -142,6 +148,7 @@ class TestAsyncResourceManager:
     """Test async resource management"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_successful_resource_management(self):
         """Test normal resource creation and cleanup"""
         resource_created = False
@@ -164,6 +171,7 @@ class TestAsyncResourceManager:
         assert resource_cleaned
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_resource_creation_failure(self):
         """Test handling of resource creation failures"""
 
@@ -182,6 +190,7 @@ class TestAsyncRetry:
     """Test async retry decorator"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_successful_retry(self):
         """Test that successful operations work without retry"""
         call_count = 0
@@ -196,6 +205,7 @@ class TestAsyncRetry:
         assert result == "success"
         assert call_count == 1
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_retry_with_eventual_success(self):
         """Test retry mechanism with eventual success"""
@@ -213,6 +223,7 @@ class TestAsyncRetry:
         assert result == "success"
         assert call_count == 3
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_retry_exhaustion(self):
         """Test retry exhaustion handling"""
@@ -236,6 +247,7 @@ class TestAsyncTaskManager:
     """Test async task management"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_task_creation_and_tracking(self):
         """Test basic task creation and tracking"""
         manager = AsyncTaskManager("test_manager")
@@ -251,6 +263,7 @@ class TestAsyncTaskManager:
         assert stats["manager_name"] == "test_manager"
         assert stats["total_tasks"] == 0  # Task should be cleaned up
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_background_task_creation(self):
         """Test background task creation"""
@@ -269,6 +282,7 @@ class TestAsyncTaskManager:
         assert results == ["test"]
         assert task.done()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_task_cleanup(self):
         """Test task cleanup functionality"""
@@ -296,6 +310,7 @@ class TestAsyncTaskManager:
 class TestHttpClient:
     """Test standardized HTTP client"""
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_http_client_context_manager(self):
         """Test HTTP client context manager usage"""
@@ -331,6 +346,7 @@ class TestIntegrationAsyncPatterns:
     """Integration tests for async patterns"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_cache_manager_async_patterns(self):
         """Test that cache manager uses new async patterns"""
         from app.performance.cache_manager import (cache_manager, get_cache,
@@ -356,6 +372,7 @@ class TestIntegrationAsyncPatterns:
         finally:
             await cache_manager.close()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_websocket_async_patterns(self):
         """Test that WebSocket handlers use new async patterns"""
@@ -392,6 +409,7 @@ class TestAsyncPerformance:
     """Performance tests to ensure async utilities don't add significant overhead"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_with_timeout_overhead(self):
         """Test that with_timeout doesn't add significant overhead"""
 
@@ -427,6 +445,7 @@ class TestAsyncPerformance:
             overhead < 2.0
         ), f"Timeout overhead too high: {overhead:.2%} (direct: {direct_time:.3f}s, timeout: {timeout_time:.3f}s)"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_async_retry_overhead(self):
         """Test async retry decorator overhead"""

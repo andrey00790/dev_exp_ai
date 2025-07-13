@@ -1,94 +1,85 @@
-// Context7 pattern: Utility for fixing common TypeScript errors
+/**
+ * TypeScript Error Fixes and Compatibility Layer
+ * Context7 pattern: Centralized type fixes and compatibility shims
+ */
 
-// Fix 1: Import meta environment access
+// Fix for process.env in browser environment
 declare global {
-  interface ImportMeta {
-    env: {
-      VITE_API_URL?: string;
-      [key: string]: any;
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV: 'development' | 'production' | 'test';
+      REACT_APP_API_URL: string;
+      REACT_APP_VERSION: string;
+      REACT_APP_SENTRY_DSN?: string;
+      REACT_APP_ANALYTICS_ID?: string;
     }
   }
 }
 
-// Fix 2: Speech Recognition API types
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
+// Enhanced fetch with better typing
+interface EnhancedRequestInit extends RequestInit {
+  headers?: HeadersInit & {
+    'Content-Type'?: string;
+    'Authorization'?: string;
+    'X-Request-ID'?: string;
+  };
 }
 
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-  message: string;
+// Enhanced Error with additional context
+export interface EnhancedError extends Error {
+  code?: string;
+  status?: number;
+  context?: Record<string, any>;
 }
 
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onstart: () => void;
-  onend: () => void;
-  start(): void;
-  stop(): void;
-  abort(): void;
+// React component props with children
+export interface ComponentProps {
+  children?: React.ReactNode;
+  className?: string;
 }
 
-interface SpeechRecognitionResultList {
-  readonly length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognitionResult {
-  readonly length: number;
-  item(index: number): SpeechRecognitionAlternative;
-  [index: number]: SpeechRecognitionAlternative;
-  isFinal: boolean;
-}
-
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition: {
-      new(): SpeechRecognition;
-    };
-    webkitSpeechRecognition: {
-      new(): SpeechRecognition;
-    };
-  }
-}
-
-// Fix 3: Service Worker types
-declare global {
-  interface ServiceWorkerGlobalScope {
-    skipWaiting(): Promise<void>;
-    clients: Clients;
-    registration: ServiceWorkerRegistration;
-  }
-}
-
-// Fix 4: API Response types
+// API Response wrapper
 export interface ApiResponse<T = any> {
-  data: T;
-  message?: string;
-  status: number;
+  success: boolean;
+  data?: T;
+  error?: string;
+  timestamp: string;
 }
 
-// Fix 5: User types consistency
-export interface User {
-  user_id: string;
-  email: string;
-  name: string;
-  budget_limit: number;
-  current_usage: number;
-  scopes: string[];
-  is_active: boolean;
-  is_admin?: boolean;
+// Form validation result
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings?: string[];
 }
 
-export default {}; 
+// File upload types
+export interface FileUploadResult {
+  success: boolean;
+  fileId?: string;
+  url?: string;
+  error?: string;
+}
+
+// Utility type for making all properties optional
+export type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
+
+// Utility type for making specific properties required
+export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
+
+// Context7 specific patterns
+export interface Context7Store<T = any> {
+  state: T;
+  setState: (newState: Partial<T>) => void;
+  reset: () => void;
+}
+
+export interface Context7Provider<T> {
+  children: React.ReactNode;
+  initialState?: Partial<T>;
+}
+
+// Export empty object to make this a module
+export {}; 

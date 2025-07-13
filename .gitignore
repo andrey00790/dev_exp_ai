@@ -228,3 +228,4 @@ mlruns/
 # Generated files
 openapi.json
 swagger.json
+secrets/

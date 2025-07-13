@@ -31,6 +31,7 @@ class TestVKAuthService:
         return ["123456789", "987654321"]
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_exchange_code_for_user_info_success(self, vk_auth_service):
         """Test successful code exchange for user info"""
         # Mock VK API responses
@@ -76,6 +77,7 @@ class TestVKAuthService:
             assert result.photo_url == "https://example.com/photo.jpg"
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_exchange_code_for_user_info_token_error(self, vk_auth_service):
         """Test token exchange error"""
         error_response = {
@@ -99,6 +101,7 @@ class TestVKAuthService:
             assert "Invalid authorization code" in str(exc_info.value)
 
     @pytest.mark.asyncio  
+    @pytest.mark.asyncio
     async def test_exchange_code_for_user_info_api_error(self, vk_auth_service):
         """Test VK API error response"""
         token_response = {
@@ -171,12 +174,14 @@ class TestVKAuthService:
             assert users == ["123456789", "987654321"]
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_validate_vk_user_access_success(self, vk_auth_service):
         """Test successful VK user access validation"""
         with patch.object(vk_auth_service, 'is_user_allowed', return_value=True):
             result = await vk_auth_service.validate_vk_user_access("123456789")
             assert result is True
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_validate_vk_user_access_denied(self, vk_auth_service):
         """Test VK user access denied"""
@@ -350,12 +355,14 @@ class TestVKOAuthIntegration:
     """Integration tests for VK OAuth"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_full_oauth_flow_success(self):
         """Test complete OAuth flow with mocked VK API"""
         # This would be a more comprehensive integration test
         # that tests the full flow from login to user creation
         pass
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_vk_teams_bot_access_check(self):
         """Test VK Teams bot access check integration"""

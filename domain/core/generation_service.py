@@ -10,7 +10,7 @@ This module provides comprehensive generation capabilities including:
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from app.core.async_utils import (AsyncTimeouts, async_retry, safe_gather,
@@ -470,7 +470,7 @@ Create {doc_type} documentation for {title}.
 title: "{rfc.title}"
 rfc_id: "{rfc.rfc_id}"
 author: "{rfc.metadata.get('author', 'AI Assistant')}"
-created: "{datetime.utcnow().isoformat()}"
+created: "{datetime.now(timezone.utc).isoformat()}"
 status: "draft"
 version: "1.0"
 ---
@@ -563,7 +563,7 @@ version: "1.0"
 title: "{rfc.title}"
 architecture_type: "{architecture_type}"
 rfc_id: "{rfc.rfc_id}"
-created: "{datetime.utcnow().isoformat()}"
+created: "{datetime.now(timezone.utc).isoformat()}"
 status: "draft"
 version: "1.0"
 ---
@@ -624,7 +624,7 @@ version: "1.0"
 
 **Document Type**: {doc_type.replace('_', ' ').title()}
 **Target Audience**: {target_audience.title()}
-**Last Updated**: {datetime.utcnow().strftime('%Y-%m-%d')}
+**Last Updated**: {datetime.now(timezone.utc).strftime('%Y-%m-%d')}
 
 ---
 

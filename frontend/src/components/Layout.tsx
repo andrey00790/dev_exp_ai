@@ -36,13 +36,24 @@ export default function Layout({ children }: LayoutProps) {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Chat', href: '/chat', icon: ChatBubbleLeftIcon },
+    
+    // AI Analysis & Tools
+    { name: 'Code Analysis', href: '/code-analysis', icon: CodeBracketIcon },
+    { name: 'Template Library', href: '/templates', icon: DocumentTextIcon },
     { name: 'Vector Search', href: '/vector-search', icon: MagnifyingGlassIcon },
     { name: 'LLM Operations', href: '/llm-operations', icon: SparklesIcon },
+    
+    // Advanced Features
     { name: 'Advanced AI', href: '/advanced-ai', icon: CpuChipIcon },
     { name: 'AI Optimization', href: '/ai-optimization', icon: AdjustmentsHorizontalIcon },
     { name: 'AI Analytics', href: '/ai-analytics', icon: ChartPieIcon },
+    
+    // Monitoring & Analytics
     { name: 'Real-time Monitoring', href: '/realtime-monitoring', icon: EyeIcon },
+    { name: 'User Statistics', href: '/user-stats', icon: ChartBarIcon },
     { name: 'Data Sources', href: '/data-sources', icon: ServerStackIcon },
+    
+    // Legacy Pages
     { name: 'Search', href: '/search', icon: MagnifyingGlassIcon },
     { name: 'Generate RFC', href: '/generate', icon: DocumentTextIcon },
     { name: 'Code Docs', href: '/code-docs', icon: CodeBracketIcon },

@@ -33,6 +33,7 @@ class TestConnectionManager:
         return websocket
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_connect_user(self, manager, mock_websocket):
         """Test connecting a user"""
         user_id = "test_user"
@@ -52,6 +53,7 @@ class TestConnectionManager:
         assert manager.get_total_connections_count() == 1
         assert user_id in manager.get_connected_users()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_connect_multiple_users(self, manager, mock_websocket):
         """Test connecting multiple users"""
@@ -75,6 +77,7 @@ class TestConnectionManager:
         assert "user2" in manager.get_connected_users()
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_connect_same_user_multiple_connections(self, manager):
         """Test same user with multiple connections"""
         websocket1 = Mock(spec=WebSocket)
@@ -97,6 +100,7 @@ class TestConnectionManager:
         assert len(manager.get_connected_users()) == 1  # Same user
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_disconnect_user(self, manager, mock_websocket):
         """Test disconnecting a user"""
         user_id = "test_user"
@@ -115,6 +119,7 @@ class TestConnectionManager:
         assert user_id not in manager.get_connected_users()
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_send_personal_message(self, manager, mock_websocket):
         """Test sending personal message to user"""
         user_id = "test_user"
@@ -130,6 +135,7 @@ class TestConnectionManager:
         mock_websocket.send_text.assert_called_with(json.dumps(message))
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_send_personal_message_to_nonexistent_user(self, manager):
         """Test sending message to user that doesn't exist"""
         message = {"type": "test", "content": "hello"}
@@ -137,6 +143,7 @@ class TestConnectionManager:
         # This should not raise an exception
         await manager.send_personal_message(message, "nonexistent_user")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_broadcast_message(self, manager):
         """Test broadcasting message to all users"""
@@ -163,6 +170,7 @@ class TestConnectionManager:
         websocket2.send_text.assert_called_with(json.dumps(message))
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_broadcast_with_exclusion(self, manager):
         """Test broadcasting with user exclusion"""
         # Create multiple mock websockets
@@ -187,6 +195,7 @@ class TestConnectionManager:
         websocket1.send_text.assert_not_called()
         websocket2.send_text.assert_called_with(json.dumps(message))
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_send_message_with_failed_connection(self, manager):
         """Test handling failed connections during message sending"""
@@ -219,6 +228,7 @@ class TestWebSocketHandlers:
     """Test WebSocket handler functions"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_send_notification_to_user(self):
         """Test send_notification_to_user function"""
         with patch("app.websocket.manager") as mock_manager:
@@ -242,6 +252,7 @@ class TestWebSocketHandlers:
             assert sent_message["data"] == data
             assert "timestamp" in sent_message
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_broadcast_notification(self):
         """Test broadcast_notification function"""
@@ -280,6 +291,7 @@ class TestWebSocketConnection:
         return websocket
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_websocket_ping_pong(self, mock_websocket):
         """Test ping-pong functionality"""
         # Setup receive_text to return ping, then raise WebSocketDisconnect
@@ -309,6 +321,7 @@ class TestWebSocketConnection:
 
             assert pong_sent, "Pong message should be sent in response to ping"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_websocket_get_stats(self, mock_websocket):
         """Test get_stats functionality"""

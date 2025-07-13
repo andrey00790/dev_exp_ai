@@ -184,38 +184,18 @@ scrape_configs:
 #       password: "password"
 
 # Recording rules for efficiency
-recording_rules:
-  - name: ai_assistant_aggregation_rules
-    interval: 30s
-    rules:
-      # Request rate aggregations
-      - record: ai_assistant:request_rate_5m
-        expr: rate(http_requests_total[5m])
-        labels:
-          job: ai-assistant
-
-      # Error rate aggregations
-      - record: ai_assistant:error_rate_5m
-        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
-        labels:
-          job: ai-assistant
-
-      # Response time aggregations
-      - record: ai_assistant:response_time_p95_5m
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
-        labels:
-          job: ai-assistant
-
-      # Database connection pool utilization
-      - record: ai_assistant:db_pool_utilization
-        expr: (postgres_connections_active / postgres_connections_max) * 100
-        labels:
-          job: postgres
-
-      # Cache hit ratio
-      - record: ai_assistant:cache_hit_ratio_5m
-        expr: rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))
-        labels:
-          job: redis
-
-# Recording rules are defined in separate files loaded by rule_files section above 
+# Note: Recording rules are defined in separate files loaded by rule_files section above
+# groups:
+#   - name: ai_assistant_aggregation_rules
+#     interval: 30s
+#     rules:
+# (Recording rule examples - should be in separate files in rules/ directory):
+#       - record: ai_assistant:request_rate_5m
+#         expr: rate(http_requests_total[5m])
+#         labels:
+#           job: ai-assistant
+#
+#       - record: ai_assistant:error_rate_5m
+#         expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+#         labels:
+#           job: ai-assistant 

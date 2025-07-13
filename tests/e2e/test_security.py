@@ -13,8 +13,8 @@ from fastapi.testclient import TestClient
 # Set environment variables before imports
 os.environ["SECRET_KEY"] = "test-secret-key-12345"
 
-from app.main import app
-from app.security.auth import USERS_DB, authenticate_user, create_access_token
+from main import app
+from app.security.auth import USERS_DB, authenticate_user_sync as authenticate_user, create_access_token
 from app.security.cost_control import BudgetStatus, cost_controller
 from app.security.input_validation import (sanitize_string, validate_email,
                                            validate_input)

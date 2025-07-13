@@ -10,7 +10,7 @@ import random
 import statistics
 import time
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -664,7 +664,7 @@ class CoreFunctionalityLoadTester:
                 "failed_requests": total_failed,
                 "overall_success_rate": overall_success_rate,
                 "overall_rps": overall_rps,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
             "individual_tests": [m.to_dict() for m in all_metrics],
             "performance_analysis": self._analyze_performance(all_metrics),
@@ -737,7 +737,7 @@ class CoreFunctionalityLoadTester:
         """Generate comprehensive load test report"""
         report_lines = [
             "# 🚀 Core Functionality Load Test Report",
-            f"**Generated**: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC",
+            f"**Generated**: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC",
             "",
             "## 📊 Test Summary",
             f"- **Total Duration**: {results['test_summary']['total_duration']:.2f} seconds",

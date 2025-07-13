@@ -11,7 +11,7 @@ import time
 import uuid
 from collections import defaultdict, deque
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -124,7 +124,7 @@ class AIAnalyticsService:
 
     def _initialize_sample_data(self):
         """Initialize with sample analytics data"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Generate sample data points for the last 30 days
         for days_back in range(30):
@@ -175,7 +175,7 @@ class AIAnalyticsService:
     ):
         """Collect analytics data point"""
         data_point = AnalyticsDataPoint(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metric_type=metric_type,
             value=value,
             model_type=model_type,
@@ -200,7 +200,7 @@ class AIAnalyticsService:
 
         logger.info(f"Analyzing usage patterns for last {time_range_days} days")
 
-        cutoff_time = datetime.utcnow() - timedelta(days=time_range_days)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(days=time_range_days)
         recent_data = [dp for dp in self.data_points if dp.timestamp >= cutoff_time]
 
         patterns = []
@@ -323,7 +323,7 @@ class AIAnalyticsService:
             f"Analyzing {metric_type.value} trends for {model_type or 'all models'}"
         )
 
-        cutoff_time = datetime.utcnow() - timedelta(days=time_range_days)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(days=time_range_days)
 
         # Filter data points
         filtered_data = [
@@ -549,7 +549,7 @@ class AIAnalyticsService:
                     )
 
         # Insight 3: Peak time optimization
-        current_hour = datetime.utcnow().hour
+        current_hour = datetime.now(timezone.utc).hour
         peak_hours = [9, 10, 11, 14, 15, 16]  # Business hours
         if current_hour in peak_hours:
             insights.append(
@@ -694,7 +694,7 @@ class AIAnalyticsService:
         recent_data = [
             dp
             for dp in self.data_points
-            if dp.timestamp >= datetime.utcnow() - timedelta(days=7)
+            if dp.timestamp >= datetime.now(timezone.utc) - timedelta(days=7)
         ]
 
         # Calculate aggregated metrics
@@ -754,7 +754,7 @@ class AIAnalyticsService:
                 "light_users": len([u for u in user_activity.values() if u < 5]),
             },
             "top_insights": top_insights,
-            "last_updated": datetime.utcnow().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat(),
         }
 
     def get_analytics_history(self) -> List[Dict[str, Any]]:
@@ -764,7 +764,7 @@ class AIAnalyticsService:
             {
                 "analysis_type": "usage_patterns",
                 "patterns_found": len(self.usage_patterns),
-                "last_analysis": datetime.utcnow().isoformat(),
+                "last_analysis": datetime.now(timezone.utc).isoformat(),
             },
             {
                 "analysis_type": "cost_insights",
@@ -772,12 +772,12 @@ class AIAnalyticsService:
                 "total_potential_savings": sum(
                     insight.potential_savings for insight in self.cost_insights
                 ),
-                "last_analysis": datetime.utcnow().isoformat(),
+                "last_analysis": datetime.now(timezone.utc).isoformat(),
             },
             {
                 "analysis_type": "predictive_models",
                 "models_trained": len(self.predictive_models),
-                "last_training": datetime.utcnow().isoformat(),
+                "last_training": datetime.now(timezone.utc).isoformat(),
             },
         ]
 

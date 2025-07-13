@@ -9,7 +9,7 @@ import logging
 import random
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
@@ -132,7 +132,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
             self._send_json_response(
                 {
                     "status": "healthy",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "version": "1.0.0",
                     "uptime": random.randint(3600, 86400),
                 }
@@ -153,7 +153,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
                         "redis": "connected",
                         "external_api": "available",
                     },
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
 
@@ -193,7 +193,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
                     {
                         "valid": True,
                         "user_id": f"user_{random.randint(1000, 9999)}",
-                        "expires_at": (datetime.utcnow().timestamp() + 3600),
+                        "expires_at": (datetime.now(timezone.utc).timestamp() + 3600),
                     }
                 )
         else:
@@ -241,7 +241,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
                         "bytes_sent": random.randint(1000000, 10000000),
                         "bytes_recv": random.randint(2000000, 20000000),
                     },
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
 
@@ -251,7 +251,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
             for i in range(24):  # 24 hours of data
                 history.append(
                     {
-                        "timestamp": (datetime.utcnow().timestamp() - (i * 3600)),
+                        "timestamp": (datetime.now(timezone.utc).timestamp() - (i * 3600)),
                         "cpu_usage": round(random.uniform(15.0, 75.0), 1),
                         "memory_usage": round(random.uniform(250.0, 750.0), 1),
                     }
@@ -306,7 +306,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
                     "task_id": f"task_{random.randint(100000, 999999)}",
                     "status": "queued",
                     "priority": priority,
-                    "estimated_completion": datetime.utcnow().timestamp()
+                    "estimated_completion": datetime.now(timezone.utc).timestamp()
                     + random.randint(30, 300),
                 }
             )
@@ -333,7 +333,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
                     "optimization_id": f"opt_{random.randint(10000, 99999)}",
                     "component": component,
                     "status": "started",
-                    "estimated_completion": datetime.utcnow().timestamp()
+                    "estimated_completion": datetime.now(timezone.utc).timestamp()
                     + random.randint(120, 600),
                 }
             )
@@ -358,7 +358,7 @@ class MockAPIHandler(BaseHTTPRequestHandler):
                     ),
                     "status": random.choice(["completed", "failed", "running"]),
                     "improvement": f"{random.randint(5, 50)}%",
-                    "timestamp": datetime.utcnow().timestamp() - (i * 3600),
+                    "timestamp": datetime.now(timezone.utc).timestamp() - (i * 3600),
                 }
             )
 

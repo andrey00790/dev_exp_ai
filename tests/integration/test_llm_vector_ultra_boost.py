@@ -239,11 +239,17 @@ class TestLLMVectorUltraBoost:
                     print(f"⚠️ {module_name}: {str(e)[:50]}")
 
     def test_vector_operations_complete_coverage(self):
-        """Полное покрытие vector операций"""
-
+        """Тест векторных операций для полного покрытия"""
+        # Check if sentence_transformers is available
+        try:
+            import sentence_transformers
+        except ImportError:
+            pytest.skip("sentence_transformers module not available")
+        
+        # Test 1: Основные векторные операции
         with patch("qdrant_client.QdrantClient") as mock_qdrant, patch(
             "sentence_transformers.SentenceTransformer"
-        ) as mock_transformer, patch("numpy.array") as mock_numpy:
+        ) as mock_sentence_transformer:
 
             # Настраиваем моки для vector операций
             mock_qdrant_client = Mock()
@@ -277,7 +283,7 @@ class TestLLMVectorUltraBoost:
 
             # Mock embedding model
             mock_model = Mock()
-            mock_transformer.return_value = mock_model
+            mock_sentence_transformer.return_value = mock_model
             mock_model.encode.return_value = np.array([[0.1, 0.2, 0.3] * 128])
 
             mock_numpy.return_value = np.array([0.1, 0.2, 0.3] * 128)

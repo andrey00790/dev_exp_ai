@@ -13,7 +13,7 @@ import asyncio
 import json
 import requests
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
 
 class AnalyticsIntegrationTest:
@@ -75,7 +75,7 @@ class AnalyticsIntegrationTest:
                 "tokens_used": 150,
                 "success": True,
                 "metadata": {
-                    "test_run": datetime.utcnow().isoformat(),
+                    "test_run": datetime.now(timezone.utc).isoformat(),
                     "integration_test": True
                 }
             }
@@ -109,7 +109,7 @@ class AnalyticsIntegrationTest:
                 "input_tokens": 100,
                 "output_tokens": 200,
                 "metadata": {
-                    "test_run": datetime.utcnow().isoformat(),
+                    "test_run": datetime.now(timezone.utc).isoformat(),
                     "integration_test": True
                 }
             }
@@ -145,7 +145,7 @@ class AnalyticsIntegrationTest:
                 "cpu_usage_percent": 15.5,
                 "memory_usage_mb": 128.0,
                 "metadata": {
-                    "test_run": datetime.utcnow().isoformat(),
+                    "test_run": datetime.now(timezone.utc).isoformat(),
                     "integration_test": True
                 }
             }

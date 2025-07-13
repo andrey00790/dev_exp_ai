@@ -166,6 +166,7 @@ class TestMetricsMiddleware:
 
     @patch("app.monitoring.metrics.time.time")
     @patch("infra.monitoring.metrics.logger")
+    @pytest.mark.asyncio
     async def test_metrics_middleware_success(self, mock_logger, mock_time):
         """Test metrics middleware with successful request."""
         from app.monitoring.metrics import metrics_middleware
@@ -188,6 +189,7 @@ class TestMetricsMiddleware:
         mock_logger.error.assert_not_called()
 
     @patch("infra.monitoring.metrics.logger")
+    @pytest.mark.asyncio
     async def test_metrics_middleware_error(self, mock_logger):
         """Test metrics middleware with error."""
         from app.monitoring.metrics import metrics_middleware

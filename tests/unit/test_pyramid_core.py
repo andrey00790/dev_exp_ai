@@ -65,6 +65,7 @@ class TestVectorSearchService:
         assert hasattr(vector_search_service, "embedding_service")
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_search_basic(self, vector_search_service):
         """Test basic semantic search functionality"""
         query = "test search query"
@@ -81,6 +82,7 @@ class TestVectorSearchService:
         # Verify qdrant search was called
         vector_search_service.qdrant_client.search.assert_called_once()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_search_with_filters(self, vector_search_service):
         """Test search with filters"""

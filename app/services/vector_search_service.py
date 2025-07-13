@@ -1,313 +1,345 @@
 """
-Vector Search Service
-Handles vector-based semantic search operations
+Vector Search Service для AI Assistant MVP
+Высокоуровневый сервис для работы с векторным поиском
 """
 
-import asyncio
 import logging
-import time
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
-
+from typing import List, Dict, Any, Optional
+import asyncio
 import numpy as np
+
+try:
+    from adapters.vectorstore.qdrant_client import QdrantVectorStore, get_qdrant_store
+    QDRANT_AVAILABLE = True
+except ImportError:
+    QDRANT_AVAILABLE = False
+
+from app.core.exceptions import ServiceError
 
 logger = logging.getLogger(__name__)
 
+class VectorSearchError(ServiceError):
+    """Vector search service error"""
+    pass
+
+class DocumentEmbedding:
+    """Document with embedding representation"""
+    
+    def __init__(self, doc_id: str, content: str, embedding: List[float],
+                 metadata: Optional[Dict[str, Any]] = None):
+        self.doc_id = doc_id
+        self.content = content
+        self.embedding = embedding
+        self.metadata = metadata or {}
+
+class SearchResult:
+    """Search result with score and metadata"""
+    
+    def __init__(self, doc_id: str, content: str, score: float,
+                 metadata: Optional[Dict[str, Any]] = None):
+        self.doc_id = doc_id
+        self.content = content
+        self.score = score
+        self.metadata = metadata or {}
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "doc_id": self.doc_id,
+            "content": self.content,
+            "score": self.score,
+            "metadata": self.metadata
+        }
 
 class VectorSearchService:
-    """Vector search service for semantic search operations"""
-
+    """High-level vector search service"""
+    
     def __init__(self):
-        self.embeddings_cache = {}
-        self.documents = []
-        self.initialized = False
-        self.embedding_model = None
-
-    async def initialize(self):
-        """Initialize the vector search service"""
-        if self.initialized:
-            return
-
-        # Mock initialization
-        self.embedding_model = MockEmbeddingModel()
-        self.initialized = True
-        logger.info("VectorSearchService initialized")
-
-    async def create_embeddings(self, texts: List[str]) -> List[List[float]]:
-        """Create embeddings for given texts"""
-        if not self.initialized:
-            await self.initialize()
-
-        embeddings = []
-        for text in texts:
-            # Check cache first
-            if text in self.embeddings_cache:
-                embeddings.append(self.embeddings_cache[text])
-            else:
-                # Generate mock embedding
-                embedding = await self.embedding_model.encode(text)
-                self.embeddings_cache[text] = embedding
-                embeddings.append(embedding)
-
-        return embeddings
-
-    async def similarity_search(
-        self,
-        query: str,
-        top_k: int = 10,
-        threshold: float = 0.7,
-        filters: Optional[Dict[str, Any]] = None,
-    ) -> List[Dict[str, Any]]:
-        """Perform similarity search using vector embeddings"""
-        if not self.initialized:
-            await self.initialize()
-
-        # Create query embedding
-        query_embedding = await self.embedding_model.encode(query)
-
-        # Mock search results
-        results = []
-        for i in range(min(top_k, 5)):
-            score = 0.95 - (i * 0.1)
-            if score >= threshold:
-                results.append(
-                    {
-                        "id": f"doc_{i}",
-                        "content": f"Mock document {i} content for query: {query}",
-                        "title": f"Document {i}",
-                        "score": score,
-                        "metadata": {
-                            "source": "confluence",
-                            "created_at": datetime.now().isoformat(),
-                            "author": "Mock Author",
-                        },
-                    }
-                )
-
-        return results
-
-    async def search(
-        self, query: str, limit: int = 10, **kwargs
-    ) -> List[Dict[str, Any]]:
-        """Search method compatible with tests"""
-        return await self.similarity_search(query, top_k=limit, **kwargs)
-
-    async def add_documents(
-        self, documents: List[Dict[str, Any]], batch_size: int = 100
-    ) -> Dict[str, Any]:
-        """Add documents to the vector index"""
-        if not self.initialized:
-            await self.initialize()
-
-        added_count = 0
-        failed_count = 0
-
-        for i in range(0, len(documents), batch_size):
-            batch = documents[i : i + batch_size]
-
-            try:
-                # Extract texts for embedding
-                texts = [doc.get("content", "") for doc in batch]
-
-                # Create embeddings
-                embeddings = await self.create_embeddings(texts)
-
-                # Store documents with embeddings
-                for doc, embedding in zip(batch, embeddings):
-                    doc["embedding"] = embedding
-                    self.documents.append(doc)
-                    added_count += 1
-
-                # Simulate processing time
-                await asyncio.sleep(0.1)
-
-            except Exception as e:
-                logger.error(f"Failed to add batch: {e}")
-                failed_count += len(batch)
-
-        return {
-            "added": added_count,
-            "failed": failed_count,
-            "total_documents": len(self.documents),
-        }
-
-    async def update_document(
-        self, document_id: str, content: str, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
-        """Update a document in the vector index"""
-        if not self.initialized:
-            await self.initialize()
-
-        # Find and update document
-        for i, doc in enumerate(self.documents):
-            if doc.get("id") == document_id:
-                # Update content and create new embedding
-                doc["content"] = content
-                doc["embedding"] = await self.embedding_model.encode(content)
-                if metadata:
-                    doc["metadata"].update(metadata)
-                doc["updated_at"] = datetime.now().isoformat()
-                return True
-
-        return False
-
-    async def delete_document(self, document_id: str) -> bool:
-        """Delete a document from the vector index"""
-        for i, doc in enumerate(self.documents):
-            if doc.get("id") == document_id:
-                del self.documents[i]
-                return True
-        return False
-
-    async def get_document_count(self) -> int:
-        """Get total number of documents in the index"""
-        return len(self.documents)
-
-    async def get_similar_documents(
-        self, document_id: str, top_k: int = 5, threshold: float = 0.8
-    ) -> List[Dict[str, Any]]:
-        """Find documents similar to a given document"""
-        if not self.initialized:
-            await self.initialize()
-
-        # Find the source document
-        source_doc = None
-        for doc in self.documents:
-            if doc.get("id") == document_id:
-                source_doc = doc
-                break
-
-        if not source_doc:
-            return []
-
-        # Mock similar documents
-        similar_docs = []
-        for i in range(min(top_k, 3)):
-            score = 0.9 - (i * 0.1)
-            if score >= threshold:
-                similar_docs.append(
-                    {
-                        "id": f"similar_{i}",
-                        "title": f"Similar Document {i}",
-                        "content": f"Content similar to {source_doc.get('title', 'Unknown')}",
-                        "score": score,
-                        "metadata": {
-                            "source": "confluence",
-                            "similarity_type": "content",
-                        },
-                    }
-                )
-
-        return similar_docs
-
-    async def cluster_documents(
-        self, num_clusters: int = 10, min_cluster_size: int = 2
-    ) -> Dict[str, Any]:
-        """Cluster documents based on their embeddings"""
-        if not self.initialized:
-            await self.initialize()
-
-        # Mock clustering results
-        clusters = {}
-        for i in range(num_clusters):
-            cluster_docs = []
-            for j in range(min_cluster_size + i):
-                if len(self.documents) > j:
-                    cluster_docs.append(
-                        {
-                            "id": f"cluster_{i}_doc_{j}",
-                            "title": f"Cluster {i} Document {j}",
-                            "distance_to_centroid": 0.1 + (j * 0.05),
-                        }
-                    )
-
-            if cluster_docs:
-                clusters[f"cluster_{i}"] = {
-                    "documents": cluster_docs,
-                    "centroid_topic": f"Topic {i}",
-                    "size": len(cluster_docs),
+        self.store: Optional[QdrantVectorStore] = None
+        self.default_collection = "documents"
+        self.vector_dimension = 1536  # OpenAI embeddings default
+        
+    async def initialize(self, config: Dict[str, Any]) -> None:
+        """Initialize vector search service"""
+        try:
+            if not QDRANT_AVAILABLE:
+                raise VectorSearchError("Qdrant client not available")
+            
+            # Get Qdrant configuration
+            qdrant_config = config.get('qdrant', {})
+            host = qdrant_config.get('host', 'localhost')
+            port = qdrant_config.get('port', 6333)
+            
+            # Initialize Qdrant store
+            self.store = QdrantVectorStore(host=host, port=port)
+            
+            # Test connection
+            health = await self.store.health_check()
+            if health["status"] != "healthy":
+                raise VectorSearchError(f"Qdrant connection failed: {health.get('error', 'Unknown')}")
+            
+            # Initialize default collections
+            await self.store.initialize_default_collections()
+            
+            # Update configuration
+            self.default_collection = config.get('default_collection', 'documents')
+            self.vector_dimension = config.get('vector_dimension', 1536)
+            
+            logger.info(f"🔍 Vector search service initialized with Qdrant at {host}:{port}")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize vector search service: {e}")
+            raise VectorSearchError(f"Vector search initialization failed: {e}")
+    
+    async def add_document(self, doc_id: str, content: str, embedding: List[float],
+                          metadata: Optional[Dict[str, Any]] = None,
+                          collection: Optional[str] = None) -> bool:
+        """Add document with embedding to vector store"""
+        try:
+            if not self.store:
+                raise VectorSearchError("Vector search service not initialized")
+            
+            target_collection = collection or self.default_collection
+            
+            # Ensure collection exists
+            if not self.store.collection_exists(target_collection):
+                self.store.create_collection(target_collection, vector_size=len(embedding))
+            
+            # Prepare payload
+            payload = {
+                "doc_id": doc_id,
+                "content": content,
+                "metadata": metadata or {}
+            }
+            
+            # Insert vector
+            success = self.store.insert_vectors(
+                collection_name=target_collection,
+                vectors=[embedding],
+                payloads=[payload],
+                ids=[doc_id]
+            )
+            
+            if success:
+                logger.info(f"✅ Added document {doc_id} to {target_collection}")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to add document {doc_id}: {e}")
+            return False
+    
+    async def add_documents_batch(self, documents: List[DocumentEmbedding],
+                                 collection: Optional[str] = None) -> int:
+        """Add multiple documents in batch"""
+        try:
+            if not self.store:
+                raise VectorSearchError("Vector search service not initialized")
+            
+            if not documents:
+                return 0
+            
+            target_collection = collection or self.default_collection
+            
+            # Ensure collection exists
+            if not self.store.collection_exists(target_collection):
+                vector_size = len(documents[0].embedding)
+                self.store.create_collection(target_collection, vector_size=vector_size)
+            
+            # Prepare batch data
+            vectors = [doc.embedding for doc in documents]
+            payloads = []
+            ids = []
+            
+            for doc in documents:
+                payload = {
+                    "doc_id": doc.doc_id,
+                    "content": doc.content,
+                    "metadata": doc.metadata
                 }
-
-        return {
-            "clusters": clusters,
-            "total_clusters": len(clusters),
-            "total_documents_clustered": sum(c["size"] for c in clusters.values()),
-        }
-
-    async def get_search_statistics(self) -> Dict[str, Any]:
-        """Get search service statistics"""
-        return {
-            "total_documents": len(self.documents),
-            "embedding_cache_size": len(self.embeddings_cache),
-            "initialized": self.initialized,
-            "service_type": "vector_search",
-            "supported_operations": [
-                "similarity_search",
-                "add_documents",
-                "update_document",
-                "delete_document",
-                "cluster_documents",
-                "get_similar_documents",
-            ],
-        }
-
-
-class MockEmbeddingModel:
-    """Mock embedding model for testing"""
-
-    def __init__(self):
-        self.dimension = 384  # Common embedding dimension
-
-    async def encode(self, text: str) -> List[float]:
-        """Generate mock embedding for text"""
-        # Simple hash-based mock embedding
-        import hashlib
-
-        hash_obj = hashlib.md5(text.encode())
-        hash_hex = hash_obj.hexdigest()
-
-        # Convert to float values between -1 and 1
-        embedding = []
-        for i in range(0, min(len(hash_hex), self.dimension // 16)):
-            chunk = hash_hex[i : i + 2]
-            value = int(chunk, 16) / 255.0 * 2 - 1  # Normalize to [-1, 1]
-            embedding.append(value)
-
-        # Pad to desired dimension
-        while len(embedding) < self.dimension:
-            embedding.append(0.0)
-
-        return embedding[: self.dimension]
-
+                payloads.append(payload)
+                ids.append(doc.doc_id)
+            
+            # Insert batch
+            success = self.store.insert_vectors(
+                collection_name=target_collection,
+                vectors=vectors,
+                payloads=payloads,
+                ids=ids
+            )
+            
+            if success:
+                logger.info(f"✅ Added {len(documents)} documents to {target_collection}")
+                return len(documents)
+            else:
+                return 0
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to add batch documents: {e}")
+            return 0
+    
+    async def search_similar(self, query_embedding: List[float],
+                           limit: int = 10,
+                           score_threshold: Optional[float] = None,
+                           collection: Optional[str] = None) -> List[SearchResult]:
+        """Search for similar documents"""
+        try:
+            if not self.store:
+                raise VectorSearchError("Vector search service not initialized")
+            
+            target_collection = collection or self.default_collection
+            
+            # Perform search
+            results = self.store.search_vectors(
+                collection_name=target_collection,
+                query_vector=query_embedding,
+                limit=limit,
+                score_threshold=score_threshold
+            )
+            
+            # Convert to SearchResult objects
+            search_results = []
+            for result in results:
+                payload = result["payload"]
+                search_result = SearchResult(
+                    doc_id=payload.get("doc_id", result["id"]),
+                    content=payload.get("content", ""),
+                    score=result["score"],
+                    metadata=payload.get("metadata", {})
+                )
+                search_results.append(search_result)
+            
+            logger.info(f"🔍 Found {len(search_results)} similar documents in {target_collection}")
+            return search_results
+            
+        except Exception as e:
+            logger.error(f"❌ Search failed: {e}")
+            return []
+    
+    async def search_by_text(self, query_text: str, embedding_function,
+                           limit: int = 10,
+                           score_threshold: Optional[float] = None,
+                           collection: Optional[str] = None) -> List[SearchResult]:
+        """Search by text query (requires embedding function)"""
+        try:
+            # Generate embedding for query text
+            if asyncio.iscoroutinefunction(embedding_function):
+                query_embedding = await embedding_function(query_text)
+            else:
+                query_embedding = embedding_function(query_text)
+            
+            # Search using embedding
+            return await self.search_similar(
+                query_embedding=query_embedding,
+                limit=limit,
+                score_threshold=score_threshold,
+                collection=collection
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Text search failed: {e}")
+            return []
+    
+    async def delete_document(self, doc_id: str,
+                            collection: Optional[str] = None) -> bool:
+        """Delete document from vector store"""
+        try:
+            if not self.store:
+                raise VectorSearchError("Vector search service not initialized")
+            
+            target_collection = collection or self.default_collection
+            
+            success = self.store.delete_vectors(
+                collection_name=target_collection,
+                ids=[doc_id]
+            )
+            
+            if success:
+                logger.info(f"🗑️ Deleted document {doc_id} from {target_collection}")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to delete document {doc_id}: {e}")
+            return False
+    
+    async def get_collection_stats(self, collection: Optional[str] = None) -> Dict[str, Any]:
+        """Get collection statistics"""
+        try:
+            if not self.store:
+                return {"error": "Service not initialized"}
+            
+            target_collection = collection or self.default_collection
+            
+            if not self.store.collection_exists(target_collection):
+                return {"error": f"Collection {target_collection} does not exist"}
+            
+            info = self.store.get_collection_info(target_collection)
+            
+            return {
+                "collection": target_collection,
+                "document_count": info.get("vector_count", 0),
+                "status": info.get("status", "unknown"),
+                "config": info.get("config", "")
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to get collection stats: {e}")
+            return {"error": str(e)}
+    
+    async def list_collections(self) -> List[str]:
+        """List all available collections"""
+        try:
+            if not self.store:
+                return []
+            
+            return self.store.list_collections()
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to list collections: {e}")
+            return []
+    
+    async def health_check(self) -> Dict[str, Any]:
+        """Health check for vector search service"""
+        try:
+            if not self.store:
+                return {
+                    "status": "unhealthy",
+                    "error": "Service not initialized"
+                }
+            
+            # Get Qdrant health
+            qdrant_health = self.store.health_check()
+            
+            # Get collections info
+            collections = self.store.list_collections()
+            
+            return {
+                "status": "healthy" if qdrant_health["status"] == "healthy" else "degraded",
+                "qdrant": qdrant_health,
+                "collections": len(collections),
+                "default_collection": self.default_collection,
+                "vector_dimension": self.vector_dimension
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Vector search health check failed: {e}")
+            return {
+                "status": "unhealthy",
+                "error": str(e)
+            }
 
 # Global service instance
-_vector_search_service = None
-
-
-async def get_vector_search_service() -> VectorSearchService:
-    """Get vector search service instance"""
-    global _vector_search_service
-    if _vector_search_service is None:
-        _vector_search_service = VectorSearchService()
-        await _vector_search_service.initialize()
-    return _vector_search_service
-
+vector_search_service = VectorSearchService()
 
 # Convenience functions
-async def search_similar(query: str, top_k: int = 10) -> List[Dict[str, Any]]:
-    """Simple similarity search function"""
-    service = await get_vector_search_service()
-    return await service.similarity_search(query, top_k)
+async def search_documents(query_embedding: List[float], **kwargs) -> List[SearchResult]:
+    """Convenience function for document search"""
+    return await vector_search_service.search_similar(query_embedding, **kwargs)
 
+async def add_document_to_search(doc_id: str, content: str, embedding: List[float], **kwargs) -> bool:
+    """Convenience function to add document"""
+    return await vector_search_service.add_document(doc_id, content, embedding, **kwargs)
 
-async def add_document(content: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
-    """Add single document to vector index"""
-    service = await get_vector_search_service()
-    doc = {
-        "id": f"doc_{int(time.time())}",
-        "content": content,
-        "metadata": metadata or {},
-        "created_at": datetime.now().isoformat(),
-    }
-    result = await service.add_documents([doc])
-    return result["added"] > 0
+async def get_search_stats() -> Dict[str, Any]:
+    """Convenience function to get search statistics"""
+    return await vector_search_service.get_collection_stats()

@@ -5,7 +5,7 @@ Comprehensive tests for Security System (Updated)
 import hashlib
 import secrets
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -22,8 +22,11 @@ class AuthService:
 
     async def authenticate_user(self, email, password):
         """Authenticate user"""
-        user = self.users.get(email)
-        if user and user.get("password") == password:
+        # Import and use the module-level functions so patches work
+        from app.security.auth import get_user_by_email, verify_password
+        
+        user = await get_user_by_email(email)
+        if user and verify_password(password, user.get("password_hash", "")):
             return {
                 "user_id": user["user_id"],
                 "email": email,
@@ -34,28 +37,38 @@ class AuthService:
 
     async def create_user(self, user_data):
         """Create new user"""
+        # Import and use the module-level functions so patches work
+        from app.security.auth import get_user_by_email, hash_password, create_user_in_db
+        
         email = user_data["email"]
-        if email in self.users:
+        existing_user = await get_user_by_email(email)
+        if existing_user:
             raise ValueError("User already exists")
 
-        user_id = f"user_{len(self.users)}"
-        self.users[email] = {
-            "user_id": user_id,
-            "email": email,
-            "password": user_data["password"],
-            "username": user_data["username"],
-            "full_name": user_data["full_name"],
-        }
-        return {"user_id": user_id}
+        # Hash password
+        hashed_password = hash_password(user_data["password"])
+        
+        # Create user in database
+        user_record = await create_user_in_db({
+            **user_data,
+            "password_hash": hashed_password
+        })
+        
+        return user_record
 
     async def validate_token(self, token):
         """Validate access token"""
-        if token.startswith("token_"):
-            user_id = token.replace("token_", "")
-            for email, user in self.users.items():
-                if user["user_id"] == user_id:
-                    return {"user_id": user_id, "email": email}
-        return None
+        # Import and use the module-level functions so patches work
+        from app.security.auth import verify_token
+        
+        try:
+            token_data = await verify_token(token)
+            return {
+                "user_id": token_data.user_id,
+                "email": token_data.email
+            }
+        except Exception:
+            return None
 
 
 class TokenManager:
@@ -68,11 +81,11 @@ class TokenManager:
     def create_access_token(self, user_data, expires_delta=None):
         """Create access token"""
         token_id = f"access_{len(self.tokens)}"
-        expiry = datetime.utcnow() + (expires_delta or timedelta(hours=1))
+        expiry = datetime.now(timezone.utc) + (expires_delta or timedelta(hours=1))
         self.tokens[token_id] = {
             **user_data,
             "exp": expiry.timestamp(),
-            "iat": datetime.utcnow().timestamp(),
+            "iat": datetime.now(timezone.utc).timestamp(),
             "type": "access",
         }
         return token_id
@@ -80,11 +93,11 @@ class TokenManager:
     def create_refresh_token(self, user_data, expires_delta=None):
         """Create refresh token"""
         token_id = f"refresh_{len(self.tokens)}"
-        expiry = datetime.utcnow() + (expires_delta or timedelta(days=30))
+        expiry = datetime.now(timezone.utc) + (expires_delta or timedelta(days=30))
         self.tokens[token_id] = {
             **user_data,
             "exp": expiry.timestamp(),
-            "iat": datetime.utcnow().timestamp(),
+            "iat": datetime.now(timezone.utc).timestamp(),
             "type": "refresh",
         }
         return token_id
@@ -93,7 +106,7 @@ class TokenManager:
         """Decode token"""
         if token in self.tokens:
             token_data = self.tokens[token]
-            if token_data["exp"] > datetime.utcnow().timestamp():
+            if token_data["exp"] > datetime.now(timezone.utc).timestamp():
                 return token_data
         return None
 
@@ -144,13 +157,17 @@ class CostControlManager:
 
     async def check_budget(self, user_id, cost):
         """Check if user can afford the cost"""
-        budget = self.budgets.get(
-            user_id, {"budget_limit": 100.0, "current_usage": 0.0}
-        )
+        # Import and use the module-level function so patches work
+        from app.security.cost_control import get_user_budget
+        
+        budget = await get_user_budget(user_id)
         return budget["current_usage"] + cost <= budget["budget_limit"]
 
     async def record_usage(self, usage_data):
         """Record usage"""
+        # Import and use the module-level function so patches work
+        from app.security.cost_control import update_user_usage
+        
         user_id = usage_data["user_id"]
         cost = usage_data["cost"]
 
@@ -158,14 +175,15 @@ class CostControlManager:
             self.usage[user_id] = []
         self.usage[user_id].append(usage_data)
 
-        # Update current usage
-        if user_id not in self.budgets:
-            self.budgets[user_id] = {"budget_limit": 100.0, "current_usage": 0.0}
-        self.budgets[user_id]["current_usage"] += cost
+        # Update current usage using module-level function
+        await update_user_usage(user_id, cost)
 
     async def get_usage_stats(self, user_id, start_date, end_date):
         """Get usage statistics"""
-        user_usage = self.usage.get(user_id, [])
+        # Import and use the module-level function so patches work
+        from app.security.cost_control import get_usage_history
+        
+        user_usage = await get_usage_history(user_id)
         total_cost = sum(u["cost"] for u in user_usage)
         return {"total_cost": total_cost, "operation_breakdown": {}, "daily_usage": []}
 
@@ -354,8 +372,10 @@ class TestAuthService:
         assert hasattr(auth_service, "create_user")
         assert hasattr(auth_service, "validate_token")
 
+    @pytest.mark.asyncio
     @patch("app.security.auth.get_user_by_email")
     @patch("app.security.auth.verify_password")
+    @pytest.mark.asyncio
     async def test_authenticate_user_success(
         self, mock_verify, mock_get_user, auth_service, sample_user
     ):
@@ -380,7 +400,9 @@ class TestAuthService:
         mock_get_user.assert_called_once_with("test@example.com")
         mock_verify.assert_called_once()
 
+    @pytest.mark.asyncio
     @patch("app.security.auth.get_user_by_email")
+    @pytest.mark.asyncio
     async def test_authenticate_user_not_found(self, mock_get_user, auth_service):
         """Test authentication with non-existent user"""
         # Setup mocks
@@ -394,8 +416,10 @@ class TestAuthService:
         # Should return None
         assert result is None
 
+    @pytest.mark.asyncio
     @patch("app.security.auth.get_user_by_email")
     @patch("app.security.auth.verify_password")
+    @pytest.mark.asyncio
     async def test_authenticate_user_wrong_password(
         self, mock_verify, mock_get_user, auth_service, sample_user
     ):
@@ -412,9 +436,11 @@ class TestAuthService:
         # Should return None
         assert result is None
 
+    @pytest.mark.asyncio
     @patch("app.security.auth.get_user_by_email")
     @patch("app.security.auth.hash_password")
     @patch("app.security.auth.create_user_in_db")
+    @pytest.mark.asyncio
     async def test_create_user(
         self, mock_create, mock_hash, mock_get_user, auth_service
     ):
@@ -443,7 +469,9 @@ class TestAuthService:
         mock_hash.assert_called_once_with("secure_password")
         mock_create.assert_called_once()
 
+    @pytest.mark.asyncio
     @patch("app.security.auth.get_user_by_email")
+    @pytest.mark.asyncio
     async def test_create_user_already_exists(
         self, mock_get_user, auth_service, sample_user
     ):
@@ -462,11 +490,21 @@ class TestAuthService:
         with pytest.raises(ValueError, match="User already exists"):
             await auth_service.create_user(user_data)
 
-    async def test_validate_token(self, auth_service, token_manager):
+    @pytest.mark.asyncio
+    @patch("app.security.auth.verify_token")
+    @pytest.mark.asyncio
+    async def test_validate_token(self, mock_verify_token, auth_service, token_manager):
         """Test token validation"""
         # Create a valid token
         user_data = {"user_id": "test_user", "email": "test@example.com"}
         token = token_manager.create_access_token(user_data)
+
+        # Setup mock verify_token to return TokenData object
+        from unittest.mock import Mock
+        token_data = Mock()
+        token_data.user_id = "test_user"
+        token_data.email = "test@example.com"
+        mock_verify_token.return_value = token_data
 
         # Validate token
         result = await auth_service.validate_token(token)
@@ -476,6 +514,8 @@ class TestAuthService:
         assert result["user_id"] == "test_user"
         assert result["email"] == "test@example.com"
 
+    @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_validate_invalid_token(self, auth_service):
         """Test validation of invalid token"""
         # Try to validate invalid token
@@ -631,7 +671,9 @@ class TestCostControlManager:
         assert hasattr(cost_control_manager, "record_usage")
         assert hasattr(cost_control_manager, "get_usage_stats")
 
+    @pytest.mark.asyncio
     @patch("app.security.cost_control.get_user_budget")
+    @pytest.mark.asyncio
     async def test_check_budget_within_limit(
         self, mock_get_budget, cost_control_manager
     ):
@@ -646,7 +688,9 @@ class TestCostControlManager:
         assert result is True
         mock_get_budget.assert_called_once_with("test_user")
 
+    @pytest.mark.asyncio
     @patch("app.security.cost_control.get_user_budget")
+    @pytest.mark.asyncio
     async def test_check_budget_exceeds_limit(
         self, mock_get_budget, cost_control_manager
     ):
@@ -660,7 +704,9 @@ class TestCostControlManager:
         # Should be denied
         assert result is False
 
+    @pytest.mark.asyncio
     @patch("app.security.cost_control.update_user_usage")
+    @pytest.mark.asyncio
     async def test_record_usage(self, mock_update, cost_control_manager):
         """Test usage recording"""
         usage_data = {
@@ -668,7 +714,7 @@ class TestCostControlManager:
             "operation": "search",
             "cost": 15.0,
             "tokens_used": 1000,
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
         }
 
         # Record usage
@@ -677,7 +723,9 @@ class TestCostControlManager:
         # Verify mock was called
         mock_update.assert_called_once_with("test_user", 15.0)
 
+    @pytest.mark.asyncio
     @patch("app.security.cost_control.get_usage_history")
+    @pytest.mark.asyncio
     async def test_get_usage_stats(self, mock_get_history, cost_control_manager):
         """Test getting usage statistics"""
         # Setup mock
@@ -931,6 +979,8 @@ class TestInputValidator:
 class TestSecurityIntegration:
     """Integration tests for security components"""
 
+    @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_full_authentication_flow(self, auth_service, token_manager):
         """Test complete authentication flow"""
         with patch("app.security.auth.get_user_by_email") as mock_get_user, patch(
@@ -961,6 +1011,8 @@ class TestSecurityIntegration:
             assert token_result is not None
             assert token_result["user_id"] == "test_user"
 
+    @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_cost_control_integration(self, cost_control_manager, auth_service):
         """Test cost control integration"""
         with patch("app.security.cost_control.get_user_budget") as mock_budget, patch(
@@ -984,6 +1036,8 @@ class TestSecurityIntegration:
             can_perform = await cost_control_manager.check_budget(user_id, small_cost)
             assert can_perform is True
 
+    @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_security_middleware_chain(self):
         """Test security middleware chain"""
         from fastapi import FastAPI, Request

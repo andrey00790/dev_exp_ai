@@ -3,7 +3,7 @@ Comprehensive tests for Analytics Service (Updated)
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -97,6 +97,7 @@ class TestDataAggregator:
         assert hasattr(data_aggregator, "get_time_series_data")
 
     @patch.object(DataAggregator, "_update_period_aggregation")
+    @pytest.mark.asyncio
     async def test_update_aggregations(self, mock_update, data_aggregator):
         """Test updating aggregations"""
         # Mock the period update method
@@ -104,12 +105,13 @@ class TestDataAggregator:
 
         # Test update
         await data_aggregator.update_aggregations(
-            metric_type=MetricType.USAGE, timestamp=datetime.utcnow()
+            metric_type=MetricType.USAGE, timestamp=datetime.now(timezone.utc)
         )
 
         # Should call update for multiple periods
         assert mock_update.call_count >= 1
 
+    @pytest.mark.asyncio
     async def test_get_aggregated_metrics(self, data_aggregator):
         """Test getting aggregated metrics"""
         # Setup mock query
@@ -131,13 +133,14 @@ class TestDataAggregator:
             metric_type=MetricType.USAGE,
             start_date=datetime(2024, 1, 15),
             end_date=datetime(2024, 1, 16),
-            aggregation_period=AggregationPeriod.HOUR,
+            aggregation_period=AggregationPeriod.HOURLY,
         )
 
         # Verify result
         assert len(result) == 1
         assert result[0]["metric_name"] == "usage_count"
 
+    @pytest.mark.asyncio
     async def test_get_time_series_data(self, data_aggregator):
         """Test getting time series data"""
         # Setup mock query
@@ -161,7 +164,7 @@ class TestDataAggregator:
             metric_name="usage_count",
             start_date=datetime(2024, 1, 15),
             end_date=datetime(2024, 1, 16),
-            aggregation_period=AggregationPeriod.HOUR,
+            aggregation_period=AggregationPeriod.HOURLY,
         )
 
         # Verify result
@@ -182,6 +185,7 @@ class TestAnalyticsService:
         assert hasattr(analytics_service, "health_check")
 
     @patch("app.analytics.service.get_database_session")
+    @pytest.mark.asyncio
     async def test_get_dashboard_data(self, mock_db, analytics_service):
         """Test getting dashboard data"""
         # Setup mock
@@ -207,6 +211,7 @@ class TestAnalyticsService:
             assert result is not None
 
     @patch("app.analytics.service.get_database_session")
+    @pytest.mark.asyncio
     async def test_record_metric(self, mock_db, analytics_service):
         """Test recording a metric"""
         # Setup mock
@@ -229,6 +234,7 @@ class TestAnalyticsIntegration:
     """Integration tests for analytics components"""
 
     @patch("app.analytics.service.get_database_session")
+    @pytest.mark.asyncio
     async def test_full_analytics_pipeline(self, mock_db):
         """Test full analytics pipeline from data to insights"""
         # Setup mocks
@@ -248,7 +254,7 @@ class TestAnalyticsIntegration:
         )
 
         # Test aggregation update
-        await aggregator.update_aggregations(MetricType.USAGE, datetime.utcnow())
+        await aggregator.update_aggregations(MetricType.USAGE, datetime.now(timezone.utc))
 
         # Verify database interactions
         mock_session.add.assert_called()
@@ -259,7 +265,7 @@ def client():
     """Test client fixture"""
     from fastapi.testclient import TestClient
 
-    from app.main import app
+    from main import app
 
     return TestClient(app)
 

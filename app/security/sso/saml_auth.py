@@ -10,7 +10,7 @@ Provides SAML 2.0 SSO authentication functionality including:
 
 import logging
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional, Tuple
 from urllib.parse import urlparse
 
@@ -316,7 +316,7 @@ class SAMLAuthHandler:
             sso_user.external_name = user_data.get("external_name")
             sso_user.external_groups = user_data.get("external_groups")
             sso_user.external_attributes = user_data.get("external_attributes")
-            sso_user.last_sso_login = datetime.utcnow()
+            sso_user.last_sso_login = datetime.now(timezone.utc)
             sso_user.sso_session_id = session_index
             db.commit()
             return sso_user
@@ -347,7 +347,7 @@ class SAMLAuthHandler:
             external_name=user_data.get("external_name"),
             external_groups=user_data.get("external_groups"),
             external_attributes=user_data.get("external_attributes"),
-            last_sso_login=datetime.utcnow(),
+            last_sso_login=datetime.now(timezone.utc),
             sso_session_id=session_index,
             active=True,
         )

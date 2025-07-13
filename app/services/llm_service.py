@@ -1,354 +1,337 @@
 """
-LLM Service for AI Assistant MVP
-Handles interactions with various LLM providers
+LLM Service для AI Assistant MVP
+Высокоуровневый сервис для работы с LLM адаптерами
 """
 
-import asyncio
-import json
 import logging
-import time
+from typing import Dict, List, Optional, AsyncIterator, Any, Enum
 from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+import os
+
+from app.adapters.llm import (
+    LLMAdapterFactory, LLMProvider, BaseLLMAdapter,
+    LLMRequest, LLMResponse, LLMStreamChunk, LLMMessage,
+    create_system_message, create_user_message, create_assistant_message,
+    LLMError, LLMRateLimitError, LLMAuthenticationError
+)
+from app.core.exceptions import ServiceError
 
 logger = logging.getLogger(__name__)
 
-
-class LLMProvider(str, Enum):
-    """Supported LLM providers"""
-
-    OPENAI = "openai"
-    ANTHROPIC = "anthropic"
-    OLLAMA = "ollama"
-    LOCAL = "local"
-
-
-class LLMModel(str, Enum):
-    """Supported LLM models"""
-
-    # OpenAI
-    GPT_4 = "gpt-4"
-    GPT_4_TURBO = "gpt-4-turbo-preview"
-    GPT_3_5_TURBO = "gpt-3.5-turbo"
-
-    # Anthropic
-    CLAUDE_3_OPUS = "claude-3-opus-20240229"
-    CLAUDE_3_SONNET = "claude-3-sonnet-20240229"
-    CLAUDE_3_HAIKU = "claude-3-haiku-20240307"
-
-    # Ollama/Local
-    LLAMA2 = "llama2"
-    MISTRAL = "mistral"
-    CODELLAMA = "codellama"
-
-
-class LLMRequest:
-    """LLM request model"""
-
-    def __init__(
-        self,
-        prompt: str,
-        model: LLMModel = LLMModel.GPT_3_5_TURBO,
-        provider: Optional[LLMProvider] = None,
-        max_tokens: int = 1000,
-        temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        context: Optional[List[Dict[str, str]]] = None,
-        user_id: Optional[str] = None,
-    ):
-        self.prompt = prompt
-        self.model = model
-        self.provider = provider or self._detect_provider(model)
-        self.max_tokens = max_tokens
-        self.temperature = temperature
-        self.system_prompt = system_prompt
-        self.context = context or []
-        self.user_id = user_id
-        self.created_at = datetime.utcnow()
-
-    def _detect_provider(self, model: LLMModel) -> LLMProvider:
-        """Auto-detect provider from model"""
-        if model.value.startswith("gpt"):
-            return LLMProvider.OPENAI
-        elif model.value.startswith("claude"):
-            return LLMProvider.ANTHROPIC
-        else:
-            return LLMProvider.OLLAMA
-
-
-class LLMResponse:
-    """LLM response model"""
-
-    def __init__(
-        self,
-        content: str,
-        model: LLMModel,
-        provider: LLMProvider,
-        tokens_used: int = 0,
-        cost_usd: float = 0.0,
-        response_time_ms: float = 0.0,
-        request_id: Optional[str] = None,
-    ):
-        self.content = content
-        self.model = model
-        self.provider = provider
-        self.tokens_used = tokens_used
-        self.cost_usd = cost_usd
-        self.response_time_ms = response_time_ms
-        self.request_id = request_id
-        self.created_at = datetime.utcnow()
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary"""
-        return {
-            "content": self.content,
-            "model": self.model.value,
-            "provider": self.provider.value,
-            "tokens_used": self.tokens_used,
-            "cost_usd": self.cost_usd,
-            "response_time_ms": self.response_time_ms,
-            "request_id": self.request_id,
-            "created_at": self.created_at.isoformat(),
-        }
-
+class LLMServiceError(ServiceError):
+    """LLM service specific error"""
+    pass
 
 class LLMService:
-    """Main LLM service class"""
-
+    """High-level service for LLM operations"""
+    
     def __init__(self):
-        self.providers = {
-            LLMProvider.OPENAI: self._mock_openai_client,
-            LLMProvider.ANTHROPIC: self._mock_anthropic_client,
-            LLMProvider.OLLAMA: self._mock_ollama_client,
-            LLMProvider.LOCAL: self._mock_local_client,
-        }
-        self.request_count = 0
-        self.total_cost = 0.0
-
-    async def generate(self, request: LLMRequest) -> LLMResponse:
-        """Generate response using specified LLM"""
-        start_time = time.time()
-        self.request_count += 1
-
+        self.adapters: Dict[LLMProvider, BaseLLMAdapter] = {}
+        self.default_provider: Optional[LLMProvider] = None
+        self.system_prompt = "You are a helpful AI assistant."
+        
+    async def initialize(self, config: Dict[str, Any]) -> None:
+        """Initialize LLM service with configuration"""
         try:
-            # Get provider client
-            provider_client = self.providers.get(request.provider)
-            if not provider_client:
-                raise ValueError(f"Unsupported provider: {request.provider}")
-
-            # Generate response
-            response = await provider_client(request)
-
-            # Calculate metrics
-            response.response_time_ms = (time.time() - start_time) * 1000
-            response.request_id = f"req_{self.request_count}_{int(time.time())}"
-
-            # Update cost tracking
-            self.total_cost += response.cost_usd
-
-            logger.info(
-                f"LLM request completed: {request.model.value} -> "
-                f"{response.tokens_used} tokens, ${response.cost_usd:.4f}, "
-                f"{response.response_time_ms:.1f}ms"
-            )
-
-            return response
-
-        except Exception as e:
-            logger.error(f"LLM request failed: {e}")
-            # Return error response
-            return LLMResponse(
-                content=f"Error: {str(e)}",
-                model=request.model,
-                provider=request.provider,
-                response_time_ms=(time.time() - start_time) * 1000,
-            )
-
-    async def chat(
-        self,
-        messages: List[Dict[str, str]],
-        model: LLMModel = LLMModel.GPT_3_5_TURBO,
-        user_id: Optional[str] = None,
-    ) -> LLMResponse:
-        """Chat interface for multi-turn conversations"""
-        # Convert messages to prompt
-        prompt = self._messages_to_prompt(messages)
-
-        request = LLMRequest(
-            prompt=prompt,
-            model=model,
-            context=messages,
-            user_id=user_id,
-        )
-
-        return await self.generate(request)
-
-    async def complete(
-        self,
-        prompt: str,
-        model: LLMModel = LLMModel.GPT_3_5_TURBO,
-        max_tokens: int = 1000,
-        temperature: float = 0.7,
-        user_id: Optional[str] = None,
-    ) -> LLMResponse:
-        """Simple completion interface"""
-        request = LLMRequest(
-            prompt=prompt,
-            model=model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            user_id=user_id,
-        )
-
-        return await self.generate(request)
-
-    def get_stats(self) -> Dict[str, Any]:
-        """Get service statistics"""
-        return {
-            "total_requests": self.request_count,
-            "total_cost_usd": self.total_cost,
-            "supported_providers": [p.value for p in LLMProvider],
-            "supported_models": [m.value for m in LLMModel],
-        }
-
-    def _messages_to_prompt(self, messages: List[Dict[str, str]]) -> str:
-        """Convert chat messages to single prompt"""
-        prompt_parts = []
-        for msg in messages:
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            prompt_parts.append(f"{role.title()}: {content}")
-        return "\n".join(prompt_parts)
-
-    # Mock provider implementations (replace with real implementations)
-
-    async def _mock_openai_client(self, request: LLMRequest) -> LLMResponse:
-        """Mock OpenAI client"""
-        await asyncio.sleep(0.5)  # Simulate API delay
-
-        # Calculate mock cost
-        cost_per_token = 0.002 / 1000  # $0.002 per 1K tokens
-        tokens = min(request.max_tokens, len(request.prompt.split()) * 1.3)
-        cost = tokens * cost_per_token
-
-        return LLMResponse(
-            content=f"OpenAI {request.model.value} response to: {request.prompt[:50]}...",
-            model=request.model,
-            provider=LLMProvider.OPENAI,
-            tokens_used=int(tokens),
-            cost_usd=cost,
-        )
-
-    async def _mock_anthropic_client(self, request: LLMRequest) -> LLMResponse:
-        """Mock Anthropic client"""
-        await asyncio.sleep(0.7)  # Simulate API delay
-
-        # Calculate mock cost
-        cost_per_token = 0.008 / 1000  # $0.008 per 1K tokens
-        tokens = min(request.max_tokens, len(request.prompt.split()) * 1.3)
-        cost = tokens * cost_per_token
-
-        return LLMResponse(
-            content=f"Claude {request.model.value} response to: {request.prompt[:50]}...",
-            model=request.model,
-            provider=LLMProvider.ANTHROPIC,
-            tokens_used=int(tokens),
-            cost_usd=cost,
-        )
-
-    async def _mock_ollama_client(self, request: LLMRequest) -> LLMResponse:
-        """Mock Ollama client"""
-        await asyncio.sleep(1.0)  # Simulate local processing delay
-
-        tokens = min(request.max_tokens, len(request.prompt.split()) * 1.3)
-
-        return LLMResponse(
-            content=f"Ollama {request.model.value} response to: {request.prompt[:50]}...",
-            model=request.model,
-            provider=LLMProvider.OLLAMA,
-            tokens_used=int(tokens),
-            cost_usd=0.0,  # Local models are free
-        )
-
-    async def _mock_local_client(self, request: LLMRequest) -> LLMResponse:
-        """Mock local client"""
-        await asyncio.sleep(0.3)  # Fast local processing
-
-        tokens = min(request.max_tokens, len(request.prompt.split()) * 1.3)
-
-        return LLMResponse(
-            content=f"Local {request.model.value} response to: {request.prompt[:50]}...",
-            model=request.model,
-            provider=LLMProvider.LOCAL,
-            tokens_used=int(tokens),
-            cost_usd=0.0,  # Local models are free
-        )
-
-    def get_llm_provider(self, provider_name: str = "openai"):
-        """Get LLM provider - compatibility method for tests"""
-        provider_mapping = {
-            "openai": LLMProvider.OPENAI,
-            "anthropic": LLMProvider.ANTHROPIC,
-            "ollama": LLMProvider.OLLAMA,
-            "local": LLMProvider.LOCAL
-        }
-        
-        provider = provider_mapping.get(provider_name.lower(), LLMProvider.OPENAI)
-        
-        # Return mock provider object for tests
-        class MockProvider:
-            def __init__(self, provider_type):
-                self.provider_type = provider_type
-                self.name = provider_type.value
-                self.models = self._get_models()
-                
-            def _get_models(self):
-                if self.provider_type == LLMProvider.OPENAI:
-                    return [LLMModel.GPT_4, LLMModel.GPT_3_5_TURBO]
-                elif self.provider_type == LLMProvider.ANTHROPIC:
-                    return [LLMModel.CLAUDE_3_OPUS, LLMModel.CLAUDE_3_SONNET]
-                else:
-                    return [LLMModel.LLAMA2, LLMModel.MISTRAL]
+            # Initialize adapters based on configuration
+            for provider_name, provider_config in config.get('providers', {}).items():
+                if not provider_config.get('enabled', False):
+                    continue
                     
-            async def generate(self, prompt: str, **kwargs):
-                request = LLMRequest(prompt=prompt, **kwargs)
-                return await llm_service.generate(request)
+                provider = LLMProvider(provider_name)
+                api_key = provider_config.get('api_key') or os.getenv(f"{provider_name.upper()}_API_KEY")
+                
+                if not api_key:
+                    logger.warning(f"⚠️ No API key found for {provider_name}")
+                    continue
+                
+                try:
+                    adapter = LLMAdapterFactory.create_adapter(
+                        provider=provider,
+                        api_key=api_key,
+                        base_url=provider_config.get('base_url'),
+                        timeout=provider_config.get('timeout', 60),
+                        max_retries=provider_config.get('max_retries', 3)
+                    )
+                    
+                    # Validate adapter
+                    is_valid = await adapter.validate_api_key()
+                    if is_valid:
+                        self.adapters[provider] = adapter
+                        logger.info(f"✅ Initialized {provider_name} LLM adapter")
+                        
+                        # Set first valid adapter as default
+                        if not self.default_provider:
+                            self.default_provider = provider
+                    else:
+                        logger.error(f"❌ Invalid API key for {provider_name}")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Failed to initialize {provider_name} adapter: {e}")
+            
+            # Initialize Mock adapter as fallback
+            if not self.adapters:
+                mock_adapter = LLMAdapterFactory.create_adapter(LLMProvider.MOCK, "mock-key")
+                self.adapters[LLMProvider.MOCK] = mock_adapter
+                self.default_provider = LLMProvider.MOCK
+                logger.info("✅ Initialized Mock LLM adapter as fallback")
+            
+            # Set system prompt
+            self.system_prompt = config.get('system_prompt', self.system_prompt)
+            
+            logger.info(f"🤖 LLM Service initialized with {len(self.adapters)} adapters")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize LLM service: {e}")
+            raise LLMServiceError(f"LLM service initialization failed: {e}")
+    
+    def get_adapter(self, provider: Optional[LLMProvider] = None) -> BaseLLMAdapter:
+        """Get LLM adapter for provider"""
+        target_provider = provider or self.default_provider
         
-        return MockProvider(provider)
-
+        if not target_provider or target_provider not in self.adapters:
+            if self.adapters:
+                # Fallback to first available adapter
+                target_provider = list(self.adapters.keys())[0]
+                logger.warning(f"⚠️ Falling back to {target_provider.value} adapter")
+            else:
+                raise LLMServiceError("No LLM adapters available")
+        
+        return self.adapters[target_provider]
+    
+    async def chat_completion(
+        self,
+        messages: List[str],
+        model: str = "gpt-4",
+        provider: Optional[LLMProvider] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None
+    ) -> LLMResponse:
+        """Send chat completion request"""
+        try:
+            adapter = self.get_adapter(provider)
+            
+            # Convert string messages to LLMMessage objects
+            llm_messages = []
+            
+            # Add system message
+            system_text = system_prompt or self.system_prompt
+            llm_messages.append(create_system_message(system_text))
+            
+            # Add user messages (assume they alternate user/assistant)
+            for i, msg in enumerate(messages):
+                if i % 2 == 0:  # Even indices are user messages
+                    llm_messages.append(create_user_message(msg))
+                else:  # Odd indices are assistant messages (for conversation history)
+                    llm_messages.append(create_assistant_message(msg))
+            
+            # Create request
+            request = LLMRequest(
+                messages=llm_messages,
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                user_id=user_id
+            )
+            
+            # Make request
+            response = await adapter.chat_completion(request)
+            
+            logger.info(f"✅ Chat completion: {response.usage.total_tokens} tokens, ${response.usage.cost_usd:.4f}")
+            
+            return response
+            
+        except LLMError as e:
+            logger.error(f"❌ LLM error: {e}")
+            raise LLMServiceError(f"LLM request failed: {e}")
+        except Exception as e:
+            logger.error(f"❌ Unexpected error in chat completion: {e}")
+            raise LLMServiceError(f"Chat completion failed: {e}")
+    
+    async def chat_completion_stream(
+        self,
+        messages: List[str],
+        model: str = "gpt-4",
+        provider: Optional[LLMProvider] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None
+    ) -> AsyncIterator[LLMStreamChunk]:
+        """Send streaming chat completion request"""
+        try:
+            adapter = self.get_adapter(provider)
+            
+            # Convert string messages to LLMMessage objects
+            llm_messages = []
+            
+            # Add system message
+            system_text = system_prompt or self.system_prompt
+            llm_messages.append(create_system_message(system_text))
+            
+            # Add user messages
+            for i, msg in enumerate(messages):
+                if i % 2 == 0:
+                    llm_messages.append(create_user_message(msg))
+                else:
+                    llm_messages.append(create_assistant_message(msg))
+            
+            # Create request
+            request = LLMRequest(
+                messages=llm_messages,
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                user_id=user_id,
+                stream=True
+            )
+            
+            # Stream response
+            async for chunk in adapter.chat_completion_stream(request):
+                yield chunk
+                
+        except LLMError as e:
+            logger.error(f"❌ LLM streaming error: {e}")
+            raise LLMServiceError(f"LLM streaming failed: {e}")
+        except Exception as e:
+            logger.error(f"❌ Unexpected error in chat streaming: {e}")
+            raise LLMServiceError(f"Chat streaming failed: {e}")
+    
+    async def get_available_models(self, provider: Optional[LLMProvider] = None) -> List[str]:
+        """Get available models for provider"""
+        try:
+            adapter = self.get_adapter(provider)
+            models = await adapter.get_available_models()
+            return models
+        except Exception as e:
+            logger.error(f"❌ Failed to get models: {e}")
+            return []
+    
+    async def estimate_cost(
+        self,
+        messages: List[str],
+        model: str = "gpt-4",
+        provider: Optional[LLMProvider] = None,
+        max_tokens: Optional[int] = None
+    ) -> float:
+        """Estimate cost for request"""
+        try:
+            adapter = self.get_adapter(provider)
+            
+            # Convert to LLMMessage objects
+            llm_messages = []
+            llm_messages.append(create_system_message(self.system_prompt))
+            
+            for i, msg in enumerate(messages):
+                if i % 2 == 0:
+                    llm_messages.append(create_user_message(msg))
+                else:
+                    llm_messages.append(create_assistant_message(msg))
+            
+            request = LLMRequest(
+                messages=llm_messages,
+                model=model,
+                max_tokens=max_tokens
+            )
+            
+            return await adapter.estimate_cost(request)
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to estimate cost: {e}")
+            return 0.0
+    
+    async def health_check(self) -> Dict[str, Any]:
+        """Health check for all adapters"""
+        health_status = {
+            "status": "healthy",
+            "adapters": {},
+            "default_provider": self.default_provider.value if self.default_provider else None,
+            "total_adapters": len(self.adapters)
+        }
+        
+        healthy_adapters = 0
+        
+        for provider, adapter in self.adapters.items():
+            try:
+                adapter_health = await adapter.health_check()
+                health_status["adapters"][provider.value] = adapter_health
+                
+                if adapter_health.get("status") == "healthy":
+                    healthy_adapters += 1
+                    
+            except Exception as e:
+                health_status["adapters"][provider.value] = {
+                    "status": "error",
+                    "error": str(e)
+                }
+        
+        # Overall status
+        if healthy_adapters == 0:
+            health_status["status"] = "unhealthy"
+        elif healthy_adapters < len(self.adapters):
+            health_status["status"] = "degraded"
+        
+        return health_status
+    
+    def get_supported_providers(self) -> List[LLMProvider]:
+        """Get list of configured providers"""
+        return list(self.adapters.keys())
 
 # Global service instance
-llm_service = LLMService()
+llm_service: Optional[LLMService] = None
 
+def get_llm_service() -> LLMService:
+    """Get global LLM service instance (compatibility function)"""
+    global llm_service
+    if llm_service is None:
+        llm_service = LLMService()
+    return llm_service
 
-# Convenience functions
-async def generate_text(
-    prompt: str,
-    model: LLMModel = LLMModel.GPT_3_5_TURBO,
-    max_tokens: int = 1000,
-    temperature: float = 0.7,
-    user_id: Optional[str] = None,
-) -> str:
-    """Simple text generation function"""
-    response = await llm_service.complete(
-        prompt=prompt,
-        model=model,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        user_id=user_id,
-    )
-    return response.content
+async def initialize_llm_service(config: Optional[Dict[str, Any]] = None) -> None:
+    """Initialize global LLM service (compatibility function)"""
+    service = get_llm_service()
+    if config is None:
+        # Default configuration
+        config = {
+            "providers": {
+                "openai": {
+                    "enabled": True,
+                    "api_key": os.getenv("OPENAI_API_KEY"),
+                    "model": "gpt-4"
+                },
+                "anthropic": {
+                    "enabled": True,
+                    "api_key": os.getenv("ANTHROPIC_API_KEY"),
+                    "model": "claude-3-sonnet-20240229"
+                }
+            },
+            "system_prompt": "You are a helpful AI assistant."
+        }
+    await service.initialize(config)
 
+# Compatibility enum for routing strategy (simplified)
+class RoutingStrategy(Enum):
+    """Simple routing strategy for compatibility"""
+    PRIORITY = "priority"
+    COST_OPTIMIZED = "cost_optimized"
+    QUALITY_OPTIMIZED = "quality_optimized"
+    BALANCED = "balanced"
+    ROUND_ROBIN = "round_robin"
 
-async def chat_completion(
-    messages: List[Dict[str, str]],
-    model: LLMModel = LLMModel.GPT_3_5_TURBO,
-    user_id: Optional[str] = None,
-) -> str:
-    """Simple chat completion function"""
-    response = await llm_service.chat(
-        messages=messages,
-        model=model,
-        user_id=user_id,
-    )
-    return response.content
+async def chat_completion(messages: List[str], **kwargs) -> LLMResponse:
+    """Convenience function for chat completion"""
+    service = get_llm_service()
+    return await service.chat_completion(messages, **kwargs)
+
+async def chat_completion_stream(messages: List[str], **kwargs) -> AsyncIterator[LLMStreamChunk]:
+    """Convenience function for streaming chat completion"""
+    service = get_llm_service()
+    async for chunk in service.chat_completion_stream(messages, **kwargs):
+        yield chunk
+
+async def get_available_models(provider: Optional[LLMProvider] = None) -> List[str]:
+    """Convenience function to get available models"""
+    service = get_llm_service()
+    return await service.get_available_models(provider)

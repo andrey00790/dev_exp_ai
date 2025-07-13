@@ -1,13 +1,11 @@
 """
-Unit тесты для увеличения покрытия кода
-Тестируют отдельные функции и классы без внешних зависимостей
+Тесты для увеличения покрытия unit-тестами
 """
 
-import json
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock, patch
-
 import pytest
+from datetime import datetime
+from unittest.mock import Mock, patch
+from models.document import Document, SourceType, DocumentChunk, SearchFilter
 
 
 class TestDocumentModel:
@@ -60,7 +58,7 @@ class TestDocumentModel:
 
         assert doc.title == "Test Page"
         assert doc.content == "Page content"
-        assert doc.source_type == "confluence"
+        assert doc.source_type == SourceType.CONFLUENCE
         assert doc.space_key == "TEST"
         assert doc.author == "Author"
         assert doc.author_email == "author@test.com"
@@ -92,13 +90,13 @@ class TestDocumentModel:
         doc = Document.from_jira_issue(issue_data, "test_jira")
 
         assert doc.title == "[TEST-123] Test Issue"
-        assert "Description: Issue description" in doc.content
-        assert doc.source_type == "jira"
+        assert "Issue description" in doc.content
+        assert doc.source_type == SourceType.JIRA
         assert doc.project_key == "TEST"
         assert doc.author == "Creator"
         assert doc.assignee == "Assignee"
         assert doc.priority == "High"
-        assert doc.labels == ["bug", "urgent"]
+        assert doc.tags == ["bug", "urgent"]
 
 
 class TestSearchFilter:

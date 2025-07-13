@@ -4,6 +4,9 @@ fastapi-websocket-pubsub==1.0.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.19
 
+# === SCHEDULING ===
+croniter==1.4.1
+
 # === HTTP & NETWORKING ===
 httpx==0.25.2
 aiohttp==3.10.11
@@ -21,7 +24,7 @@ alembic==1.13.1
 psycopg2-binary>=2.9.0
 
 # === VECTOR DATABASE ===
-qdrant-client==1.6.9
+qdrant-client>=1.7.1,<2.0.0
 sentence-transformers==4.1.0
 
 # === LLM & AI ===
@@ -48,101 +51,167 @@ docker
 # === VK TEAMS BOT INTEGRATION ===
 vk-teams-async-bot==0.2.7
 
-# === VK OAUTH INTEGRATION ===
-requests-oauth2client==1.7.0
-social-auth-core==4.5.4
-social-auth-app-django==5.4.1
-
-# === NEW DATASOURCES ===
-ydb==3.11.1
-clickhouse-connect==0.7.19
-asyncio-mqtt==0.16.2
-
-# === BACKGROUND TASKS ===
-celery==5.3.4
-redis==5.0.1
-apscheduler==3.11.0
+# === AUTHENTICATION & SECURITY ===
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+bcrypt==4.1.2
+cryptography==42.0.5
 
 # === CACHING ===
-aioredis>=2.0.1,<3.0.0
+redis==5.0.1
+aioredis==2.0.1
+
+# === ASYNC SUPPORT ===
+asyncio-throttle==1.0.2
 
 # === MONITORING & LOGGING ===
-structlog==23.2.0
 prometheus-client==0.19.0
-
-# === CONFIGURATION ===
-python-dotenv==1.0.0
-pyyaml==6.0.1
+prometheus-fastapi-instrumentator==7.0.0
+structlog==23.2.0
 
 # === TESTING ===
 pytest==7.4.3
 pytest-asyncio==0.21.1
 pytest-mock==3.12.0
 pytest-cov==4.1.0
-pytest-httpx==0.27.0
-Faker==25.2.0
+pytest-xdist==3.4.0
+pytest-timeout==2.2.0
+respx>=0.22.0
 
-# === CODE QUALITY ===
-black==24.3.0
-flake8==6.1.0
-mypy==1.7.1
-isort==5.12.0
+# === CONFIGURATION ===
+python-dotenv==1.0.0
+pyyaml==6.0.1
 
 # === UTILITIES ===
+python-dateutil==2.8.2
+humanize==4.9.0
+marshmallow==3.20.1
 click==8.1.7
-schedule==1.2.0
-python-crontab==3.0.0
-Jinja2==3.1.2
-MarkupSafe==2.1.3
+rich==13.7.0
+typer==0.9.0
 
-# === SECURITY ===
-cryptography>=41.0.0,<43.0.0
-passlib[bcrypt]==1.7.4
-python-jose[cryptography]==3.3.0
-slowapi
+# === WEBSOCKET SUPPORT ===
+websockets==12.0
 
-# === WEB SCRAPING ===
-beautifulsoup4==4.12.2
-lxml==4.9.3
-
-# === DATA SCIENCE & ANALYTICS ===
-pandas==2.1.3
-numpy==1.24.4
-matplotlib==3.8.2
-seaborn==0.13.0
-scikit-learn==1.4.2
-plotly>=5.10.0
-
-# === EMAIL & NOTIFICATIONS ===
-aiosmtplib==3.0.1
-emails==0.6
-
-# === FILE STORAGE ===
-minio==7.2.0
+# === FILE HANDLING ===
+aiofiles==23.2.1
 
 # === SERIALIZATION ===
 orjson==3.9.10
 
-# === DATE & TIME ===
-python-dateutil==2.8.2
-
 # === ENVIRONMENT DETECTION ===
-distro==1.8.0
+python-dotenv==1.0.0
 
-# === ML UTILITIES ===
-datasets>=2.3.0
-evaluate>=0.2.0
-huggingface-hub>=0.8.0
-
-# === PERFORMANCE & OPTIMIZATION ===
-numba>=0.56.0
-joblib>=1.1.0
+# === PROCESS MANAGEMENT ===
 psutil==5.9.6
-# Updated for Python 3.11 compatibility
-redis>=4.0.0
-email-validator>=2.0.0
-=======
-PyYAML
-GitPython
-pdfminer.six
-requests
+
+# === EXTENDED FUNCTIONALITY ===
+pillow>=10.4.0
+qrcode==7.4.2
+
+# === TEMPLATE ENGINE ===
+jinja2==3.1.2
+
+# === MARKDOWN SUPPORT ===
+markdown==3.5.1
+
+# === SCIENTIFIC COMPUTING ===
+numpy>=2.0.0
+pandas>=2.2.0
+scipy==1.11.4
+
+# === DATA ANALYSIS ===
+pandas==2.1.4
+
+# === ADDITIONAL ASYNC LIBRARIES ===
+aiohttp==3.10.11
+asyncio==3.4.3
+
+# === TASK QUEUE ===
+celery==5.3.4
+redis==5.0.1
+
+# === DISTRIBUTED COMPUTING ===
+dask==2023.11.0
+
+# === MACHINE LEARNING ===
+scikit-learn==1.3.2
+
+# === PERFORMANCE MONITORING ===
+py-spy==0.3.14
+
+# === SECURITY ===
+bandit==1.7.5
+
+# === LINTING ===
+flake8==6.1.0
+black==23.11.0
+
+# === TESTING COVERAGE ===
+coverage==7.3.2
+
+# === DOCUMENTATION ===
+sphinx==7.2.6
+
+# === DEVELOPMENT ===
+ipython==8.17.2
+
+# === PROFILING ===
+memory-profiler==0.61.0
+
+# === BENCHMARKING ===
+locust==2.17.0
+
+# === HEALTH CHECKS ===
+healthcheck==1.3.3
+
+# === RATE LIMITING ===
+slowapi==0.1.9
+
+# === CORS ===
+python-cors==1.3.0
+
+# === ENVIRONMENT VARIABLE HANDLING ===
+environs==10.0.0
+
+# === JSON HANDLING ===
+ujson==5.8.0
+
+# === TIMEZONE HANDLING ===
+pytz==2023.3.post1
+
+# === VALIDATION ===
+cerberus==1.3.5
+
+# === CACHING ===
+cachetools==5.3.2
+
+# === LOGGING ===
+colorlog==6.8.0
+
+# === SERIALIZATION ===
+pickle5==0.0.12
+
+# === BACKGROUND TASKS ===
+rq==1.15.1
+
+# === ASYNC PROCESSING ===
+anyio==4.1.0
+
+# === DEPENDENCY INJECTION ===
+dependency-injector==4.41.0
+
+# === CONFIGURATION MANAGEMENT ===
+dynaconf==3.2.4
+
+# === METRICS ===
+statsd==4.0.1
+
+# === TRACING ===
+jaeger-client==4.8.0
+
+# === ADDITIONAL LIBRARIES ===
+more-itertools==10.1.0
+toolz==0.12.0
+attrs==23.1.0
+cattrs==23.2.3

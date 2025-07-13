@@ -32,33 +32,97 @@ DATABASE_URL = os.getenv(
 )
 
 # Convert to async URL if not already
+def convert_to_async_url(url: str) -> str:
+    """Convert database URL to async format"""
+    if "asyncpg" in url or "aiosqlite" in url:
+        return url
+    elif url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://")
+    elif url.startswith("sqlite://"):
+        return url.replace("sqlite://", "sqlite+aiosqlite://")
+    else:
+        return url
+
+
+def convert_to_sync_url(url: str) -> str:
+    """Convert database URL to sync format"""
+    if "asyncpg" in url:
+        return url.replace("postgresql+asyncpg://", "postgresql://")
+    elif "aiosqlite" in url:
+        return url.replace("sqlite+aiosqlite://", "sqlite://")
+    else:
+        return url
+
+
+# Ensure DATABASE_URL is sync format
+SYNC_DATABASE_URL = convert_to_sync_url(DATABASE_URL)
+
 ASYNC_DATABASE_URL = os.getenv(
     "ASYNC_DATABASE_URL",
-    DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://") if "asyncpg" not in DATABASE_URL else DATABASE_URL
+    convert_to_async_url(DATABASE_URL)
 )
 
-# Enhanced engine configuration with connection pooling
+# Enhanced engine configuration with optimized connection pooling
 ENGINE_CONFIG = {
-    "pool_size": int(os.getenv("DB_POOL_SIZE", "10")),
-    "max_overflow": int(os.getenv("DB_MAX_OVERFLOW", "20")),
-    "pool_timeout": int(os.getenv("DB_POOL_TIMEOUT", "30")),
-    "pool_recycle": int(os.getenv("DB_POOL_RECYCLE", "3600")),  # 1 hour
+    # OPTIMIZATION: Increased pool sizes for better concurrency
+    "pool_size": int(os.getenv("DB_POOL_SIZE", "20")),        # ↑ Increased from 10
+    "max_overflow": int(os.getenv("DB_MAX_OVERFLOW", "40")),   # ↑ Increased from 20
+    
+    # OPTIMIZATION: Reduced timeouts for faster failure detection
+    "pool_timeout": int(os.getenv("DB_POOL_TIMEOUT", "15")),   # ↓ Reduced from 30
+    
+    # OPTIMIZATION: More frequent connection recycling to avoid stale connections
+    "pool_recycle": int(os.getenv("DB_POOL_RECYCLE", "1800")), # ↓ Reduced from 3600 (30 min)
+    
+    # OPTIMIZATION: Enable pre-ping for connection health checks
     "pool_pre_ping": True,
-    "echo": os.getenv("DB_ECHO", "false").lower() == "true"
+    
+    # OPTIMIZATION: Echo only in debug mode for production performance
+    "echo": os.getenv("DB_ECHO", "false").lower() == "true",
+    
+    # OPTIMIZATION: Additional performance settings
+    "pool_reset_on_return": "commit",  # Reset connections efficiently
+    "pool_use_lifo": True,             # Use LIFO for better cache locality
 }
 
+# OPTIMIZATION: Async engine configuration with enhanced settings
+ASYNC_ENGINE_CONFIG = ENGINE_CONFIG.copy()
+# Remove poolclass for async engine compatibility
+ASYNC_ENGINE_CONFIG.pop("poolclass", None)
+
+# Add async-specific optimizations based on database type
+if "postgresql" in ASYNC_DATABASE_URL:
+    ASYNC_ENGINE_CONFIG.update({
+        "connect_args": {
+            "command_timeout": int(os.getenv("DB_COMMAND_TIMEOUT", "60")),
+            "server_settings": {
+                "application_name": "ai_assistant_async",
+                "jit": "off",  # Disable JIT for predictable performance
+            }
+        }
+    })
+elif "sqlite" in ASYNC_DATABASE_URL:
+    # SQLite-specific optimizations
+    ASYNC_ENGINE_CONFIG.update({
+        "connect_args": {
+            "timeout": int(os.getenv("DB_COMMAND_TIMEOUT", "60")),
+            "check_same_thread": False,  # Allow usage from multiple threads
+        }
+    })
+
 # Create sync engine with enhanced configuration
+SYNC_ENGINE_CONFIG = ENGINE_CONFIG.copy()
+SYNC_ENGINE_CONFIG["poolclass"] = QueuePool
+
 engine = create_engine(
-    DATABASE_URL,
-    poolclass=QueuePool,
-    **ENGINE_CONFIG
+    SYNC_DATABASE_URL,
+    **SYNC_ENGINE_CONFIG
 )
 
-# Create async engine with enhanced configuration
+# Create async engine with enhanced configuration (no poolclass for async)
 async_engine = create_async_engine(
     ASYNC_DATABASE_URL,
-    poolclass=QueuePool,
-    **ENGINE_CONFIG
+    **ASYNC_ENGINE_CONFIG
 )
 
 # Create session makers

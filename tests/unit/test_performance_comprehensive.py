@@ -208,6 +208,7 @@ class TestWebSocketNotifications:
             pytest.skip("WebSocket Notifications not available")
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_websocket_send_notification_mock(self):
         """Test sending WebSocket notifications"""
         try:

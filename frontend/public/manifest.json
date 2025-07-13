@@ -107,7 +107,7 @@
   ],
   "features": [
     "offline-support",
-    "voice-input",
+
     "push-notifications",
     "file-upload",
     "camera-access"
@@ -120,7 +120,7 @@
   "related_applications": [],
   "offline_enabled": true,
   "permissions": [
-    "microphone",
+
     "camera",
     "storage",
     "notifications"

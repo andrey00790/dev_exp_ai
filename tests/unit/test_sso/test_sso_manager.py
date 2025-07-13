@@ -93,6 +93,7 @@ class TestSSOManager:
         assert url == "http://localhost:8000/api/v1/auth/sso/oauth/2/login"
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_initiate_saml_login(self, sso_manager, mock_db, mock_saml_provider):
         """Test initiating SAML login"""
         mock_request = Mock()
@@ -113,6 +114,7 @@ class TestSSOManager:
                 assert result["url"] == "https://saml-redirect-url"
                 assert result["provider"] == "Test SAML"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_initiate_oauth_login(
         self, sso_manager, mock_db, mock_oauth_provider
@@ -137,6 +139,7 @@ class TestSSOManager:
                 assert result["state"] == "test-state"
                 assert result["provider"] == "Test OAuth"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_initiate_login_disabled_provider(
         self, sso_manager, mock_db, mock_saml_provider
@@ -319,6 +322,7 @@ class TestSSOManager:
             mock_db.delete.assert_called_once_with(mock_saml_provider)
             mock_db.commit.assert_called_once()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_handle_logout(self, sso_manager, mock_db):
         """Test SSO logout handling"""

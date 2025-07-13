@@ -17,6 +17,8 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Any, Dict, Optional, Union
 
+logger = logging.getLogger(__name__)
+
 # Async imports with fallback
 try:
     import aioredis
@@ -28,8 +30,6 @@ except (ImportError, TypeError) as e:
     aioredis = None
     aioredis = None
     REDIS_AVAILABLE = False
-
-logger = logging.getLogger(__name__)
 
 
 class CacheManager:

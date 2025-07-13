@@ -32,7 +32,9 @@ def create_smoke_test_app() -> FastAPI:
 # Fixtures for the smoke test
 @pytest.fixture(scope="module")
 def smoke_app() -> FastAPI:
-    return create_smoke_test_app()
+    # Use the main app instead of custom smoke test app
+    from main import app
+    return app
 
 
 @pytest.fixture(scope="module")
@@ -65,7 +67,10 @@ def test_health_check(client: TestClient):
     """Test that the health check endpoint is available and returns 200 OK."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert "architecture" in data
+    assert "checks" in data
 
 
 def test_unauthenticated_access_to_protected_route(client: TestClient):
@@ -113,7 +118,7 @@ def test_websocket_connection():
     try:
         import inspect
 
-        from app.main import app
+        from main import app
         from app.websocket import handle_websocket_connection
 
         # Проверяем что функция определена

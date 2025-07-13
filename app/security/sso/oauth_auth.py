@@ -26,7 +26,7 @@ except ImportError:
     OAuth2Session = None
     OAuth2Error = Exception
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import httpx
 from fastapi import HTTPException, Request
@@ -369,7 +369,7 @@ class OAuthAuthHandler:
             sso_user.external_name = user_data.get("external_name")
             sso_user.external_groups = user_data.get("external_groups", [])
             sso_user.external_attributes = user_data.get("external_attributes", {})
-            sso_user.last_sso_login = datetime.utcnow()
+            sso_user.last_sso_login = datetime.now(timezone.utc)
             db.commit()
             return sso_user
 
@@ -397,7 +397,7 @@ class OAuthAuthHandler:
             external_name=user_data.get("external_name"),
             external_groups=user_data.get("external_groups", []),
             external_attributes=user_data.get("external_attributes", {}),
-            last_sso_login=datetime.utcnow(),
+            last_sso_login=datetime.now(timezone.utc),
             active=True,
         )
         db.add(sso_user)
@@ -417,7 +417,7 @@ class OAuthAuthHandler:
 
         # Calculate expiration time from token data
         if "expires_in" in token_data:
-            expires_at = datetime.utcnow() + timedelta(seconds=token_data["expires_in"])
+            expires_at = datetime.now(timezone.utc) + timedelta(seconds=token_data["expires_in"])
 
         sso_session = SSOSession(
             session_id=session_id,

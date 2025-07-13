@@ -6,7 +6,7 @@ Updated with standardized async patterns
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set
 
 from fastapi import WebSocket, WebSocketDisconnect
@@ -120,7 +120,7 @@ async def handle_websocket_connection(websocket: WebSocket, user_id: str = "anon
                 "data": {
                     "status": "connected",
                     "user_id": user_id,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "total_connections": manager.get_total_connections_count(),
                 },
             }
@@ -172,7 +172,7 @@ async def send_notification_to_user(user_id: str, notification_type: str, data: 
         "type": "notification",
         "notification_type": notification_type,
         "data": data,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     await manager.send_personal_message(message, user_id)
 
@@ -185,7 +185,7 @@ async def broadcast_notification(
         "type": "notification",
         "notification_type": notification_type,
         "data": data,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     await manager.broadcast(message, exclude_user)
 
@@ -198,7 +198,7 @@ async def handle_websocket_message(
 
     if message_type == "ping":
         await websocket.send_text(
-            json.dumps({"type": "pong", "timestamp": datetime.utcnow().isoformat()})
+            json.dumps({"type": "pong", "timestamp": datetime.now(timezone.utc).isoformat()})
         )
     elif message_type == "disconnect":
         logger.info(f"Received disconnect request from user {user_id}")
@@ -213,7 +213,7 @@ async def handle_websocket_message(
                         "user_connections": manager.get_user_connections_count(user_id),
                         "connected_users": manager.get_connected_users(),
                     },
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
         )
@@ -224,7 +224,7 @@ async def handle_websocket_message(
                 {
                     "type": "echo",
                     "original_message": message,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
         )
@@ -237,7 +237,7 @@ async def send_websocket_error(websocket: WebSocket, error_message: str) -> None
             {
                 "type": "error",
                 "message": error_message,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         )
     )
@@ -246,7 +246,7 @@ async def send_websocket_error(websocket: WebSocket, error_message: str) -> None
 async def send_websocket_heartbeat(websocket: WebSocket) -> None:
     """Send standardized heartbeat message"""
     await websocket.send_text(
-        json.dumps({"type": "heartbeat", "timestamp": datetime.utcnow().isoformat()})
+        json.dumps({"type": "heartbeat", "timestamp": datetime.now(timezone.utc).isoformat()})
     )
 
 

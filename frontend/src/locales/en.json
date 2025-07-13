@@ -65,7 +65,7 @@
     "title": "AI Chat Assistant",
     "placeholder": "Type your message here...",
     "send": "Send",
-    "voiceInput": "Voice Input",
+  
     "stopListening": "Stop Listening",
     "startListening": "Start Listening",
     "listening": "Listening...",
@@ -73,9 +73,8 @@
     "newChat": "New Chat",
     "clearHistory": "Clear History",
     "exportChat": "Export Chat",
-    "chatHistory": "Chat History",
-    "voiceNotSupported": "Voice input not supported in this browser"
-  },
+          "chatHistory": "Chat History"
+    },
   "search": {
     "title": "Advanced Search",
     "placeholder": "Search knowledge base...",
@@ -232,22 +231,7 @@
     "costOptimization": "Cost Optimization",
     "recommendations": "Recommendations"
   },
-  "voice": {
-    "startRecording": "Start Recording",
-    "stopRecording": "Stop Recording",
-    "listening": "Listening...",
-    "processing": "Processing voice...",
-    "speakResponse": "Speak Response",
-    "stopSpeaking": "Stop Speaking",
-    "voiceSettings": "Voice Settings",
-    "language": "Voice Language",
-    "speed": "Speech Speed",
-    "pitch": "Speech Pitch",
-    "volume": "Speech Volume",
-    "microphoneAccess": "Microphone Access Required",
-    "enableMicrophone": "Please enable microphone access to use voice features",
-    "unsupportedBrowser": "Voice features are not supported in this browser"
-  },
+
   "errors": {
     "networkError": "Network error occurred",
     "serverError": "Server error occurred",

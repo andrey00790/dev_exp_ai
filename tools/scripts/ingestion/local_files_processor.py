@@ -9,9 +9,16 @@ from pathlib import Path
 from typing import Dict, List, Any, AsyncGenerator, Optional
 from dataclasses import dataclass
 import structlog
-import magic
 import hashlib
 from datetime import datetime
+
+# Опциональный импорт magic
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except ImportError:
+    MAGIC_AVAILABLE = False
+    magic = None
 
 logger = structlog.get_logger()
 
@@ -46,11 +53,15 @@ class LocalFilesProcessor:
         self.encoding = config.get("encoding", "utf-8")
         
         # Инициализация libmagic для определения типов файлов
-        try:
-            self.mime = magic.Magic(mime=True)
-        except Exception as e:
-            logger.warning("Failed to initialize libmagic", error=str(e))
-            self.mime = None
+        self.mime = None
+        if MAGIC_AVAILABLE:
+            try:
+                self.mime = magic.Magic(mime=True)
+            except Exception as e:
+                logger.warning("Failed to initialize libmagic", error=str(e))
+                self.mime = None
+        else:
+            logger.warning("python-magic not available, file type detection will be limited")
     
     async def scan_directory(self, directory: Path) -> List[Path]:
         """Сканирование директории для поиска поддерживаемых файлов"""

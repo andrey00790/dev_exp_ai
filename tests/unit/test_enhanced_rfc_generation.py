@@ -44,6 +44,7 @@ class TestRFCGeneratorService:
         )
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_generate_simple_rfc(self, rfc_service, sample_rfc_request):
         """Test simple RFC generation without analysis"""
 
@@ -59,6 +60,7 @@ class TestRFCGeneratorService:
             assert len(rfc.sections) > 0
             assert rfc.rfc_id is not None
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_generate_rfc_with_analysis(self, rfc_service):
         """Test RFC generation with codebase analysis"""
@@ -125,6 +127,7 @@ class TestRFCGeneratorService:
             assert len(rfc.analysis.quality_issues) == 1
             assert "fastapi" in rfc.analysis.technology_inventory
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_generate_rfc_with_diagrams(self, rfc_service):
         """Test RFC generation with diagram generation"""
@@ -252,6 +255,7 @@ class TestRFCArchitectureAnalyzer:
     def analyzer(self):
         return RFCArchitectureAnalyzer()
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_analyze_codebase_nonexistent_path(self, analyzer):
         """Test analysis with non-existent path"""
@@ -452,6 +456,7 @@ class TestEnhancedGenerationService:
         return EnhancedGenerationService()
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_generate_rfc(self, service):
         """Test RFC generation through service"""
 
@@ -480,6 +485,7 @@ class TestEnhancedGenerationService:
             assert "tokens_used" in result
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_generate_architecture(self, service):
         """Test architecture generation"""
 
@@ -507,6 +513,7 @@ class TestEnhancedGenerationService:
             assert "architecture_data" in result
             assert result["architecture_data"]["system_name"] == "Test System"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_generate_documentation(self, service):
         """Test documentation generation"""
@@ -556,6 +563,7 @@ class TestEnhancedGenerationService:
 class TestIntegration:
     """Integration tests for RFC generation flow"""
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_full_rfc_generation_flow(self):
         """Test complete RFC generation flow"""

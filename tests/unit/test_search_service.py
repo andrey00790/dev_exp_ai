@@ -139,12 +139,14 @@ def sample_chunks():
 class TestSearchService:
     """Тесты для основного сервиса поиска"""
 
+    @pytest.mark.asyncio
     async def test_initialize_service(self, search_service):
         """Тест инициализации сервиса"""
         await search_service.initialize()
         assert search_service.initialized is True
         assert search_service.embedding_model is not None
 
+    @pytest.mark.asyncio
     async def test_basic_search(self, search_service, mock_documents):
         """Тест базового поиска"""
         await search_service.initialize()
@@ -173,6 +175,7 @@ class TestSearchService:
             assert "highlights" in doc
             assert "metadata" in doc
 
+    @pytest.mark.asyncio
     async def test_semantic_search(self, search_service):
         """Тест семантического поиска"""
         await search_service.initialize()
@@ -187,6 +190,7 @@ class TestSearchService:
             assert "title" in result
             assert "content" in result
 
+    @pytest.mark.asyncio
     async def test_search_with_filters(self, search_service):
         """Тест поиска с фильтрами"""
         await search_service.initialize()
@@ -204,6 +208,7 @@ class TestSearchService:
         assert "results" in result
         assert result["total_results"] >= 0
 
+    @pytest.mark.asyncio
     async def test_search_with_sources(self, search_service):
         """Тест поиска с указанием источников"""
         await search_service.initialize()
@@ -217,6 +222,7 @@ class TestSearchService:
         assert "results" in result
         assert len(result["results"]) >= 0
 
+    @pytest.mark.asyncio
     async def test_search_types(self, search_service):
         """Тест различных типов поиска"""
         await search_service.initialize()
@@ -239,6 +245,7 @@ class TestSearchService:
         )
         assert hybrid_result["search_type"] == "hybrid"
 
+    @pytest.mark.asyncio
     async def test_advanced_search(self, search_service):
         """Тест расширенного поиска"""
         await search_service.initialize()
@@ -272,6 +279,7 @@ class TestSearchService:
         assert "categories" in facets
         assert "authors" in facets
 
+    @pytest.mark.asyncio
     async def test_get_searched_sources(self, search_service):
         """Тест получения источников поиска"""
         await search_service.initialize()
@@ -284,6 +292,7 @@ class TestSearchService:
         assert "jira" in sources
         assert "gitlab" in sources
 
+    @pytest.mark.asyncio
     async def test_upload_document(self, search_service):
         """Тест загрузки документа"""
         await search_service.initialize()
@@ -305,6 +314,7 @@ class TestSearchService:
         assert "message" in result
         assert result["status"] == "uploaded"
 
+    @pytest.mark.asyncio
     async def test_search_suggestions(self, search_service):
         """Тест предложений для поиска"""
         await search_service.initialize()
@@ -318,6 +328,7 @@ class TestSearchService:
             assert isinstance(suggestion, str)
             assert "API" in suggestion
 
+    @pytest.mark.asyncio
     async def test_source_statistics(self, search_service):
         """Тест статистики источников"""
         await search_service.initialize()
@@ -330,6 +341,7 @@ class TestSearchService:
         assert "gitlab_repositories" in stats
         assert "content_types" in stats
 
+    @pytest.mark.asyncio
     async def test_pagination(self, search_service):
         """Тест пагинации"""
         await search_service.initialize()
@@ -343,6 +355,7 @@ class TestSearchService:
         assert len(page1["results"]) <= 2
         assert len(page2["results"]) <= 2
 
+    @pytest.mark.asyncio
     async def test_search_with_snippets(self, search_service):
         """Тест поиска с фрагментами"""
         await search_service.initialize()
@@ -360,6 +373,7 @@ class TestSearchService:
         assert "results" in with_snippets
         assert "results" in without_snippets
 
+    @pytest.mark.asyncio
     async def test_error_handling(self, search_service):
         """Тест обработки ошибок"""
         # Тест с невалидными параметрами
@@ -375,6 +389,7 @@ class TestSearchService:
 class TestSearchServiceWithBackend:
     """Тесты интеграции с backend сервисом"""
 
+    @pytest.mark.asyncio
     async def test_backend_integration(self):
         """Тест интеграции с backend сервисом"""
         # Создаем сервис и проверяем его работу 
@@ -391,6 +406,7 @@ class TestSearchServiceWithBackend:
         assert "search_time_ms" in result
         assert isinstance(result["results"], list)
 
+    @pytest.mark.asyncio
     async def test_backend_fallback(self):
         """Тест fallback при недоступности backend"""
         service = SearchService()
@@ -411,6 +427,7 @@ class TestSearchServiceWithBackend:
 class TestSearchFilters:
     """Тесты для фильтров поиска"""
 
+    @pytest.mark.asyncio
     async def test_source_type_filter(self, search_service):
         """Тест фильтра по типу источника"""
         await search_service.initialize()
@@ -420,6 +437,7 @@ class TestSearchFilters:
 
         assert "results" in result
 
+    @pytest.mark.asyncio
     async def test_date_range_filter(self, search_service):
         """Тест фильтра по диапазону дат"""
         await search_service.initialize()
@@ -433,6 +451,7 @@ class TestSearchFilters:
 
         assert "results" in result
 
+    @pytest.mark.asyncio
     async def test_author_filter(self, search_service):
         """Тест фильтра по автору"""
         await search_service.initialize()
@@ -442,6 +461,7 @@ class TestSearchFilters:
 
         assert "results" in result
 
+    @pytest.mark.asyncio
     async def test_category_filter(self, search_service):
         """Тест фильтра по категории"""
         await search_service.initialize()
@@ -456,6 +476,7 @@ class TestSearchFilters:
 class TestSearchPerformance:
     """Тесты производительности поиска"""
 
+    @pytest.mark.asyncio
     async def test_search_response_time(self, search_service):
         """Тест времени ответа поиска"""
         await search_service.initialize()
@@ -470,6 +491,7 @@ class TestSearchPerformance:
         assert "search_time_ms" in result
         assert result["search_time_ms"] > 0
 
+    @pytest.mark.asyncio
     async def test_large_result_set(self, search_service):
         """Тест с большим количеством результатов"""
         await search_service.initialize()

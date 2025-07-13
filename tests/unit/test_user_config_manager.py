@@ -227,6 +227,7 @@ class TestFileProcessor:
             pytest.skip("user_config_manager module not available")
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_process_uploaded_file(self):
         """Тест обработки загруженного файла"""
         try:

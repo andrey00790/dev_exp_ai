@@ -124,7 +124,7 @@ class TestUsersServiceIntegrationFinal:
             # ИСПРАВЛЕНО: функция может не существовать - пропускаем тест
             pytest.skip("get_user_config_manager function not available")
 
-        from app.main import create_app
+        from main import create_application as create_app
 
         # Создаем приложение
         app = create_app()
@@ -222,7 +222,7 @@ class TestUsersAPIErrorHandlingFinal:
             # ИСПРАВЛЕНО: функция может не существовать - пропускаем тест
             pytest.skip("get_user_config_manager function not available")
 
-        from app.main import create_app
+        from main import create_application as create_app
 
         # Создаем приложение
         app = create_app()

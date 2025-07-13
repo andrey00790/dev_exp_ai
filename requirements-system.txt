@@ -1,0 +1,77 @@
+# System requirements for full AI Assistant startup
+# Only essential packages that work with Python 3.13
+
+# === CORE WEB FRAMEWORK ===
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.19
+
+# === SCHEDULING ===
+croniter==1.4.1
+apscheduler>=3.10.0
+
+# === HTTP CLIENTS ===
+httpx==0.25.2
+aiohttp==3.10.11
+requests==2.32.4
+
+# === DATA VALIDATION ===
+pydantic[email]>=2.5.0,<3.0.0
+pydantic-settings>=2.1.0
+
+# === DATABASE (Skip problematic asyncpg for now) ===
+# We'll run without full database support initially
+
+# === CACHING ===
+redis==5.0.1
+aioredis==2.0.1
+
+# === AUTHENTICATION ===
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+bcrypt==4.1.2
+cryptography==42.0.5
+
+# === UTILITIES ===
+python-dotenv==1.0.0
+structlog==23.2.0
+aiofiles==23.2.1
+websockets==12.0
+click==8.1.7
+rich==13.7.0
+typer==0.9.0
+
+# === JSON & UTILS ===
+orjson==3.9.10
+python-dateutil==2.8.2
+humanize==4.9.0
+marshmallow==3.20.1
+
+# === BASIC MONITORING ===
+prometheus-client==0.19.0
+# prometheus-fastapi-instrumentator==7.0.0  # Conflicts with fastapi 0.104.1
+asyncio-throttle==1.0.2
+psutil==5.9.6
+
+# === FILE PROCESSING (Lightweight) ===
+chardet==5.2.0
+python-magic==0.4.27
+
+# === VK TEAMS ===
+vk-teams-async-bot==0.2.7
+
+# === WEB ===
+jinja2==3.1.2
+markdown==3.5.1
+
+# === TESTING (Essential) ===
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-mock==3.12.0
+respx>=0.22.0
+
+# === CONFIG ===
+pyyaml==6.0.1
+
+# === BASIC DOCKER ===
+docker 

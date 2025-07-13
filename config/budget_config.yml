@@ -1,0 +1,305 @@
+# Budget Management Configuration
+# Настройки системы управления бюджетами пользователей
+
+# Настройки автоматического пополнения бюджетов
+auto_refill:
+  enabled: true
+  
+  # Периодичность пополнения
+  schedule:
+    # Cron-выражение для планировщика (по умолчанию - каждый день в 00:00)
+    cron: "0 0 * * *"
+    
+    # Или простые интервалы
+    interval_type: "daily"  # daily, weekly, monthly, hourly
+    interval_value: 1       # каждый N дней/недель/месяцев/часов
+    
+    # Временная зона
+    timezone: "Europe/Moscow"
+    
+    # Максимальное время выполнения задачи пополнения (в секундах)
+    max_execution_time: 300
+  
+  # Настройки пополнения
+  refill_settings:
+    # Тип пополнения
+    refill_type: "reset"  # reset (сброс до лимита) или add (добавление к текущему)
+    
+    # Пополнение по ролям пользователей
+    by_role:
+      admin:
+        enabled: true
+        amount: 10000.0
+        reset_usage: true
+        
+      user:
+        enabled: true
+        amount: 1000.0
+        reset_usage: true
+        
+      basic:
+        enabled: true
+        amount: 100.0
+        reset_usage: true
+        
+      vip:
+        enabled: true
+        amount: 5000.0
+        reset_usage: true
+    
+    # Индивидуальные настройки для пользователей (переопределяют настройки ролей)
+    individual_users:
+      "admin@vkteam.ru":
+        enabled: true
+        amount: 15000.0
+        reset_usage: true
+        custom_schedule: "0 0 1 * *"  # Первое число каждого месяца
+        
+      "premium@example.com":
+        enabled: true
+        amount: 2000.0
+        reset_usage: true
+        custom_schedule: "0 0 * * 1"  # Каждый понедельник
+    
+    # Настройки минимального остатка
+    minimum_balance:
+      enabled: true
+      threshold: 10.0  # Если остаток меньше этого значения, пополнить немедленно
+      emergency_refill: 50.0  # Сумма экстренного пополнения
+      
+    # Настройки максимального накопления
+    max_accumulation:
+      enabled: true
+      multiplier: 2.0  # Максимум в X раз больше базового лимита
+      
+    # Бонусные пополнения
+    bonus_refills:
+      enabled: true
+      conditions:
+        high_usage:
+          threshold: 0.9  # 90% от лимита
+          bonus_percent: 0.1  # 10% бонус к следующему пополнению
+          
+        low_usage:
+          threshold: 0.3  # 30% от лимита
+          bonus_percent: -0.1  # 10% уменьшение следующего пополнения
+          
+        consecutive_high_usage:
+          days: 7
+          threshold: 0.8
+          bonus_percent: 0.2
+  
+  # Уведомления о пополнении
+  notifications:
+    enabled: true
+    
+    # Email уведомления
+    email:
+      enabled: true
+      send_on_refill: true
+      send_on_low_balance: true
+      send_on_emergency_refill: true
+      
+      # Шаблоны уведомлений
+      templates:
+        refill_success: "Ваш бюджет пополнен на ${amount}. Текущий баланс: ${balance}"
+        low_balance: "Низкий остаток бюджета: ${balance}. Лимит: ${limit}"
+        emergency_refill: "Экстренное пополнение бюджета на ${amount}"
+    
+    # Webhook уведомления
+    webhook:
+      enabled: false
+      url: "${BUDGET_WEBHOOK_URL}"
+      timeout: 30
+      retry_count: 3
+      
+    # Логирование
+    logging:
+      enabled: true
+      level: "INFO"
+      include_user_data: true
+      retention_days: 90
+
+# Настройки валидации и безопасности
+security:
+  # Максимальные лимиты для предотвращения ошибок
+  max_limits:
+    single_refill: 100000.0
+    daily_total: 500000.0
+    monthly_total: 2000000.0
+    
+  # Аудит
+  audit:
+    enabled: true
+    log_all_changes: true
+    require_approval_above: 50000.0
+    
+  # Защита от злоупотреблений
+  abuse_protection:
+    enabled: true
+    max_refills_per_day: 10
+    max_refills_per_user_per_day: 5
+    
+  # Резервное копирование состояния
+  backup:
+    enabled: true
+    frequency: "daily"
+    retention_days: 30
+
+# Мониторинг и метрики
+monitoring:
+  enabled: true
+  
+  # Метрики для отслеживания
+  metrics:
+    total_refills: true
+    total_amount_refilled: true
+    average_refill_amount: true
+    users_refilled: true
+    failed_refills: true
+    
+  # Алерты
+  alerts:
+    enabled: true
+    
+    # Алерт при превышении лимитов
+    high_usage_alert:
+      enabled: true
+      threshold: 1000000.0  # Общая сумма пополнений за день
+      
+    # Алерт при ошибках
+    error_alert:
+      enabled: true
+      error_rate_threshold: 0.1  # 10% ошибок
+      
+    # Алерт при подозрительной активности
+    suspicious_activity:
+      enabled: true
+      multiple_refills_threshold: 5
+      
+  # Экспорт метрик
+  export:
+    prometheus:
+      enabled: true
+      port: 9091
+      path: "/metrics"
+      
+    grafana:
+      enabled: false
+      dashboard_id: "budget_dashboard"
+
+# Настройки базы данных
+database:
+  # Таблицы для хранения данных
+  tables:
+    budget_history: "budget_refill_history"
+    budget_config: "budget_user_config"
+    budget_audit: "budget_audit_log"
+    
+  # Настройки соединения
+  connection:
+    pool_size: 10
+    max_overflow: 20
+    pool_timeout: 30
+    
+  # Индексы для оптимизации
+  indexes:
+    - "CREATE INDEX IF NOT EXISTS idx_refill_history_user_date ON budget_refill_history(user_id, created_at)"
+    - "CREATE INDEX IF NOT EXISTS idx_audit_log_date ON budget_audit_log(created_at)"
+
+# Настройки для разработки и тестирования
+development:
+  # Ускоренный режим для тестирования
+  fast_mode:
+    enabled: false
+    interval_seconds: 60  # Пополнение каждую минуту
+    
+  # Отладка
+  debug:
+    enabled: true
+    log_level: "DEBUG"
+    detailed_logging: true
+    
+  # Тестовые данные
+  test_data:
+    enabled: false
+    create_test_users: true
+    test_user_count: 10
+
+# Интеграция с внешними системами
+integrations:
+  # Биллинговая система
+  billing:
+    enabled: false
+    provider: "stripe"  # stripe, paypal, custom
+    webhook_url: "${BILLING_WEBHOOK_URL}"
+    
+  # Система аналитики
+  analytics:
+    enabled: true
+    provider: "internal"
+    track_usage_patterns: true
+    
+  # Система уведомлений
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channel: "#budget-notifications"
+    
+    telegram:
+      enabled: false
+      bot_token: "${TELEGRAM_BOT_TOKEN}"
+      chat_id: "${TELEGRAM_CHAT_ID}"
+
+# Настройки для разных окружений
+environments:
+  development:
+    auto_refill:
+      schedule:
+        cron: "*/5 * * * *"  # Каждые 5 минут для быстрого тестирования
+    monitoring:
+      enabled: true
+    notifications:
+      enabled: false
+      
+  testing:
+    auto_refill:
+      schedule:
+        cron: "0 0 * * *"  # Раз в день
+    monitoring:
+      enabled: true
+    notifications:
+      enabled: false
+      
+  production:
+    auto_refill:
+      schedule:
+        cron: "0 0 * * *"  # Раз в день в полночь
+    monitoring:
+      enabled: true
+    notifications:
+      enabled: true
+    security:
+      audit:
+        enabled: true
+        require_approval_above: 10000.0
+
+# Миграции и обновления
+migrations:
+  enabled: true
+  auto_migrate: true
+  backup_before_migration: true
+  
+  # Версии миграций
+  version: "1.0.0"
+  
+  # История миграций
+  history:
+    - version: "1.0.0"
+      description: "Inicial budget system setup"
+      date: "2024-01-15"
+      scripts:
+        - "001_create_budget_tables.sql"
+        - "002_create_budget_indexes.sql"
+        - "003_insert_default_config.sql" 

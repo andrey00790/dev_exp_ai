@@ -51,6 +51,7 @@ class Calculator:
         assert hasattr(documentation_service, "_generated_docs")
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_python_code(self, documentation_service, sample_python_code):
         """Тестирует анализ Python кода."""
         analysis = await documentation_service._analyze_python_code(sample_python_code)
@@ -71,6 +72,7 @@ class Calculator:
         )
         assert calc_sum_func["docstring"] == "Вычисляет сумму двух чисел."
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_analyze_code_string(self, documentation_service, sample_python_code):
         """Тестирует анализ кода из строки."""
@@ -94,6 +96,7 @@ class Calculator:
             assert len(analysis.functions) > 0
             assert len(analysis.classes) > 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_analyze_single_file(self, documentation_service, sample_code_file):
         """Тестирует анализ одного файла."""
@@ -129,6 +132,7 @@ class Calculator:
         )
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_basic_code_analysis(self, documentation_service):
         """Тестирует базовый анализ кода."""
         unknown_code = "some unknown language code\nwith multiple lines\nand content"
@@ -140,6 +144,7 @@ class Calculator:
         assert analysis.complexity_score > 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_supported_capabilities(self, documentation_service):
         """Тестирует получение поддерживаемых возможностей."""
         capabilities = await documentation_service.get_supported_capabilities()
@@ -150,6 +155,7 @@ class Calculator:
         assert len(capabilities["supported_languages"]) > 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_documentation_templates(self, documentation_service):
         """Тестирует получение шаблонов документации."""
         templates = await documentation_service.get_documentation_templates()
@@ -159,6 +165,7 @@ class Calculator:
         assert all("type" in template for template in templates)
         assert all("description" in template for template in templates)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_code_analysis_request(self, documentation_service, sample_code_file):
         """Тестирует анализ кода через CodeAnalysisRequest."""
@@ -176,6 +183,7 @@ class Calculator:
 
     @pytest.mark.asyncio
     @patch("domain.core.llm_generation_service.LLMGenerationService")
+    @pytest.mark.asyncio
     async def test_generate_documentation_with_llm_fallback(
         self, mock_llm_service, documentation_service, sample_code_file
     ):
@@ -203,6 +211,7 @@ class Calculator:
         assert len(response.documentation.sections) > 0
         assert response.generation_time_seconds is not None
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_prepare_llm_context(self, documentation_service, sample_code_file):
         """Тестирует подготовку контекста для LLM."""

@@ -16,9 +16,8 @@ from domain.integration.document_graph_builder import (DocumentNode,
                                                        build_document_graph)
 from domain.integration.dynamic_reranker import (ContextualScore, UserIntent,
                                                  rerank_search_results)
-from domain.integration.vector_search_service import (SearchRequest,
-                                                      SearchResult,
-                                                      VectorSearchService)
+from app.services.vector_search_service import (SearchResult, VectorSearchService)
+from models.base import SearchRequest
 
 logger = logging.getLogger(__name__)
 

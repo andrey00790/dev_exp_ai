@@ -8,7 +8,7 @@
       "SEC",
       "OPS"
     ],
-    "generated_at": "2025-07-03T00:13:42.341421",
+    "generated_at": "2025-07-13T15:58:04.514857",
     "data_volume": "large_scale_e2e_testing"
   },
   "issues": [
@@ -27,7 +27,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -56,7 +56,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -85,7 +85,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -114,7 +114,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -172,7 +172,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -201,7 +201,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -230,7 +230,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -259,7 +259,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -317,7 +317,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -346,7 +346,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -375,7 +375,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -404,7 +404,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -462,7 +462,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -491,7 +491,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -520,7 +520,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -549,7 +549,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -607,7 +607,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -636,7 +636,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -665,7 +665,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -694,7 +694,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -752,7 +752,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -781,7 +781,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -810,7 +810,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -839,7 +839,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -897,7 +897,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -926,7 +926,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -955,7 +955,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -984,7 +984,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -1042,7 +1042,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -1071,7 +1071,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -1100,7 +1100,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -1129,7 +1129,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -1187,7 +1187,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -1216,7 +1216,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -1245,7 +1245,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -1274,7 +1274,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -1332,7 +1332,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -1361,7 +1361,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -1390,7 +1390,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -1419,7 +1419,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -1477,7 +1477,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -1506,7 +1506,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -1535,7 +1535,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -1564,7 +1564,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -1622,7 +1622,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -1651,7 +1651,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -1680,7 +1680,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -1709,7 +1709,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -1767,7 +1767,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -1796,7 +1796,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -1825,7 +1825,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -1854,7 +1854,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -1912,7 +1912,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -1941,7 +1941,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -1970,7 +1970,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -1999,7 +1999,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -2057,7 +2057,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -2086,7 +2086,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -2115,7 +2115,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -2144,7 +2144,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -2202,7 +2202,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -2231,7 +2231,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -2260,7 +2260,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -2289,7 +2289,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -2347,7 +2347,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -2376,7 +2376,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -2405,7 +2405,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -2434,7 +2434,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -2492,7 +2492,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -2521,7 +2521,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -2550,7 +2550,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -2579,7 +2579,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -2637,7 +2637,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -2666,7 +2666,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -2695,7 +2695,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -2724,7 +2724,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -2782,7 +2782,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -2811,7 +2811,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -2840,7 +2840,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -2869,7 +2869,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -2927,7 +2927,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -2956,7 +2956,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -2985,7 +2985,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -3014,7 +3014,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -3072,7 +3072,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -3101,7 +3101,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -3130,7 +3130,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -3159,7 +3159,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -3217,7 +3217,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -3246,7 +3246,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -3275,7 +3275,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -3304,7 +3304,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -3362,7 +3362,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -3391,7 +3391,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -3420,7 +3420,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -3449,7 +3449,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -3507,7 +3507,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -3536,7 +3536,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -3565,7 +3565,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -3594,7 +3594,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -3652,7 +3652,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -3681,7 +3681,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -3710,7 +3710,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -3739,7 +3739,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -3797,7 +3797,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -3826,7 +3826,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -3855,7 +3855,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -3884,7 +3884,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -3942,7 +3942,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -3971,7 +3971,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -4000,7 +4000,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -4029,7 +4029,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -4087,7 +4087,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -4116,7 +4116,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -4145,7 +4145,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -4174,7 +4174,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -4232,7 +4232,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -4261,7 +4261,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -4290,7 +4290,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -4319,7 +4319,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -4377,7 +4377,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -4406,7 +4406,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -4435,7 +4435,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -4464,7 +4464,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -4522,7 +4522,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -4551,7 +4551,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -4580,7 +4580,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -4609,7 +4609,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -4667,7 +4667,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -4696,7 +4696,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -4725,7 +4725,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -4754,7 +4754,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -4812,7 +4812,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -4841,7 +4841,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -4870,7 +4870,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -4899,7 +4899,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -4957,7 +4957,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -4986,7 +4986,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -5015,7 +5015,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -5044,7 +5044,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -5102,7 +5102,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -5131,7 +5131,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -5160,7 +5160,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -5189,7 +5189,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -5247,7 +5247,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -5276,7 +5276,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -5305,7 +5305,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -5334,7 +5334,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"
@@ -5392,7 +5392,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-3"
@@ -5421,7 +5421,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-1"
@@ -5450,7 +5450,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-2"
@@ -5479,7 +5479,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-3"
@@ -5537,7 +5537,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-2"
@@ -5566,7 +5566,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-3"
@@ -5595,7 +5595,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-1"
@@ -5624,7 +5624,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-2"
@@ -5682,7 +5682,7 @@
       "labels": [
         "epic",
         "major-initiative",
-        "frontend"
+        "api"
       ],
       "components": [
         "Component-1"
@@ -5711,7 +5711,7 @@
       "labels": [
         "story",
         "feature",
-        "testing"
+        "documentation"
       ],
       "components": [
         "Component-2"
@@ -5740,7 +5740,7 @@
       "labels": [
         "task",
         "maintenance",
-        "api"
+        "testing"
       ],
       "components": [
         "Component-3"
@@ -5769,7 +5769,7 @@
       "labels": [
         "bug",
         "urgent",
-        "testing"
+        "frontend"
       ],
       "components": [
         "Component-1"

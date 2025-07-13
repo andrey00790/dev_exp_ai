@@ -67,6 +67,7 @@ class TestAPIEndpointsCoverage:
     """Test coverage for all API endpoints"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_api_v1_health_endpoint(self):
         """Test API v1 health endpoint coverage - ИСПРАВЛЕНО: обработка ImportError"""
         try:
@@ -82,6 +83,7 @@ class TestAPIEndpointsCoverage:
         except ImportError:
             pytest.skip("Health endpoint not available")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_authentication_endpoints_coverage(self):
         """Test authentication endpoints comprehensive coverage"""
@@ -115,6 +117,7 @@ class TestAPIEndpointsCoverage:
         except ImportError:
             pytest.skip("Authentication modules not available")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_vector_search_endpoints_coverage(self):
         """Test vector search endpoints comprehensive coverage"""
@@ -158,6 +161,7 @@ class TestAPIEndpointsCoverage:
             pytest.skip("Vector search endpoints not available")
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_llm_management_endpoints_coverage(self):
         """Test LLM management endpoints comprehensive coverage"""
         try:
@@ -196,6 +200,7 @@ class TestWebSocketCoverage:
     """Test WebSocket functionality comprehensive coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_websocket_connection_handler(self, mock_websocket):
         """Test WebSocket connection handler coverage"""
         try:
@@ -218,6 +223,7 @@ class TestWebSocketCoverage:
             # WebSocket module might have different structure
             pytest.skip("WebSocket module not available")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_websocket_message_handling(self, mock_websocket):
         """Test WebSocket message handling coverage"""
@@ -249,6 +255,7 @@ class TestErrorHandlingCoverage:
     """Test error handling comprehensive coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_api_error_handlers(self):
         """Test API error handlers coverage"""
         from fastapi import status, HTTPException
@@ -268,6 +275,7 @@ class TestErrorHandlingCoverage:
             assert exception.status_code == status_code
             assert exception.detail == detail
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_validation_error_handling(self):
         """Test validation error handling coverage - ИСПРАВЛЕНО: regex -> pattern"""
@@ -304,6 +312,7 @@ class TestSecurityCoverage:
     """Test security features comprehensive coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_security_middleware_coverage(self):
         """Test security middleware coverage - ИСПРАВЛЕНО: обязательный аргумент app"""
         try:
@@ -335,6 +344,7 @@ class TestSecurityCoverage:
         except ImportError:
             pytest.skip("Security headers middleware not available")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_input_validation_coverage(self):
         """Test input validation coverage - ИСПРАВЛЕНО: обработка ImportError"""
@@ -373,6 +383,7 @@ class TestDatabaseCoverage:
     """Test database functionality comprehensive coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_database_session_coverage(self):
         """Test database session management coverage - ИСПРАВЛЕНО: обработка ImportError"""
         try:
@@ -407,6 +418,7 @@ class TestDatabaseCoverage:
         except ImportError:
             pytest.skip("Database session module not available")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_database_models_coverage(self):
         """Test database models coverage"""
@@ -461,6 +473,7 @@ class TestMonitoringCoverage:
     """Test monitoring functionality comprehensive coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_metrics_collection_coverage(self):
         """Test metrics collection coverage - ИСПРАВЛЕНО: обработка ImportError"""
         try:
@@ -485,6 +498,7 @@ class TestMonitoringCoverage:
         except ImportError:
             pytest.skip("Metrics collection not available")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_apm_monitoring_coverage(self):
         """Test APM monitoring coverage - ИСПРАВЛЕНО: обработка ImportError"""
@@ -515,6 +529,7 @@ class TestCacheCoverage:
     """Test cache functionality comprehensive coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_cache_operations_coverage(self):
         """Test cache operations comprehensive coverage - ИСПРАВЛЕНО: правильные ожидания"""
         from app.performance.cache_manager import CacheManager
@@ -543,6 +558,7 @@ class TestCacheCoverage:
 class TestAIAnalyticsCoverage:
     """Test AI analytics functionality comprehensive coverage"""
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_analytics_collection_coverage(self):
         """Test analytics collection coverage - ИСПРАВЛЕНО: правильная обработка атрибутов"""
@@ -582,6 +598,7 @@ class TestAIAnalyticsCoverage:
 class TestPerformanceCoverage:
     """Test performance optimization comprehensive coverage"""
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_performance_optimization_coverage(self):
         """Test performance optimization coverage - ИСПРАВЛЕНО: правильные типы аргументов"""

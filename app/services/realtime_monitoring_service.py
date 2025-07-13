@@ -12,7 +12,7 @@ import time
 import uuid
 from collections import defaultdict, deque
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -175,7 +175,7 @@ class RealtimeMonitoringService:
                 )
             ],
             is_active=True,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         # Error Rate SLA
@@ -193,7 +193,7 @@ class RealtimeMonitoringService:
                 )
             ],
             is_active=True,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         # Availability SLA
@@ -211,7 +211,7 @@ class RealtimeMonitoringService:
                 )
             ],
             is_active=True,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         self.slas = {
@@ -230,7 +230,7 @@ class RealtimeMonitoringService:
         """Ingest real-time metric data"""
 
         data_point = MetricDataPoint(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metric=metric,
             value=value,
             source=source,
@@ -310,7 +310,7 @@ class RealtimeMonitoringService:
                 confidence=confidence,
                 severity=severity,
                 description=f"{anomaly_type.value.title()} detected in {data_point.metric.value}",
-                detected_at=datetime.utcnow(),
+                detected_at=datetime.now(timezone.utc),
                 start_time=data_point.timestamp,
                 end_time=None,
                 baseline_value=mean,
@@ -339,7 +339,7 @@ class RealtimeMonitoringService:
                 key = f"{data_point.metric.value}_{data_point.source}"
                 history = list(self.metric_buffer[key])
 
-                cutoff_time = datetime.utcnow() - timedelta(
+                cutoff_time = datetime.now(timezone.utc) - timedelta(
                     minutes=threshold.time_window_minutes
                 )
                 recent_data = [dp for dp in history if dp.timestamp >= cutoff_time]
@@ -434,8 +434,8 @@ class RealtimeMonitoringService:
             current_value=data_point.value,
             threshold_value=threshold,
             source=data_point.source,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
             metadata={
                 "threshold_type": "simple",
                 "exceeded_by": data_point.value - threshold,
@@ -470,8 +470,8 @@ class RealtimeMonitoringService:
             current_value=violation_percent,
             threshold_value=threshold.violation_threshold_percent,
             source=data_point.source,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
             metadata={
                 "sla_id": sla.sla_id,
                 "threshold_value": threshold.threshold_value,
@@ -525,8 +525,8 @@ class RealtimeMonitoringService:
                 current_value=anomaly.anomalous_value,
                 threshold_value=anomaly.baseline_value,
                 source=anomaly.source,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
                 metadata={
                     "anomaly_id": anomaly.anomaly_id,
                     "confidence": anomaly.confidence,
@@ -601,7 +601,7 @@ class RealtimeMonitoringService:
 
     def _cleanup_old_data(self):
         """Clean up old data to prevent memory leaks"""
-        cutoff_time = datetime.utcnow() - timedelta(hours=2)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=2)
 
         # Clean up old anomalies
         old_anomalies = [
@@ -615,7 +615,7 @@ class RealtimeMonitoringService:
 
     def _auto_resolve_alerts(self):
         """Auto-resolve alerts that are no longer relevant"""
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
 
         for alert in self.alerts.values():
             if alert.status != AlertStatus.ACTIVE:
@@ -648,7 +648,7 @@ class RealtimeMonitoringService:
             alert = self.alerts[alert_id]
             alert.status = AlertStatus.ACKNOWLEDGED
             alert.acknowledged_by = acknowledged_by
-            alert.updated_at = datetime.utcnow()
+            alert.updated_at = datetime.now(timezone.utc)
             logger.info(f"Alert acknowledged: {alert.title} by {acknowledged_by}")
 
     async def resolve_alert(self, alert_id: str, resolved_by: str):
@@ -656,8 +656,8 @@ class RealtimeMonitoringService:
         if alert_id in self.alerts:
             alert = self.alerts[alert_id]
             alert.status = AlertStatus.RESOLVED
-            alert.resolved_at = datetime.utcnow()
-            alert.updated_at = datetime.utcnow()
+            alert.resolved_at = datetime.now(timezone.utc)
+            alert.updated_at = datetime.now(timezone.utc)
             logger.info(f"Alert resolved: {alert.title} by {resolved_by}")
 
     def get_active_alerts(self) -> List[Alert]:
@@ -670,7 +670,7 @@ class RealtimeMonitoringService:
 
     def get_recent_anomalies(self, hours: int = 24) -> List[Anomaly]:
         """Get recent anomalies"""
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
         return [
             anomaly
             for anomaly in self.anomalies.values()
@@ -701,7 +701,7 @@ class RealtimeMonitoringService:
                         alert.metric == threshold.metric
                         and "sla_id" in (alert.metadata or {})
                         and alert.metadata["sla_id"] == sla_id
-                        and alert.created_at >= datetime.utcnow() - timedelta(hours=24)
+                        and alert.created_at >= datetime.now(timezone.utc) - timedelta(hours=24)
                     )
                 ]
 
@@ -734,14 +734,14 @@ class RealtimeMonitoringService:
                 [
                     alert
                     for alert in self.alerts.values()
-                    if alert.created_at >= datetime.utcnow() - timedelta(hours=24)
+                    if alert.created_at >= datetime.now(timezone.utc) - timedelta(hours=24)
                 ]
             ),
             "total_anomalies_24h": len(self.get_recent_anomalies(24)),
             "slas_configured": len(self.slas),
             "slas_active": len([sla for sla in self.slas.values() if sla.is_active]),
             "buffer_size": sum(len(buffer) for buffer in self.metric_buffer.values()),
-            "last_updated": datetime.utcnow().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat(),
         }
 
 

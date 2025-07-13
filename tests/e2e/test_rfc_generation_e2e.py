@@ -5,8 +5,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.v1.ai_advanced import AdvancedAIService
-from app.main import app
+from main import app
 
 client = TestClient(app)
 
@@ -23,15 +22,17 @@ class TestRFCGenerationE2E:
         """Test complete RFC generation workflow"""
 
         # Test RFC generation endpoint
-        with patch("app.api.v1.ai_advanced.get_current_user") as mock_user:
+        with patch("app.api.v1.ai.generate.get_current_user") as mock_user:
             mock_user.return_value = Mock(id=1, email="test@example.com")
 
             response = client.post(
-                "/api/v1/ai-advanced/generate-rfc",
+                "/api/v1/ai/rfc",
                 json={
-                    "title": "Test RFC",
-                    "description": "Test description",
-                    "template_type": "standard",
+                    "task_description": "Test RFC for architecture changes",
+                    "project_context": "Test project context",
+                    "technical_requirements": "Test technical requirements",
+                    "priority": "medium",
+                    "template_type": "architecture"
                 },
                 headers=auth_headers,
             )

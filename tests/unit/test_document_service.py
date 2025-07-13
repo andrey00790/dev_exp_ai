@@ -28,6 +28,7 @@ class TestInMemoryDocumentService:
     """Test cases for InMemoryDocumentService."""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_create_document(self, document_service, sample_document):
         """Test document creation."""
         created_doc = await document_service.create_document(sample_document)
@@ -40,6 +41,7 @@ class TestInMemoryDocumentService:
         assert created_doc.updated_at is not None
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_document(self, document_service, sample_document):
         """Test document retrieval."""
         created_doc = await document_service.create_document(sample_document)
@@ -50,11 +52,13 @@ class TestInMemoryDocumentService:
         assert retrieved_doc.title == created_doc.title
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_nonexistent_document(self, document_service):
         """Test retrieval of non-existent document."""
         retrieved_doc = await document_service.get_document("nonexistent-id")
         assert retrieved_doc is None
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_search_documents(self, document_service, sample_document):
         """Test document search."""
@@ -79,6 +83,7 @@ class TestInMemoryDocumentService:
         assert len(results[0].highlights) > 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_search_with_filters(self, document_service, sample_document):
         """Test document search with filters."""
         await document_service.create_document(sample_document)
@@ -90,6 +95,7 @@ class TestInMemoryDocumentService:
         assert len(results) == 1
         assert results[0].document.doc_type == DocumentType.SRS
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_update_document(self, document_service, sample_document):
         """Test document update."""
@@ -108,6 +114,7 @@ class TestInMemoryDocumentService:
         assert updated_doc.updated_at > updated_doc.created_at
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_update_nonexistent_document(self, document_service, sample_document):
         """Test update of non-existent document."""
         updated_doc = await document_service.update_document(
@@ -115,6 +122,7 @@ class TestInMemoryDocumentService:
         )
         assert updated_doc is None
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_delete_document(self, document_service, sample_document):
         """Test document deletion."""
@@ -128,6 +136,7 @@ class TestInMemoryDocumentService:
         retrieved_doc = await document_service.get_document(created_doc.id)
         assert retrieved_doc is None
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_delete_nonexistent_document(self, document_service):
         """Test deletion of non-existent document."""

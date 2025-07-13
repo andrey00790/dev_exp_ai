@@ -27,7 +27,7 @@ class TestDeepResearchEngine:
     """Test cases for DeepResearchEngine"""
 
     @pytest.fixture
-    async def engine(self):
+    def engine(self):
         """Create a DeepResearchEngine instance for testing"""
         engine = DeepResearchEngine()
         return engine
@@ -44,6 +44,7 @@ class TestDeepResearchEngine:
         """Sample research query for testing"""
         return "What are the best practices for microservices architecture?"
 
+    @pytest.mark.asyncio
     async def test_engine_initialization(self, engine):
         """Test engine initialization"""
         assert engine.llm_service is not None
@@ -51,6 +52,7 @@ class TestDeepResearchEngine:
         assert engine.metrics["total_sessions"] == 0
         assert engine.config["max_concurrent_sessions"] == 10
 
+    @pytest.mark.asyncio
     async def test_start_research_basic(self, engine, sample_query):
         """Test basic research session creation"""
         session = await engine.start_research(
@@ -65,6 +67,7 @@ class TestDeepResearchEngine:
         assert session.session_id in engine.active_sessions
         assert engine.metrics["total_sessions"] == 1
 
+    @pytest.mark.asyncio
     async def test_start_research_with_defaults(self, engine, sample_query):
         """Test research session creation with default parameters"""
         session = await engine.start_research(query=sample_query)
@@ -72,6 +75,7 @@ class TestDeepResearchEngine:
         assert session.user_id == ""
         assert session.max_steps == engine.config["default_max_steps"]
 
+    @pytest.mark.asyncio
     async def test_start_research_max_sessions_limit(self, engine, sample_query):
         """Test max concurrent sessions limit"""
         # Fill up to the limit
@@ -85,6 +89,7 @@ class TestDeepResearchEngine:
             await engine.start_research(query="One too many", user_id="overflow_user")
 
     @patch("domain.core.deep_research_engine.LLMGenerationService")
+    @pytest.mark.asyncio
     async def test_extract_research_goal_success(
         self, mock_llm_class, engine, sample_query
     ):
@@ -102,6 +107,7 @@ class TestDeepResearchEngine:
         mock_llm.generate_response.assert_called_once()
 
     @patch("domain.core.deep_research_engine.LLMGenerationService")
+    @pytest.mark.asyncio
     async def test_extract_research_goal_fallback(
         self, mock_llm_class, engine, sample_query
     ):
@@ -115,6 +121,7 @@ class TestDeepResearchEngine:
 
         assert goal == f"Провести углубленный анализ запроса: {sample_query}"
 
+    @pytest.mark.asyncio
     async def test_plan_research_steps_basic(self, engine):
         """Test basic research step planning"""
         session = ResearchSession(
@@ -131,6 +138,7 @@ class TestDeepResearchEngine:
             assert steps[0].step_type == ResearchStepType.INITIAL_ANALYSIS
             assert steps[-1].step_type == ResearchStepType.FINAL_SUMMARY
 
+    @pytest.mark.asyncio
     async def test_plan_research_steps_fallback(self, engine):
         """Test research step planning fallback"""
         session = ResearchSession(
@@ -150,6 +158,7 @@ class TestDeepResearchEngine:
             assert steps[1].step_type == ResearchStepType.CONTEXT_GATHERING
             assert steps[2].step_type == ResearchStepType.FINAL_SUMMARY
 
+    @pytest.mark.asyncio
     async def test_calculate_step_confidence(self, engine):
         """Test step confidence calculation"""
         # High confidence step with sources and result
@@ -168,6 +177,7 @@ class TestDeepResearchEngine:
         confidence_low = engine._calculate_step_confidence(step_low)
         assert 0.3 <= confidence_low <= 0.7
 
+    @pytest.mark.asyncio
     async def test_get_session_status_existing(self, engine, sample_query):
         """Test getting status of existing session"""
         session = await engine.start_research(query=sample_query)
@@ -181,11 +191,13 @@ class TestDeepResearchEngine:
         assert "total_steps" in status
         assert "progress" in status
 
+    @pytest.mark.asyncio
     async def test_get_session_status_nonexistent(self, engine):
         """Test getting status of non-existent session"""
         status = await engine.get_session_status("non_existent_id")
         assert status is None
 
+    @pytest.mark.asyncio
     async def test_cancel_research_existing(self, engine, sample_query):
         """Test cancelling existing research session"""
         session = await engine.start_research(query=sample_query)
@@ -197,11 +209,13 @@ class TestDeepResearchEngine:
         assert updated_session.status == ResearchStatus.CANCELLED
         assert updated_session.completed_at is not None
 
+    @pytest.mark.asyncio
     async def test_cancel_research_nonexistent(self, engine):
         """Test cancelling non-existent research session"""
         success = await engine.cancel_research("non_existent_id")
         assert success is False
 
+    @pytest.mark.asyncio
     async def test_get_engine_status(self, engine):
         """Test getting engine status"""
         status = await engine.get_engine_status()
@@ -220,6 +234,7 @@ class TestDeepResearchEngine:
         )
         assert config["default_max_steps"] == engine.config["default_max_steps"]
 
+    @pytest.mark.asyncio
     async def test_update_metrics(self, engine):
         """Test metrics updating"""
         # Create a completed session
@@ -235,6 +250,7 @@ class TestDeepResearchEngine:
         assert engine.metrics["completed_sessions"] == initial_completed + 1
         assert engine.metrics["success_rate"] > 0
 
+    @pytest.mark.asyncio
     async def test_build_step_context(self, engine):
         """Test building context for research step"""
         session = ResearchSession(
@@ -263,6 +279,7 @@ class TestDeepResearchEngine:
         assert "Previous step" in context
         assert "Source 1" in context
 
+    @pytest.mark.asyncio
     async def test_build_step_prompt(self, engine):
         """Test building prompt for research step"""
         step = ResearchStep(step_type=ResearchStepType.DEEP_ANALYSIS)
@@ -274,6 +291,7 @@ class TestDeepResearchEngine:
         assert context in prompt
         assert "конкретным и обоснованным" in prompt
 
+    @pytest.mark.asyncio
     async def test_suggest_next_steps_success(self, engine):
         """Test successful next steps suggestion"""
         step = ResearchStep(
@@ -291,6 +309,7 @@ class TestDeepResearchEngine:
             assert len(suggestions) <= 3
             assert all(isinstance(s, str) for s in suggestions)
 
+    @pytest.mark.asyncio
     async def test_suggest_next_steps_fallback(self, engine):
         """Test next steps suggestion fallback"""
         step = ResearchStep(result="Test result")
@@ -307,6 +326,7 @@ class TestDeepResearchEngine:
             assert "углубленный анализ" in suggestions[0]
             assert "дополнительные источники" in suggestions[1]
 
+    @pytest.mark.asyncio
     async def test_adapt_next_steps_low_confidence(self, engine):
         """Test adaptive step planning for low confidence"""
         session = ResearchSession(max_steps=5)
@@ -321,6 +341,7 @@ class TestDeepResearchEngine:
         assert len(session.steps) == 3
         assert session.steps[1].step_type == ResearchStepType.VALIDATION
 
+    @pytest.mark.asyncio
     async def test_adapt_next_steps_high_confidence(self, engine):
         """Test adaptive step planning for high confidence"""
         session = ResearchSession(max_steps=5)
@@ -335,6 +356,7 @@ class TestDeepResearchEngine:
         # Should not have inserted additional steps
         assert len(session.steps) == initial_length
 
+    @pytest.mark.asyncio
     async def test_is_research_complete_high_confidence(self, engine):
         """Test research completion check with high confidence"""
         session = ResearchSession(max_steps=5)
@@ -346,6 +368,7 @@ class TestDeepResearchEngine:
         is_complete = await engine._is_research_complete(session, step)
         assert is_complete is True
 
+    @pytest.mark.asyncio
     async def test_is_research_complete_many_steps(self, engine):
         """Test research completion check with many completed steps"""
         session = ResearchSession(max_steps=5)
@@ -360,6 +383,7 @@ class TestDeepResearchEngine:
         is_complete = await engine._is_research_complete(session, last_step)
         assert is_complete is True
 
+    @pytest.mark.asyncio
     async def test_is_research_complete_not_ready(self, engine):
         """Test research completion check when not ready"""
         session = ResearchSession(max_steps=5)
@@ -427,6 +451,7 @@ class TestResearchModels:
 class TestGlobalEngine:
     """Test cases for global engine instance"""
 
+    @pytest.mark.asyncio
     async def test_get_deep_research_engine_singleton(self):
         """Test that get_deep_research_engine returns singleton"""
         engine1 = await get_deep_research_engine()
@@ -435,6 +460,7 @@ class TestGlobalEngine:
         assert engine1 is engine2
         assert isinstance(engine1, DeepResearchEngine)
 
+    @pytest.mark.asyncio
     async def test_global_engine_initialization(self):
         """Test global engine is properly initialized"""
         engine = await get_deep_research_engine()
@@ -447,6 +473,7 @@ class TestGlobalEngine:
 class TestEdgeCases:
     """Test edge cases and error conditions"""
 
+    @pytest.mark.asyncio
     async def test_empty_query(self):
         """Test handling of empty query"""
         engine = DeepResearchEngine()
@@ -455,6 +482,7 @@ class TestEdgeCases:
         session = await engine.start_research(query="")
         assert session.original_query == ""
 
+    @pytest.mark.asyncio
     async def test_very_long_query(self):
         """Test handling of very long query"""
         engine = DeepResearchEngine()
@@ -463,6 +491,7 @@ class TestEdgeCases:
         session = await engine.start_research(query=long_query)
         assert session.original_query == long_query
 
+    @pytest.mark.asyncio
     async def test_zero_max_steps(self):
         """Test handling of zero max steps"""
         engine = DeepResearchEngine()
@@ -470,6 +499,7 @@ class TestEdgeCases:
         session = await engine.start_research(query="Test query", max_steps=0)
         assert session.max_steps == 0
 
+    @pytest.mark.asyncio
     async def test_negative_max_steps(self):
         """Test handling of negative max steps"""
         engine = DeepResearchEngine()
@@ -482,6 +512,7 @@ class TestEdgeCases:
 class TestPerformance:
     """Performance-related test cases"""
 
+    @pytest.mark.asyncio
     async def test_concurrent_sessions_creation(self):
         """Test creating multiple sessions concurrently"""
         engine = DeepResearchEngine()
@@ -499,6 +530,7 @@ class TestPerformance:
         assert len(set(s.session_id for s in sessions)) == 5  # All unique IDs
         assert engine.metrics["total_sessions"] == 5
 
+    @pytest.mark.asyncio
     async def test_session_cleanup_performance(self):
         """Test that session data doesn't accumulate indefinitely"""
         engine = DeepResearchEngine()

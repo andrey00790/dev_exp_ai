@@ -18,7 +18,7 @@ import os
 import re
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 
@@ -260,7 +260,7 @@ class HIPAACompliance:
             resource=resource,
             phi_accessed=phi_types,
             access_level=access_level,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             ip_address=request.client.host if request.client else "unknown",
             user_agent=request.headers.get("User-Agent", "unknown"),
             justification=justification,

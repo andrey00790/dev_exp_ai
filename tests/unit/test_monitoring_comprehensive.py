@@ -4,7 +4,7 @@ Comprehensive tests for Monitoring System (Updated)
 
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -233,6 +233,7 @@ class TestMetricsStorage:
         assert hasattr(metrics_storage, "get_latest_metrics")
         assert hasattr(metrics_storage, "get_metrics_history")
 
+    @pytest.mark.asyncio
     async def test_store_metrics(self, metrics_storage, sample_metrics):
         """Test storing metrics"""
         await metrics_storage.store_metrics(sample_metrics)
@@ -241,6 +242,7 @@ class TestMetricsStorage:
         assert len(metrics_storage.metrics) == 1
         assert metrics_storage.metrics[0] == sample_metrics
 
+    @pytest.mark.asyncio
     async def test_get_latest_metrics(self, metrics_storage, sample_metrics):
         """Test getting latest metrics"""
         # Store some metrics first
@@ -252,6 +254,7 @@ class TestMetricsStorage:
         # Verify results
         assert latest == sample_metrics
 
+    @pytest.mark.asyncio
     async def test_get_metrics_history(self, metrics_storage, sample_metrics):
         """Test getting metrics history"""
         # Store some metrics
@@ -260,8 +263,8 @@ class TestMetricsStorage:
 
         # Get history
         history = await metrics_storage.get_metrics_history(
-            start_time=datetime.utcnow() - timedelta(hours=1),
-            end_time=datetime.utcnow(),
+            start_time=datetime.now(timezone.utc) - timedelta(hours=1),
+            end_time=datetime.now(timezone.utc),
         )
 
         # Verify results
@@ -382,6 +385,7 @@ class TestAPMTracker:
 class TestMonitoringIntegration:
     """Integration tests for monitoring components"""
 
+    @pytest.mark.asyncio
     async def test_metrics_collection_pipeline(
         self, metrics_collector, metrics_storage
     ):
@@ -390,7 +394,7 @@ class TestMonitoringIntegration:
         test_metrics = {
             "system": {"cpu_usage": 45.5},
             "application": {"active_sessions": 25},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         # Store metrics
@@ -400,6 +404,7 @@ class TestMonitoringIntegration:
         latest = await metrics_storage.get_latest_metrics()
         assert latest == test_metrics
 
+    @pytest.mark.asyncio
     async def test_apm_integration(self, apm_tracker):
         """Test APM integration"""
         # Record some transactions and errors

@@ -47,6 +47,7 @@ class TestVelocityAnalyzer:
         ]
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_velocity_trends_with_improvement(
         self, analyzer, sample_velocity_data
     ):
@@ -65,6 +66,7 @@ class TestVelocityAnalyzer:
         assert isinstance(result["confidence"], ForecastAccuracy)
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_velocity_trends_insufficient_data(self, analyzer):
         """Тест анализа с недостаточным количеством данных"""
         insufficient_data = [
@@ -81,6 +83,7 @@ class TestVelocityAnalyzer:
         assert result["average_velocity"] == 0.0
         assert result["confidence"] == ForecastAccuracy.UNCERTAIN
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_predict_future_velocity(self, analyzer, sample_velocity_data):
         """Тест прогнозирования скорости"""
@@ -201,6 +204,7 @@ class TestTeamPerformanceForecastingEngine:
         }
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_team_performance_full(
         self, engine, sample_historical_metrics, sample_team_members
     ):
@@ -222,6 +226,7 @@ class TestTeamPerformanceForecastingEngine:
         assert report.analysis_duration >= 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_team_performance_minimal_data(self, engine):
         """Тест анализа с минимальными данными"""
         team_id = "minimal-team"
@@ -234,6 +239,7 @@ class TestTeamPerformanceForecastingEngine:
         assert report.current_performance_score >= 0
         assert len(report.forecasts) > 0  # Должен создать базовые прогнозы
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_generate_forecasts(self, engine, sample_historical_metrics):
         """Тест генерации прогнозов"""
@@ -277,6 +283,7 @@ class TestTeamPerformanceForecastingEngine:
         risk_level = engine._assess_risk_level(forecast)
         assert risk_level in [TeamRisk.CRITICAL, TeamRisk.HIGH]
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_quick_team_assessment(self, engine):
         """Тест быстрой оценки команды"""
@@ -329,6 +336,7 @@ class TestGlobalEngineInstance:
     """Тесты для глобального экземпляра движка"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_team_performance_forecasting_engine_singleton(self):
         """Тест получения singleton экземпляра"""
         engine1 = await get_team_performance_forecasting_engine()
@@ -337,6 +345,7 @@ class TestGlobalEngineInstance:
         assert engine1 is engine2
         assert isinstance(engine1, TeamPerformanceForecastingEngine)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_engine_initialization(self):
         """Тест инициализации движка"""
@@ -352,6 +361,7 @@ class TestEdgeCases:
     """Тесты крайних случаев"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_empty_velocity_data(self):
         """Тест с пустыми данными скорости"""
         analyzer = VelocityAnalyzer()
@@ -362,6 +372,7 @@ class TestEdgeCases:
         assert result["average_velocity"] == 0.0
         assert result["confidence"] == ForecastAccuracy.UNCERTAIN
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_single_velocity_data_point(self):
         """Тест с одним значением скорости"""
@@ -380,6 +391,7 @@ class TestEdgeCases:
         assert result["confidence"] == ForecastAccuracy.UNCERTAIN
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_negative_velocity_values(self):
         """Тест с отрицательными значениями скорости"""
         analyzer = VelocityAnalyzer()
@@ -388,6 +400,7 @@ class TestEdgeCases:
         prediction = analyzer._linear_trend_prediction([-5.0, -3.0, -1.0], 2)
         assert prediction >= 0  # Должно быть неотрицательным
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_extreme_variance_data(self):
         """Тест с экстремально изменчивыми данными"""
@@ -425,6 +438,7 @@ class TestPerformance:
     """Тесты производительности"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analysis_performance(self):
         """Тест производительности анализа"""
         engine = TeamPerformanceForecastingEngine()
@@ -452,6 +466,7 @@ class TestPerformance:
         assert duration < 5.0  # Менее 5 секунд
         assert isinstance(report, TeamAnalysisReport)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_concurrent_analyses(self):
         """Тест параллельных анализов"""

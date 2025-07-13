@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/playwright:v1.40.0-focal
+
+# Set work directory
+WORKDIR /app
+
+# Install Node.js dependencies
+COPY frontend/package*.json ./
+RUN npm ci
+
+# Install Playwright dependencies
+RUN npx playwright install --with-deps
+
+# Copy test files
+COPY tests/e2e ./tests/e2e
+COPY playwright.config.ts ./
+
+# Create test results directory
+RUN mkdir -p /test-results
+
+# Set environment variables
+ENV NODE_ENV=test
+ENV CI=true
+
+# Default command
+CMD ["npx", "playwright", "test", "--reporter=html"] 

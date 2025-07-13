@@ -802,27 +802,349 @@ class DatabaseOptimizer:
         except Exception as e:
             return {"status": "failed", "error": str(e)}
 
-    async def close(self):
+    async def close(self) -> None:
+        """Close database pool"""
+        if self.pool:
+            await self.pool.close()
+            logger.info("✅ Database pool closed")
+
+# Performance-optimized bulk operations to prevent N+1 queries
+class BulkQueryOptimizer:
+    """Optimized bulk database operations to prevent N+1 queries"""
+    
+    def __init__(self, database_optimizer: DatabaseOptimizer):
+        self.db = database_optimizer
+        
+    @async_retry(max_attempts=2, delay=1.0, exceptions=(asyncpg.PostgresError, AsyncTimeoutError))
+    async def bulk_fetch_with_relations(
+        self, 
+        base_query: str,
+        relation_queries: Dict[str, str],
+        join_key: str = "id",
+        query_name: str = "bulk_fetch"
+    ) -> List[Dict[str, Any]]:
         """
-        Close database pool
-        Enhanced with timeout protection
+        Execute bulk fetch with relations to prevent N+1 queries
+        
+        Args:
+            base_query: Main query to fetch base records
+            relation_queries: Dict of relation_name -> SQL query to fetch related data  
+            join_key: Key to join base and related records
+            query_name: Name for query tracking
+            
+        Returns:
+            List of records with relations populated
         """
         try:
-            if self.pool:
-                await with_timeout(
-                    self.pool.close(),
-                    AsyncTimeouts.DATABASE_QUERY,  # 10 seconds for pool close
-                    "Database pool close timed out",
-                    {"operation": "close_pool"},
+            start_time = time.time()
+            
+            # Step 1: Fetch base records
+            base_records = await self.db.execute_query(
+                base_query, 
+                query_name=f"{query_name}_base"
+            )
+            
+            if not base_records:
+                return []
+            
+            # Step 2: Extract join keys
+            join_keys = [record[join_key] for record in base_records if join_key in record]
+            
+            if not join_keys:
+                return base_records
+            
+            # Step 3: Fetch all relations in parallel
+            relation_tasks = []
+            for relation_name, relation_query in relation_queries.items():
+                # Replace placeholder in query with actual IDs
+                formatted_query = relation_query.format(
+                    ids=','.join(f"'{key}'" for key in join_keys)
                 )
-                logger.info("✅ Database pool closed")
-        except AsyncTimeoutError as e:
-            logger.warning(f"⚠️ Database pool close timed out: {e}")
+                task = self.db.execute_query(
+                    formatted_query,
+                    query_name=f"{query_name}_{relation_name}"
+                )
+                relation_tasks.append((relation_name, task))
+            
+            # Execute all relation queries concurrently
+            relation_results = await safe_gather(
+                *[task for _, task in relation_tasks],
+                return_exceptions=True,
+                timeout=AsyncTimeouts.DATABASE_QUERY * 2,  # 20 seconds for bulk relations
+                max_concurrency=5
+            )
+            
+            # Step 4: Build lookup maps for fast joining
+            relation_maps = {}
+            for i, (relation_name, _) in enumerate(relation_tasks):
+                if isinstance(relation_results[i], Exception):
+                    logger.warning(f"⚠️ Failed to fetch relation {relation_name}: {relation_results[i]}")
+                    relation_maps[relation_name] = {}
+                    continue
+                
+                # Group related records by join key
+                relation_map = {}
+                for record in relation_results[i]:
+                    key = record.get(join_key)
+                    if key:
+                        if key not in relation_map:
+                            relation_map[key] = []
+                        relation_map[key].append(record)
+                
+                relation_maps[relation_name] = relation_map
+            
+            # Step 5: Join base records with relations
+            enhanced_records = []
+            for base_record in base_records:
+                enhanced_record = base_record.copy()
+                record_key = base_record.get(join_key)
+                
+                # Add relations to record
+                for relation_name, relation_map in relation_maps.items():
+                    enhanced_record[relation_name] = relation_map.get(record_key, [])
+                
+                enhanced_records.append(enhanced_record)
+            
+            execution_time = time.time() - start_time
+            logger.info(
+                f"✅ Bulk fetch completed: {len(enhanced_records)} records with "
+                f"{len(relation_queries)} relations in {execution_time:.2f}s"
+            )
+            
+            return enhanced_records
+            
         except Exception as e:
-            logger.error(f"❌ Error closing database pool: {e}")
+            logger.error(f"❌ Bulk fetch with relations failed: {e}")
+            raise
+    
+    async def bulk_upsert(
+        self,
+        table_name: str,
+        records: List[Dict[str, Any]],
+        conflict_columns: List[str],
+        update_columns: Optional[List[str]] = None,
+        batch_size: int = 1000
+    ) -> int:
+        """
+        Perform bulk upsert (INSERT ON CONFLICT UPDATE) operation
+        
+        Args:
+            table_name: Target table name
+            records: List of records to upsert
+            conflict_columns: Columns to check for conflicts
+            update_columns: Columns to update on conflict (defaults to all non-conflict columns)
+            batch_size: Size of each batch for processing
+            
+        Returns:
+            Number of affected rows
+        """
+        if not records:
+            return 0
+        
+        try:
+            total_affected = 0
+            
+            # Process in batches to avoid memory issues
+            for i in range(0, len(records), batch_size):
+                batch = records[i:i + batch_size]
+                
+                # Generate column names and placeholders
+                columns = list(batch[0].keys())
+                if update_columns is None:
+                    update_columns = [col for col in columns if col not in conflict_columns]
+                
+                placeholders = []
+                values = []
+                
+                for record in batch:
+                    row_placeholders = []
+                    for col in columns:
+                        values.append(record.get(col))
+                        row_placeholders.append(f"${len(values)}")
+                    placeholders.append(f"({','.join(row_placeholders)})")
+                
+                # Build upsert query
+                conflict_clause = f"({','.join(conflict_columns)})"
+                update_clause = ','.join([f"{col} = EXCLUDED.{col}" for col in update_columns])
+                
+                upsert_query = f"""
+                    INSERT INTO {table_name} ({','.join(columns)})
+                    VALUES {','.join(placeholders)}
+                    ON CONFLICT {conflict_clause}
+                    DO UPDATE SET {update_clause}
+                """
+                
+                # Execute batch
+                result = await self.db.execute_command(
+                    upsert_query,
+                    *values,
+                    query_name=f"bulk_upsert_{table_name}_batch_{i//batch_size + 1}"
+                )
+                
+                # Parse affected rows from result
+                if "INSERT" in result:
+                    # PostgreSQL returns "INSERT 0 affected_count"
+                    affected = int(result.split()[-1]) if result.split()[-1].isdigit() else len(batch)
+                else:
+                    affected = len(batch)
+                
+                total_affected += affected
+            
+            logger.info(
+                f"✅ Bulk upsert completed: {total_affected} rows affected in {table_name}"
+            )
+            return total_affected
+            
+        except Exception as e:
+            logger.error(f"❌ Bulk upsert failed for {table_name}: {e}")
+            raise
+    
+    async def bulk_select_in(
+        self,
+        query_template: str,
+        in_values: List[Any],
+        batch_size: int = 1000,
+        query_name: str = "bulk_select_in"
+    ) -> List[Dict[str, Any]]:
+        """
+        Execute SELECT with large IN clause efficiently using batches
+        
+        Args:
+            query_template: SQL query template with {in_clause} placeholder
+            in_values: List of values for IN clause
+            batch_size: Size of each batch
+            query_name: Name for query tracking
+            
+        Returns:
+            Combined results from all batches
+        """
+        if not in_values:
+            return []
+        
+        try:
+            all_results = []
+            
+            # Process in batches to avoid large IN clauses
+            for i in range(0, len(in_values), batch_size):
+                batch_values = in_values[i:i + batch_size]
+                
+                # Create parameterized placeholders
+                placeholders = []
+                query_params = []
+                
+                for value in batch_values:
+                    query_params.append(value)
+                    placeholders.append(f"${len(query_params)}")
+                
+                in_clause = f"({','.join(placeholders)})"
+                
+                # Format query with IN clause
+                batch_query = query_template.format(in_clause=in_clause)
+                
+                # Execute batch query
+                batch_results = await self.db.execute_query(
+                    batch_query,
+                    *query_params,
+                    query_name=f"{query_name}_batch_{i//batch_size + 1}"
+                )
+                
+                all_results.extend(batch_results)
+            
+            logger.info(
+                f"✅ Bulk SELECT IN completed: {len(all_results)} total results from {len(in_values)} values"
+            )
+            return all_results
+            
+        except Exception as e:
+            logger.error(f"❌ Bulk SELECT IN failed: {e}")
+            raise
+    
+    async def optimize_query_patterns(self, queries: List[str]) -> Dict[str, Any]:
+        """
+        Analyze query patterns and suggest optimizations to prevent N+1 queries
+        
+        Args:
+            queries: List of executed queries to analyze
+            
+        Returns:
+            Optimization suggestions and statistics
+        """
+        try:
+            analysis = {
+                "total_queries": len(queries),
+                "unique_patterns": set(),
+                "potential_n_plus_one": [],
+                "optimization_suggestions": [],
+                "pattern_frequency": {}
+            }
+            
+            # Analyze query patterns
+            for query in queries:
+                # Normalize query by removing specific values
+                normalized = self._normalize_query(query)
+                analysis["unique_patterns"].add(normalized)
+                
+                # Count pattern frequency
+                analysis["pattern_frequency"][normalized] = analysis["pattern_frequency"].get(normalized, 0) + 1
+                
+                # Detect potential N+1 patterns
+                if self._is_potential_n_plus_one(query, queries):
+                    analysis["potential_n_plus_one"].append(query)
+            
+            # Generate optimization suggestions
+            for pattern, frequency in analysis["pattern_frequency"].items():
+                if frequency > 10:  # Frequently executed patterns
+                    if "SELECT" in pattern and "WHERE" in pattern and "=" in pattern:
+                        analysis["optimization_suggestions"].append({
+                            "pattern": pattern,
+                            "frequency": frequency,
+                            "suggestion": "Consider using bulk_select_in() for multiple similar queries",
+                            "estimated_improvement": f"{frequency}x fewer queries"
+                        })
+            
+            # Convert set to list for JSON serialization
+            analysis["unique_patterns"] = list(analysis["unique_patterns"])
+            
+            return analysis
+            
+        except Exception as e:
+            logger.error(f"❌ Query pattern analysis failed: {e}")
+            return {"error": str(e)}
+    
+    def _normalize_query(self, query: str) -> str:
+        """Normalize query by removing specific values for pattern analysis"""
+        import re
+        
+        # Remove specific string values
+        normalized = re.sub(r"'[^']*'", "'?'", query)
+        
+        # Remove specific numeric values  
+        normalized = re.sub(r'\b\d+\b', '?', normalized)
+        
+        # Remove extra whitespace
+        normalized = ' '.join(normalized.split())
+        
+        return normalized.strip()
+    
+    def _is_potential_n_plus_one(self, query: str, all_queries: List[str]) -> bool:
+        """Detect if query is part of potential N+1 pattern"""
+        normalized = self._normalize_query(query)
+        
+        # Count similar queries
+        similar_count = sum(1 for q in all_queries if self._normalize_query(q) == normalized)
+        
+        # If same pattern appears many times, it might be N+1
+        return similar_count > 5 and "SELECT" in query and "WHERE" in query
 
+# Global instance
+_bulk_optimizer = None
 
-# Enhanced global database optimizer instance
-db_optimizer = DatabaseOptimizer(
-    database_url=os.getenv("DATABASE_URL", "postgresql://localhost/ai_assistant")
-)
+async def get_bulk_optimizer() -> BulkQueryOptimizer:
+    """Get global bulk query optimizer instance"""
+    global _bulk_optimizer
+    if _bulk_optimizer is None:
+        # Assuming we have a global database optimizer
+        from infra.database.session import get_database_optimizer
+        db_optimizer = await get_database_optimizer()
+        _bulk_optimizer = BulkQueryOptimizer(db_optimizer)
+    return _bulk_optimizer

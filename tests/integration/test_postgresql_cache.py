@@ -238,6 +238,16 @@ class TestPostgreSQLCache:
 
         cache = PostgreSQLCache(connection_params)
 
+        # Check if PostgreSQL is available
+        try:
+            conn = cache._get_connection()
+            if conn:
+                conn.close()
+            else:
+                pytest.skip("PostgreSQL connection not available")
+        except Exception:
+            pytest.skip("PostgreSQL connection not available")
+
         # Очищаем кэш перед тестами
         cache.clear_all()
 

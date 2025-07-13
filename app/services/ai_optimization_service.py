@@ -9,7 +9,7 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -567,7 +567,7 @@ class AIOptimizationService:
                     "optimization_time": result.optimization_time,
                     "status": result.status,
                     "recommendations_count": len(result.recommendations),
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
 

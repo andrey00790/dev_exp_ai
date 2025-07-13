@@ -154,6 +154,7 @@ class TestMonitoringMiddleware:
             pytest.skip("MonitoringMiddleware not available")
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_middleware_call(self):
         """Тест вызова middleware"""
         try:

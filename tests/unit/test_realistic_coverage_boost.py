@@ -22,6 +22,7 @@ class TestWorkingAPIEndpoints:
     """Test working API endpoints to boost coverage"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_health_endpoints_comprehensive(self):
         """Test all health endpoints comprehensively"""
 
@@ -50,6 +51,7 @@ class TestWorkingAPIEndpoints:
             # Just verify that we can handle the connection error gracefully
             assert True  # Test passes if we handle the error
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_authentication_workflow_comprehensive(self):
         """Test authentication workflow comprehensively"""
@@ -90,6 +92,7 @@ class TestWorkingAPIEndpoints:
             assert True  # Test passes if we handle the error
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_api_error_handling_comprehensive(self):
         """Test API error handling comprehensively"""
 
@@ -112,6 +115,7 @@ class TestWorkingAPIEndpoints:
             # Server is not running - this is expected in unit tests
             assert True  # Test passes if we handle the error
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_vector_search_endpoints_comprehensive(self):
         """Test vector search endpoints if available"""
@@ -289,6 +293,7 @@ class TestWebSocketCoverage:
         assert callable(handle_websocket_connection)
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_websocket_connection_basic(self):
         """Test basic WebSocket connection logic"""
         from app.websocket import handle_websocket_connection
@@ -330,6 +335,7 @@ class TestPerformanceModulesCoverage:
         assert hasattr(cache_manager, "delete")
         assert hasattr(cache_manager, "health_check")
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_cache_operations_basic(self):
         """Test basic cache operations"""

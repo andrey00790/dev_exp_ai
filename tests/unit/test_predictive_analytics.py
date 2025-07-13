@@ -43,6 +43,7 @@ class TestPredictiveAnalyticsEngine:
         }
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_predict_development_time_basic(self, engine, sample_project_data):
         """Test basic development time prediction"""
         result = await engine.predict_development_time(sample_project_data)
@@ -55,6 +56,7 @@ class TestPredictiveAnalyticsEngine:
         assert 0.0 <= result.confidence_score <= 1.0
         assert len(result.recommendations) > 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_predict_development_time_simple_project(self, engine):
         """Test prediction for a simple project"""
@@ -70,6 +72,7 @@ class TestPredictiveAnalyticsEngine:
         assert result.predicted_value <= 10  # Should be reasonable for simple project
         assert result.confidence_score >= 0.5
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_predict_development_time_complex_project(self, engine):
         """Test prediction for a complex project"""
@@ -130,6 +133,7 @@ class TestPredictiveAnalyticsEngine:
         assert engine.metrics["predictions_made"] == initial_predictions + 1
         assert engine.metrics["average_confidence"] != initial_confidence
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_multiple_predictions_metrics(self, engine, sample_project_data):
         """Test metrics after multiple predictions"""
@@ -197,6 +201,7 @@ class TestGlobalEngineInstance:
     """Test suite for global engine instance management"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_analytics_engine_singleton(self):
         """Test that get_analytics_engine returns the same instance"""
         engine1 = await get_analytics_engine()
@@ -205,6 +210,7 @@ class TestGlobalEngineInstance:
         assert engine1 is engine2
         assert isinstance(engine1, PredictiveAnalyticsEngine)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_engine_initialization(self):
         """Test engine initialization"""
@@ -221,6 +227,7 @@ class TestEdgeCases:
     """Test suite for edge cases and error conditions"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_empty_project_data(self):
         """Test prediction with empty project data"""
         engine = PredictiveAnalyticsEngine()
@@ -230,6 +237,7 @@ class TestEdgeCases:
         assert isinstance(result, PredictionResult)
         assert result.predicted_value > 0  # Should still provide a prediction
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_negative_values_handling(self):
         """Test handling of negative values in input"""
@@ -246,6 +254,7 @@ class TestEdgeCases:
         assert isinstance(result, PredictionResult)
         assert result.predicted_value > 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_extremely_large_values(self):
         """Test handling of extremely large values"""
@@ -267,6 +276,7 @@ class TestPerformance:
     """Test suite for performance characteristics"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_prediction_performance(self, sample_project_data):
         """Test prediction performance"""
         engine = PredictiveAnalyticsEngine()
@@ -280,6 +290,7 @@ class TestPerformance:
         assert duration < 1.0  # Should complete within 1 second
         assert isinstance(result, PredictionResult)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_concurrent_predictions(self, sample_project_data):
         """Test concurrent prediction handling"""
@@ -298,6 +309,7 @@ class TestPerformance:
 class TestIntegration:
     """Integration tests for the complete system"""
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_end_to_end_prediction_flow(self, sample_project_data):
         """Test complete prediction flow from data to result"""
@@ -320,6 +332,7 @@ class TestIntegration:
         assert engine.metrics["predictions_made"] == initial_predictions + 1
         assert engine.metrics["average_confidence"] > 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_multiple_prediction_types_future(self):
         """Test framework for future prediction types"""

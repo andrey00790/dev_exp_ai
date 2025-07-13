@@ -62,6 +62,7 @@ class TestBugHotspotDetectionEngine:
         '''
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_code_hotspots_with_problems(
         self, engine, sample_problematic_code
     ):
@@ -78,6 +79,7 @@ class TestBugHotspotDetectionEngine:
         assert result.analysis_duration >= 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_code_hotspots_clean_code(self, engine, sample_clean_code):
         """Тест анализа чистого кода"""
         result = await engine.analyze_code_hotspots(sample_clean_code, "clean.py")
@@ -88,6 +90,7 @@ class TestBugHotspotDetectionEngine:
         assert result.overall_risk_score <= 5.0
         assert result.analysis_duration >= 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_analyze_complexity_large_file(self, engine):
         """Тест обнаружения большого файла"""
@@ -104,6 +107,7 @@ class TestBugHotspotDetectionEngine:
         assert hotspot.severity == HotspotSeverity.HIGH
         assert hotspot.risk_score > 5.0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_detect_code_smells_exception_swallowing(self, engine):
         """Тест обнаружения подавления исключений"""
@@ -126,6 +130,7 @@ class TestBugHotspotDetectionEngine:
         assert hotspot.severity == HotspotSeverity.HIGH
         assert len(hotspot.recommendations) > 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_detect_magic_numbers(self, engine):
         """Тест обнаружения магических чисел"""
@@ -150,6 +155,7 @@ class TestBugHotspotDetectionEngine:
         assert hotspot.category == HotspotCategory.CODE_SMELL
         assert hotspot.severity == HotspotSeverity.MEDIUM
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_quick_hotspot_check(self, engine, sample_problematic_code):
         """Тест быстрой проверки hotspot'ов"""
@@ -255,6 +261,7 @@ class TestGlobalEngineInstance:
     """Тесты для глобального экземпляра движка"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_hotspot_detection_engine_singleton(self):
         """Тест получения singleton экземпляра"""
         engine1 = await get_hotspot_detection_engine()
@@ -263,6 +270,7 @@ class TestGlobalEngineInstance:
         assert engine1 is engine2
         assert isinstance(engine1, BugHotspotDetectionEngine)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_engine_initialization(self):
         """Тест инициализации движка"""
@@ -279,6 +287,7 @@ class TestEdgeCases:
     """Тесты крайних случаев"""
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_empty_code_analysis(self):
         """Тест анализа пустого кода"""
         engine = BugHotspotDetectionEngine()
@@ -288,6 +297,7 @@ class TestEdgeCases:
         assert result.total_hotspots == 0
         assert result.overall_risk_score == 0.0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_whitespace_only_code(self):
         """Тест анализа кода только с пробелами"""
@@ -299,6 +309,7 @@ class TestEdgeCases:
         assert isinstance(result, HotspotAnalysisReport)
         assert result.total_hotspots == 0
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_single_line_code(self):
         """Тест анализа одной строки кода"""
@@ -314,6 +325,7 @@ class TestEdgeCases:
 class TestPerformance:
     """Тесты производительности"""
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_analysis_performance(self):
         """Тест производительности анализа"""
@@ -342,6 +354,7 @@ class TestPerformance:
         assert isinstance(result, HotspotAnalysisReport)
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_quick_check_performance(self):
         """Тест производительности быстрой проверки"""
         engine = BugHotspotDetectionEngine()
@@ -357,6 +370,7 @@ class TestPerformance:
         assert duration < 0.5
         assert isinstance(result, dict)
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_concurrent_analyses(self):
         """Тест параллельных анализов"""

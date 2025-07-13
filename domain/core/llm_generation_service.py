@@ -1,8 +1,6 @@
 """
-LLM-powered RFC generation service.
-
-Интегрирует реальные LLM для генерации высококачественного контента RFC
-вместо mock данных.
+LLM Generation Service для AI Assistant MVP
+Использует различные LLM для генерации RFC контента
 """
 
 import logging
@@ -11,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from adapters.llm.llm_loader import load_llm
 
-from models.generation import GenerationSession, TaskType, UserAnswer
+from app.models.generation import GenerationSession, TaskType, UserAnswer
 
 logger = logging.getLogger(__name__)
 
@@ -629,3 +627,28 @@ Q4: [вопрос 4] (опционально)
 ---
 *Документация сгенерирована AI Assistant*
 """
+
+    async def generate_response(self, prompt: str, context: str = "") -> str:
+        """
+        Генерирует ответ на основе промпта и контекста.
+        Метод для совместимости с deep_research_engine.
+        """
+        try:
+            # Подготавливаем полный промпт
+            full_prompt = f"{context}\n\n{prompt}" if context else prompt
+            
+            # Используем существующий LLM для генерации
+            response = await self.llm.agenerate(
+                [full_prompt],
+                max_tokens=2048,
+                temperature=0.7
+            )
+            
+            if response and len(response) > 0:
+                return response[0].strip()
+            else:
+                return "Не удалось сгенерировать ответ."
+                
+        except Exception as e:
+            logger.error(f"Ошибка генерации ответа: {e}")
+            return "Ошибка при генерации ответа."

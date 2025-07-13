@@ -82,11 +82,11 @@ class TestModelsDocument:
     def test_document_model_import(self):
         """Тест импорта модели документа"""
         try:
-            from app.models.document import Document
+            from app.models.document import Document, SourceType
             assert Document is not None
         except ImportError:
             try:
-                from models.document import Document
+                from models.document import Document, SourceType
                 assert Document is not None
             except ImportError:
                 pytest.skip("Document model not available")
@@ -94,33 +94,47 @@ class TestModelsDocument:
     def test_document_creation(self):
         """Тест создания документа"""
         try:
-            from app.models.document import Document
+            from app.models.document import Document, SourceType
         except ImportError:
             try:
-                from models.document import Document
+                from models.document import Document, SourceType
             except ImportError:
                 pytest.skip("Document model not available")
 
         # ИСПРАВЛЕНО: передаем обязательные аргументы при создании
-        doc = Document(title="Test Document", content="Test content", source="test")
+        doc = Document(
+            title="Test Document", 
+            content="Test content", 
+            source_type=SourceType.LOCAL_FILES,
+            source_name="test",
+            source_id="test_id"
+        )
 
         assert doc.title == "Test Document"
         assert doc.content == "Test content"
-        assert doc.source == "test"
+        assert doc.source_type == SourceType.LOCAL_FILES
+        assert doc.source_name == "test"
+        assert doc.source_id == "test_id"
 
     def test_document_methods(self):
         """Тест методов документа"""
         try:
-            from app.models.document import Document
+            from app.models.document import Document, SourceType
         except ImportError:
             try:
-                from models.document import Document
+                from models.document import Document, SourceType
             except ImportError:
                 pytest.skip("Document model not available")
 
         # ИСПРАВЛЕНО: передаем обязательные аргументы при создании
-        doc = Document(title="Test", content="Content", source="confluence")
-        doc.url = "http://test.com"
+        doc = Document(
+            title="Test", 
+            content="Content", 
+            source_type=SourceType.CONFLUENCE,
+            source_name="confluence",
+            source_id="test_id"
+        )
+        doc.source_url = "http://test.com"
 
         # Тестируем to_dict если есть
         if hasattr(doc, "to_dict"):
@@ -138,12 +152,15 @@ class TestModelsDocument:
                 "title": "Confluence Page",
                 "body": {"storage": {"value": "Page content"}},
                 "_links": {"base": "http://confluence.com", "webui": "/page/123"},
+                "id": "123",
+                "space": {"key": "TEST"}
             }
 
             confluence_doc = Document.from_confluence_page(confluence_data, "confluence")
             assert confluence_doc.title == "Confluence Page"
             assert confluence_doc.content == "Page content"
-            assert confluence_doc.source == "confluence"
+            assert confluence_doc.source_name == "confluence"
+            assert confluence_doc.source_type == SourceType.CONFLUENCE
         else:
             # Метод отсутствует, создаем простой тест
             assert hasattr(doc, "title")
@@ -152,15 +169,21 @@ class TestModelsDocument:
     def test_document_search_methods(self):
         """Тест методов поиска документа"""
         try:
-            from app.models.document import Document
+            from app.models.document import Document, SourceType
         except ImportError:
             try:
-                from models.document import Document
+                from models.document import Document, SourceType
             except ImportError:
                 pytest.skip("Document model not available")
 
         # ИСПРАВЛЕНО: передаем обязательные аргументы при создании
-        doc = Document(title="Test Document", content="This is test content with keywords", source="test")
+        doc = Document(
+            title="Test Document", 
+            content="This is test content with keywords", 
+            source_type=SourceType.LOCAL_FILES,
+            source_name="test",
+            source_id="test_id"
+        )
 
         # Тестируем поиск по содержимому
         assert "test" in doc.content.lower()

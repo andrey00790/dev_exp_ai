@@ -89,7 +89,7 @@ docker-compose -f $COMPOSE_FILE exec -T app python3 -c "
 import asyncio
 import sys
 sys.path.append('/app')
-from vectorstore.collections import initialize_collections
+from adapters.vectorstore.collections import initialize_collections
 try:
     asyncio.run(initialize_collections())
     print('✅ Collections initialized successfully!')

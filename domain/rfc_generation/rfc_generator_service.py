@@ -7,7 +7,7 @@ import asyncio
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -137,7 +137,7 @@ class RFCGeneratorService:
                 sections=[],
                 diagrams={},
                 analysis=None,
-                metadata={"error": str(e), "timestamp": datetime.utcnow().isoformat()},
+                metadata={"error": str(e), "timestamp": datetime.now(timezone.utc).isoformat()},
             )
 
     async def _generate_rfc_internal(self, request: RFCRequest) -> GeneratedRFC:
@@ -955,7 +955,7 @@ class RFCGeneratorService:
 
         # RFC Header
         rfc_id = self._generate_rfc_id(request.title)
-        timestamp = datetime.utcnow().strftime("%Y-%m-%d")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
         header = [
             f"# RFC-{rfc_id}: {request.title}",
@@ -991,7 +991,7 @@ class RFCGeneratorService:
             "## Document Information",
             "",
             f"- **RFC ID**: RFC-{rfc_id}",
-            f"- **Generated**: {datetime.utcnow().isoformat()}Z",
+            f"- **Generated**: {datetime.now(timezone.utc).isoformat()}Z",
             f"- **Generator**: AI Assistant RFC Generator v1.0",
             "",
         ]
@@ -1036,7 +1036,7 @@ class RFCGeneratorService:
 
         metadata = {
             "rfc_type": request.rfc_type,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "author": request.author,
             "title": request.title,
             "description": request.description,

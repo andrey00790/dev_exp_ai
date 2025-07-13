@@ -78,44 +78,91 @@ def create_test_app() -> FastAPI:
 @pytest.fixture(scope="session")
 def app():
     """Создает экземпляр FastAPI приложения для тестов с отключенной аутентификацией"""
-    from app.main import app
-    from app.security.auth import get_current_admin_user, get_current_user
+    try:
+        # Try new hexagonal architecture first
+        from main import app
+        
+        # Mock функции аутентификации для тестов
+        def mock_get_current_user():
+            return {
+                "id": "test_user_123",
+                "sub": "test_user_123",
+                "user_id": "test_user_123",
+                "email": "test@example.com",
+                "username": "testuser",
+                "full_name": "Test User",
+                "is_active": True,
+                "is_admin": False,
+                "scopes": ["basic", "search", "generate"],
+            }
 
-    # Mock функции аутентификации для тестов
-    def mock_get_current_user():
-        return {
-            "id": "test_user_123",
-            "sub": "test_user_123",
-            "user_id": "test_user_123",
-            "email": "test@example.com",
-            "username": "testuser",
-            "full_name": "Test User",
-            "is_active": True,
-            "is_admin": False,
-            "scopes": ["basic", "search", "generate"],
-        }
+        def mock_get_current_admin_user():
+            return {
+                "id": "test_admin_123",
+                "sub": "test_admin_123",
+                "user_id": "test_admin_123",
+                "email": "admin@example.com",
+                "username": "admin",
+                "full_name": "Test Admin",
+                "is_active": True,
+                "is_admin": True,
+                "scopes": ["basic", "admin", "search", "generate"],
+            }
 
-    def mock_get_current_admin_user():
-        return {
-            "id": "test_admin_123",
-            "sub": "test_admin_123",
-            "user_id": "test_admin_123",
-            "email": "admin@example.com",
-            "username": "admin",
-            "full_name": "Test Admin",
-            "is_active": True,
-            "is_admin": True,
-            "scopes": ["basic", "admin", "search", "generate"],
-        }
+        # Try to find auth dependencies in new architecture
+        try:
+            from backend.presentation.auth.dependencies import get_current_user, get_current_admin_user
+            app.dependency_overrides[get_current_user] = mock_get_current_user
+            app.dependency_overrides[get_current_admin_user] = mock_get_current_admin_user
+        except ImportError:
+            # If new auth dependencies not available, skip for now
+            pass
 
-    # Переопределяем зависимости для тестов
-    app.dependency_overrides[get_current_user] = mock_get_current_user
-    app.dependency_overrides[get_current_admin_user] = mock_get_current_admin_user
+        yield app
 
-    yield app
+        # Очищаем переопределения после тестов
+        app.dependency_overrides.clear()
+        
+    except ImportError:
+        # Fallback to old architecture if new one fails
+        from main import app
+        from app.security.auth import get_current_admin_user, get_current_user
 
-    # Очищаем переопределения после тестов
-    app.dependency_overrides.clear()
+        # Mock функции аутентификации для тестов
+        def mock_get_current_user():
+            return {
+                "id": "test_user_123",
+                "sub": "test_user_123",
+                "user_id": "test_user_123",
+                "email": "test@example.com",
+                "username": "testuser",
+                "full_name": "Test User",
+                "is_active": True,
+                "is_admin": False,
+                "scopes": ["basic", "search", "generate"],
+            }
+
+        def mock_get_current_admin_user():
+            return {
+                "id": "test_admin_123",
+                "sub": "test_admin_123",
+                "user_id": "test_admin_123",
+                "email": "admin@example.com",
+                "username": "admin",
+                "full_name": "Test Admin",
+                "is_active": True,
+                "is_admin": True,
+                "scopes": ["basic", "admin", "search", "generate"],
+            }
+
+        # Переопределяем зависимости для тестов
+        app.dependency_overrides[get_current_user] = mock_get_current_user
+        app.dependency_overrides[get_current_admin_user] = mock_get_current_admin_user
+
+        yield app
+
+        # Очищаем переопределения после тестов
+        app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -135,14 +182,12 @@ def reset_user_manager_state():
     """Автоматически сбрасывает состояние MockUserConfigManager между тестами"""
     try:
         from app.api.v1.users import reset_user_manager_state
-
         reset_user_manager_state()
     except ImportError:
         pass
     yield
     try:
         from app.api.v1.users import reset_user_manager_state
-
         reset_user_manager_state()
     except ImportError:
         pass
@@ -691,7 +736,8 @@ def setup_test_environment():
     # Устанавливаем тестовые переменные окружения
     test_env_vars = {
         "ENVIRONMENT": "test",
-        "DATABASE_URL": "sqlite:///test.db",
+        "DATABASE_URL": "postgresql+asyncpg://test:test@localhost:5432/test_ai_assistant",
+        "ASYNC_DATABASE_URL": "postgresql+asyncpg://test:test@localhost:5432/test_ai_assistant",
         "REDIS_URL": "redis://localhost:6379/1",
         "LOG_LEVEL": "WARNING",
         "TESTING": "true"

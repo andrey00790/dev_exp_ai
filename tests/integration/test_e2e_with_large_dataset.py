@@ -16,7 +16,7 @@ import yaml
 # Test imports
 from fastapi.testclient import TestClient
 
-from app.main import create_app
+from main import create_application as create_app
 
 # Mark entire module as E2E
 pytestmark = pytest.mark.e2e

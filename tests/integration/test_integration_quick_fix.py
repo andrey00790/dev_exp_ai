@@ -120,7 +120,7 @@ class TestQuickIntegrationFix:
 
         # 3. Vector store
         try:
-            import vectorstore.embeddings
+            import adapters.vectorstore.embeddings
 
             components_working.append("vectorstore")
         except:

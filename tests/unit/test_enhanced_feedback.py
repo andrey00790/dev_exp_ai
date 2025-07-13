@@ -33,6 +33,7 @@ class TestEnhancedFeedbackService:
         return service
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_submit_like_feedback(self, feedback_service):
         """Тест отправки лайка"""
         feedback = await feedback_service.submit_feedback(
@@ -51,6 +52,7 @@ class TestEnhancedFeedbackService:
         assert feedback.feedback_id in feedback_service.feedback_items
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_submit_dislike_feedback(self, feedback_service):
         """Тест отправки дизлайка"""
         feedback = await feedback_service.submit_feedback(
@@ -65,6 +67,7 @@ class TestEnhancedFeedbackService:
         assert feedback.value is True
         assert feedback.status == FeedbackStatus.ACTIVE
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_submit_comment_feedback(self, feedback_service):
         """Тест отправки комментария"""
@@ -83,6 +86,7 @@ class TestEnhancedFeedbackService:
         assert feedback.sentiment_score == SentimentScore.POSITIVE  # "great" detected
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_submit_rating_feedback(self, feedback_service):
         """Тест отправки рейтинга"""
         feedback = await feedback_service.submit_feedback(
@@ -97,6 +101,7 @@ class TestEnhancedFeedbackService:
         assert feedback.rating == 5
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_feedback_validation_like_without_value(self, feedback_service):
         """Тест валидации - лайк без значения"""
         with pytest.raises(ValueError, match="Invalid feedback input"):
@@ -108,6 +113,7 @@ class TestEnhancedFeedbackService:
                 value=None,
             )
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_feedback_validation_comment_too_long(self, feedback_service):
         """Тест валидации - слишком длинный комментарий"""
@@ -123,6 +129,7 @@ class TestEnhancedFeedbackService:
             )
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_feedback_validation_invalid_rating(self, feedback_service):
         """Тест валидации - некорректный рейтинг"""
         with pytest.raises(ValueError, match="Invalid feedback input"):
@@ -134,6 +141,7 @@ class TestEnhancedFeedbackService:
                 rating=6,  # Превышает максимум 5
             )
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_auto_moderation_spam_detection(self, feedback_service):
         """Тест автоматической модерации - обнаружение спама"""
@@ -152,6 +160,7 @@ class TestEnhancedFeedbackService:
         assert feedback_service.metrics["spam_detected"] == 1
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_auto_moderation_toxic_content(self, feedback_service):
         """Тест автоматической модерации - токсичный контент"""
         toxic_comment = "I hate this toxic content!"
@@ -168,6 +177,7 @@ class TestEnhancedFeedbackService:
         assert feedback.moderation_reason == "Toxic content detected"
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_sentiment_analysis_positive(self, feedback_service):
         """Тест анализа тональности - позитивный"""
         positive_comment = "This is excellent and awesome!"
@@ -182,6 +192,7 @@ class TestEnhancedFeedbackService:
 
         assert feedback.sentiment_score == SentimentScore.POSITIVE
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_sentiment_analysis_negative(self, feedback_service):
         """Тест анализа тональности - негативный"""
@@ -198,6 +209,7 @@ class TestEnhancedFeedbackService:
         assert feedback.sentiment_score == SentimentScore.NEGATIVE
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_sentiment_analysis_neutral(self, feedback_service):
         """Тест анализа тональности - нейтральный"""
         neutral_comment = "This is a regular comment."
@@ -212,6 +224,7 @@ class TestEnhancedFeedbackService:
 
         assert feedback.sentiment_score == SentimentScore.NEUTRAL
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_get_content_feedback_summary(self, feedback_service):
         """Тест получения сводки обратной связи по контенту"""
@@ -264,6 +277,7 @@ class TestEnhancedFeedbackService:
         assert summary.avg_rating == 4.0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_user_feedback_history(self, feedback_service):
         """Тест получения истории обратной связи пользователя"""
         user_id = "user123"
@@ -301,6 +315,7 @@ class TestEnhancedFeedbackService:
         assert history[0].created_at >= history[1].created_at
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_moderate_feedback_hide(self, feedback_service):
         """Тест модерации feedback - скрытие"""
         feedback = await feedback_service.submit_feedback(
@@ -326,6 +341,7 @@ class TestEnhancedFeedbackService:
         assert moderated_feedback.moderator_id == "moderator1"
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_moderate_feedback_approve(self, feedback_service):
         """Тест модерации feedback - одобрение"""
         feedback = await feedback_service.submit_feedback(
@@ -349,6 +365,7 @@ class TestEnhancedFeedbackService:
         assert moderated_feedback.is_moderated is True
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_moderate_nonexistent_feedback(self, feedback_service):
         """Тест модерации несуществующего feedback"""
         success = await feedback_service.moderate_feedback(
@@ -360,6 +377,7 @@ class TestEnhancedFeedbackService:
 
         assert success is False
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_get_feedback_analytics(self, feedback_service):
         """Тест получения аналитики обратной связи"""
@@ -406,6 +424,7 @@ class TestEnhancedFeedbackService:
         assert analytics["rating_distribution"]["5"] == 1
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_feedback_analytics_filtered_by_content_type(
         self, feedback_service
     ):
@@ -436,6 +455,7 @@ class TestEnhancedFeedbackService:
         assert "rfc_generation" not in analytics["feedback_by_content_type"]
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_feedback_analytics_time_period(self, feedback_service):
         """Тест аналитики с временным периодом"""
         # Добавляем feedback
@@ -464,6 +484,7 @@ class TestEnhancedFeedbackService:
         assert analytics_old["total_feedback"] >= 0
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_content_summary_caching(self, feedback_service):
         """Тест кэширования сводок контента"""
         content_id = "content123"
@@ -488,6 +509,7 @@ class TestEnhancedFeedbackService:
         assert summary1.total_likes == summary2.total_likes
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_cache_invalidation(self, feedback_service):
         """Тест инвалидации кэша при добавлении нового feedback"""
         content_id = "content123"
@@ -509,6 +531,7 @@ class TestEnhancedFeedbackService:
         summary2 = await feedback_service.get_content_feedback(content_id)
         assert summary2.total_likes == 1
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_metrics_update(self, feedback_service):
         """Тест обновления метрик сервиса"""
@@ -551,6 +574,7 @@ class TestEnhancedFeedbackService:
         )
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_get_service_status(self, feedback_service):
         """Тест получения статуса сервиса"""
         # Добавляем некоторый feedback
@@ -571,6 +595,7 @@ class TestEnhancedFeedbackService:
         assert "cache_stats" in status
         assert "last_updated" in status
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_pubsub_notification_sending(self, feedback_service):
         """Тест отправки уведомлений через PubSub"""
@@ -596,6 +621,7 @@ class TestEnhancedFeedbackService:
             assert "content_content1" in topics
             assert data["type"] == "new_feedback"
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_concurrent_feedback_submission(self, feedback_service):
         """Тест конкурентной отправки feedback"""
@@ -625,6 +651,7 @@ class TestEnhancedFeedbackService:
         summary = await feedback_service.get_content_feedback(content_id)
         assert summary.total_likes == 10
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_feedback_with_tags_and_context(self, feedback_service):
         """Тест feedback с тегами и контекстом"""
@@ -748,6 +775,7 @@ class TestFeedbackAnalytics:
         return service
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_like_ratio_calculation(self, populated_service):
         """Тест вычисления соотношения лайков"""
         service = await self._populate_service(populated_service)
@@ -756,6 +784,7 @@ class TestFeedbackAnalytics:
         # content1: 2 лайка, 1 дизлайк = 2/3 = 0.67
         assert abs(summary.like_ratio - 2 / 3) < 0.01
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_average_rating_calculation(self, populated_service):
         """Тест вычисления среднего рейтинга"""
@@ -766,6 +795,7 @@ class TestFeedbackAnalytics:
         assert summary.avg_rating == 4.5
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_sentiment_distribution(self, populated_service):
         """Тест распределения тональности"""
         service = await self._populate_service(populated_service)
@@ -775,6 +805,7 @@ class TestFeedbackAnalytics:
         assert summary.sentiment_distribution.get("positive", 0) == 1
         assert summary.sentiment_distribution.get("negative", 0) == 1
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_engagement_metrics(self, populated_service):
         """Тест метрик вовлечения"""

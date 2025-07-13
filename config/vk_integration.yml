@@ -1,0 +1,103 @@
+# VK Integration Configuration
+# Конфигурация интеграции с VK Teams и VK OAuth
+
+vk_oauth:
+  enabled: true
+  client_id: "${VK_OAUTH_CLIENT_ID}"
+  client_secret: "${VK_OAUTH_CLIENT_SECRET}"
+  redirect_uri: "${VK_OAUTH_REDIRECT_URI}"
+  scopes:
+    - email
+    - offline
+  
+  # Список разрешенных VK пользователей (VK ID)
+  allowed_users:
+    - "123456789"  # Замените на реальные VK ID
+    - "987654321"
+    # Добавьте больше ID по необходимости
+
+vk_teams:
+  enabled: true
+  bot_token: "${VK_TEAMS_BOT_TOKEN}"
+  api_url: "https://api.internal.myteam.mail.ru/bot/v1"
+  webhook_url: "${VK_TEAMS_WEBHOOK_URL}"
+  
+  # Автоматическое создание пользователей
+  auto_create_users: true
+  
+  # Настройки бюджета для VK Teams пользователей
+  default_budget:
+    limit: 500.0
+    scopes: ["basic", "vk_teams"]
+  
+  # Проверка доступа
+  access_control:
+    enabled: true
+    use_oauth_whitelist: true  # Использовать список из vk_oauth.allowed_users
+    
+  # Уведомления об отказе в доступе
+  access_denied:
+    message: |
+      🚫 Доступ ограничен
+      
+      Для использования AI Assistant необходимо:
+      1. Авторизоваться через VK OAuth
+      2. Быть в списке разрешенных пользователей
+      
+      Обратитесь к администратору для получения доступа.
+    
+    contact_info:
+      admin_email: "admin@your-company.com"
+      support_chat: "@ai_assistant_support"
+
+# Настройки пользователей по умолчанию
+default_user_settings:
+  vk_oauth_users:
+    budget_limit: 1000.0
+    scopes: ["basic", "vk_user", "search", "generate"]
+    auto_approve: true
+    
+  vk_teams_users:
+    budget_limit: 500.0
+    scopes: ["basic", "vk_teams"]
+    auto_approve: true
+    temporary: true  # Создавать временных пользователей
+
+# Интеграция бюджетов
+budget_integration:
+  # Связывание VK ID с внутренними пользователями
+  user_mapping:
+    by_vk_id: true
+    by_email: true  # Если email доступен через VK API
+    
+  # Автоматическое пополнение для VK пользователей
+  auto_refill:
+    enabled: true
+    include_vk_users: true
+    vk_user_role: "vk_user"  # Роль для VK пользователей в budget_config.yml
+
+# Безопасность
+security:
+  # Проверка подписи webhook
+  verify_webhook_signature: true
+  webhook_secret: "${VK_TEAMS_WEBHOOK_SECRET}"
+  
+  # Ограничения по времени
+  session_timeout: 3600  # 1 час
+  
+  # Логирование
+  log_vk_interactions: true
+  log_level: "INFO"
+
+# Мониторинг
+monitoring:
+  enabled: true
+  
+  # Метрики
+  track_usage: true
+  track_user_activity: true
+  track_budget_usage: true
+  
+  # Статистика
+  generate_reports: true
+  report_interval: "daily" 

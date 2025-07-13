@@ -20,6 +20,7 @@ class TestAIAnalyticsService:
         assert service is not None
 
     @patch("app.services.ai_analytics_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_analyze_usage_patterns(self, mock_db):
         """Тест анализа паттернов использования"""
         from app.services.ai_analytics_service import AIAnalyticsService
@@ -38,6 +39,7 @@ class TestAIAnalyticsService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.ai_analytics_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_cost_breakdown(self, mock_db):
         """Тест получения разбивки по стоимости"""
         from app.services.ai_analytics_service import AIAnalyticsService
@@ -56,6 +58,7 @@ class TestAIAnalyticsService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.ai_analytics_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_predict_monthly_usage(self, mock_db):
         """Тест прогнозирования месячного использования"""
         from app.services.ai_analytics_service import AIAnalyticsService
@@ -75,6 +78,7 @@ class TestAIAnalyticsService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.ai_analytics_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_performance_metrics(self, mock_db):
         """Тест получения метрик производительности"""
         from app.services.ai_analytics_service import AIAnalyticsService
@@ -104,6 +108,7 @@ class TestAIOptimizationService:
         assert service is not None
 
     @patch("app.services.ai_optimization_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_optimize_model_selection(self, mock_db):
         """Тест оптимизации выбора модели"""
         from app.services.ai_optimization_service import AIOptimizationService
@@ -122,6 +127,7 @@ class TestAIOptimizationService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.ai_optimization_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_analyze_cost_efficiency(self, mock_db):
         """Тест анализа эффективности затрат"""
         from app.services.ai_optimization_service import AIOptimizationService
@@ -140,6 +146,7 @@ class TestAIOptimizationService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.ai_optimization_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_suggest_optimizations(self, mock_db):
         """Тест предложений по оптимизации"""
         from app.services.ai_optimization_service import AIOptimizationService
@@ -158,6 +165,7 @@ class TestAIOptimizationService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.ai_optimization_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_track_optimization_impact(self, mock_db):
         """Тест отслеживания влияния оптимизации"""
         from app.services.ai_optimization_service import AIOptimizationService
@@ -184,6 +192,7 @@ class TestLLMService:
         assert service is not None
 
     @patch("app.services.llm_service.openai.ChatCompletion.create")
+    @pytest.mark.asyncio
     async def test_generate_text(self, mock_openai):
         """Тест генерации текста"""
         from app.services.llm_service import LLMService
@@ -201,6 +210,7 @@ class TestLLMService:
         mock_openai.assert_called_once()
 
     @patch("app.services.llm_service.openai.Embedding.create")
+    @pytest.mark.asyncio
     async def test_create_embedding(self, mock_openai):
         """Тест создания эмбеддингов"""
         from app.services.llm_service import LLMService
@@ -218,6 +228,7 @@ class TestLLMService:
         mock_openai.assert_called_once()
 
     @patch("app.services.llm_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_track_usage(self, mock_db):
         """Тест отслеживания использования"""
         from app.services.llm_service import LLMService
@@ -232,6 +243,7 @@ class TestLLMService:
         mock_db.return_value.commit.assert_called()
 
     @patch("app.services.llm_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_model_stats(self, mock_db):
         """Тест получения статистики модели"""
         from app.services.llm_service import LLMService
@@ -258,6 +270,7 @@ class TestVectorSearchService:
         assert service is not None
 
     @patch("app.domain.integration.vector_search_service.QdrantClient")
+    @pytest.mark.asyncio
     async def test_search_similar(self, mock_qdrant):
         """Тест поиска похожих документов"""
         from app.services.vector_search_service import VectorSearchService
@@ -277,6 +290,7 @@ class TestVectorSearchService:
         mock_client.search.assert_called_once()
 
     @patch("app.domain.integration.vector_search_service.QdrantClient")
+    @pytest.mark.asyncio
     async def test_add_document(self, mock_qdrant):
         """Тест добавления документа"""
         from app.services.vector_search_service import VectorSearchService
@@ -296,6 +310,7 @@ class TestVectorSearchService:
         mock_client.upsert.assert_called_once()
 
     @patch("app.domain.integration.vector_search_service.QdrantClient")
+    @pytest.mark.asyncio
     async def test_delete_document(self, mock_qdrant):
         """Тест удаления документа"""
         from app.services.vector_search_service import VectorSearchService
@@ -311,6 +326,7 @@ class TestVectorSearchService:
         mock_client.delete.assert_called_once()
 
     @patch("app.domain.integration.vector_search_service.QdrantClient")
+    @pytest.mark.asyncio
     async def test_get_collection_info(self, mock_qdrant):
         """Тест получения информации о коллекции"""
         from app.services.vector_search_service import VectorSearchService
@@ -342,6 +358,7 @@ class TestRealtimeMonitoringService:
         assert service is not None
 
     @patch("app.services.realtime_monitoring_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_system_status(self, mock_db):
         """Тест получения статуса системы"""
         from app.services.realtime_monitoring_service import \
@@ -358,6 +375,7 @@ class TestRealtimeMonitoringService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.realtime_monitoring_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_active_users(self, mock_db):
         """Тест получения активных пользователей"""
         from app.services.realtime_monitoring_service import \
@@ -377,6 +395,7 @@ class TestRealtimeMonitoringService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.realtime_monitoring_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_track_request(self, mock_db):
         """Тест отслеживания запроса"""
         from app.services.realtime_monitoring_service import \
@@ -392,6 +411,7 @@ class TestRealtimeMonitoringService:
         mock_db.return_value.commit.assert_called()
 
     @patch("app.services.realtime_monitoring_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_error_rates(self, mock_db):
         """Тест получения частоты ошибок"""
         from app.services.realtime_monitoring_service import \
@@ -411,6 +431,7 @@ class TestRealtimeMonitoringService:
         mock_cursor.execute.assert_called()
 
     @patch("app.services.realtime_monitoring_service.get_db_connection")
+    @pytest.mark.asyncio
     async def test_get_response_times(self, mock_db):
         """Тест получения времени ответа"""
         from app.services.realtime_monitoring_service import \

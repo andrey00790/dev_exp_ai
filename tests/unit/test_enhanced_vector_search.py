@@ -92,6 +92,7 @@ class TestDocumentGraphBuilder:
         assert graph_builder._detect_language(js_content, "test.js") == "javascript"
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_extract_code_metadata(self, graph_builder):
         """Test code metadata extraction"""
         python_code = """
@@ -130,6 +131,7 @@ from sqlalchemy import create_engine
         assert metadata["complexity_score"] >= 0  # Allow 0 or higher
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_calculate_structural_similarity(self, graph_builder):
         """Test structural similarity calculation"""
         # Create two similar code nodes
@@ -166,6 +168,7 @@ from sqlalchemy import create_engine
 
     @pytest.mark.asyncio
     @patch("domain.integration.document_graph_builder.get_embeddings_service")
+    @pytest.mark.asyncio
     async def test_build_document_graph(
         self, mock_embeddings, graph_builder, mock_search_results
     ):
@@ -286,6 +289,7 @@ class TestDynamicReranker:
         assert domain == "devops"
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_user_intent(self, reranker):
         """Test user intent analysis"""
         # Code search intent
@@ -298,6 +302,7 @@ class TestDynamicReranker:
         assert "function" in intent.keywords
         assert "implementation" in intent.keywords
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_calculate_intent_score(self, reranker):
         """Test intent score calculation"""
@@ -359,6 +364,7 @@ class TestDynamicReranker:
 
     @pytest.mark.asyncio
     @patch("domain.integration.dynamic_reranker.build_document_graph")
+    @pytest.mark.asyncio
     async def test_rerank_results(
         self, mock_graph_builder, reranker, mock_search_results
     ):
@@ -409,6 +415,7 @@ class TestEnhancedVectorSearchService:
     @pytest.mark.asyncio
     @patch("domain.integration.enhanced_vector_search_service.build_document_graph")
     @patch("domain.integration.enhanced_vector_search_service.rerank_search_results")
+    @pytest.mark.asyncio
     async def test_enhanced_search(self, mock_rerank, mock_graph, enhanced_service):
         """Test enhanced search functionality"""
         # Mock dependencies
@@ -447,6 +454,7 @@ class TestEnhancedVectorSearchService:
             assert hasattr(result, 'score')
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_analyze_search_context(self, enhanced_service):
         """Test search context analysis"""
         search_history = [
@@ -461,6 +469,7 @@ class TestEnhancedVectorSearchService:
         assert "common_topics" in context
         assert len(context["common_topics"]) >= 0  # May be empty
 
+    @pytest.mark.asyncio
     @pytest.mark.asyncio
     async def test_get_search_suggestions(self, enhanced_service):
         """Test search suggestions generation"""
@@ -481,6 +490,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     @patch("domain.integration.document_graph_builder.get_embeddings_service")
     @patch("domain.integration.dynamic_reranker.build_document_graph")
+    @pytest.mark.asyncio
     async def test_full_enhanced_search_flow(
         self, mock_graph_in_reranker, mock_embeddings
     ):

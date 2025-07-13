@@ -1,84 +1,128 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: ai_assistant_postgres
-    environment:
-      POSTGRES_DB: ai_assistant
-      POSTGRES_USER: ai_user
-      POSTGRES_PASSWORD: ai_password_secure_2024
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ai_user -d ai_assistant"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - ai_network
-
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: ai_assistant_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - ai_network
-
-  # AI Assistant Backend (simplified for load testing)
-  backend:
+  # AI Assistant App для нагрузочных тестов
+  ai-assistant-app-load-test:
     build:
       context: ../../
-      dockerfile: deployment/docker/Dockerfile.load-test
-    container_name: ai_assistant_backend
+      dockerfile: deployment/docker/Dockerfile
+      args:
+        - ENVIRONMENT=load_test
+    container_name: ai-assistant-app-load-test
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://ai_user:ai_password_secure_2024@postgres:5432/ai_assistant
-      - REDIS_URL=redis://redis:6379/0
-      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql://ai_user:ai_password_load_test@ai-assistant-postgres-load-test:5432/ai_assistant_load_test
+      - REDIS_URL=redis://ai-assistant-redis-load-test:6379/0
+      - ENVIRONMENT=load_test
       - DEBUG=false
       - SECRET_KEY=load-test-secret-key-12345
-      - SKIP_QDRANT=true
+      - LOG_LEVEL=WARNING
       - PYTHONPATH=/app
+      # Отключаем внешние сервисы для чистого тестирования
+      - SKIP_QDRANT=true
+      - SKIP_EXTERNAL_APIs=true
+      - OPENAI_API_KEY=test-key
+      - ANTHROPIC_API_KEY=test-key
     volumes:
       - ../../logs:/app/logs
     depends_on:
-      postgres:
+      ai-assistant-postgres-load-test:
         condition: service_healthy
-      redis:
+      ai-assistant-redis-load-test:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 30s
     networks:
-      - ai_network
+      - ai-load-test-network
+    restart: unless-stopped
+
+  # PostgreSQL для нагрузочных тестов
+  ai-assistant-postgres-load-test:
+    image: postgres:15-alpine
+    container_name: ai-assistant-postgres-load-test
+    environment:
+      POSTGRES_DB: ai_assistant_load_test
+      POSTGRES_USER: ai_user
+      POSTGRES_PASSWORD: ai_password_load_test
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5433:5432"  # Используем другой порт чтобы не конфликтовать с dev
+    volumes:
+      - postgres_load_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_user -d ai_assistant_load_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-load-test-network
+    restart: unless-stopped
+    # Оптимизации для нагрузочных тестов
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=512MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+
+  # Redis для нагрузочных тестов
+  ai-assistant-redis-load-test:
+    image: redis:7-alpine
+    container_name: ai-assistant-redis-load-test
+    ports:
+      - "6380:6379"  # Используем другой порт чтобы не конфликтовать с dev
+    volumes:
+      - redis_load_test_data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+      --maxclients 1000
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ai-load-test-network
+    restart: unless-stopped
+
+  # Nginx Load Balancer (опционально для симуляции production нагрузки)
+  ai-assistant-nginx-load-test:
+    image: nginx:alpine
+    container_name: ai-assistant-nginx-load-test
+    ports:
+      - "8080:80"
+    volumes:
+      - ../../nginx/nginx-load-test.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ai-assistant-app-load-test
+    networks:
+      - ai-load-test-network
+    restart: unless-stopped
+    profiles:
+      - nginx
 
 volumes:
-  postgres_data:
+  postgres_load_test_data:
     driver: local
-  redis_data:
+  redis_load_test_data:
     driver: local
 
 networks:
-  ai_network:
+  ai-load-test-network:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.22.0.0/16 
+        - subnet: 172.23.0.0/16 

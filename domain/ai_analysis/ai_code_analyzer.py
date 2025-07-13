@@ -310,12 +310,12 @@ class AICodeAnalyzer:
             performance_optimizations,
         )
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         return CodeAnalysisResult(
             file_path=file_path,
             language=language,
-            analysis_timestamp=datetime.utcnow().isoformat(),
+            analysis_timestamp=datetime.now(timezone.utc).isoformat(),
             quality_score=quality_score,
             maintainability_index=maintainability_index,
             complexity_metrics=complexity_metrics,
@@ -976,12 +976,12 @@ class AICodeAnalyzer:
     ) -> CodeAnalysisResult:
         """Create minimal result when analysis fails"""
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         return CodeAnalysisResult(
             file_path=file_path,
             language=self._detect_language(file_path, content),
-            analysis_timestamp=datetime.utcnow().isoformat(),
+            analysis_timestamp=datetime.now(timezone.utc).isoformat(),
             quality_score=50.0,  # Default score
             maintainability_index=50.0,
             complexity_metrics={
